@@ -1,0 +1,10 @@
+
+*~	# Don't need any temp files
+
+bin/
+obj/
+*.log
+*.txt
+*.layout
+*.cbp
+*.depend
