@@ -3,19 +3,19 @@
 
 #include "CSocket.h"
 
+namespace net {
+
 class CServerSocket : public CSocket {
  public:
   CServerSocket(unsigned int port = 2563);
   ~CServerSocket() = default;
 
+  bool Bind();
+
   bool Listen(int pendingConnections);
 
-  // TODO(Olster): For portability, make a Networking namespace and
-  // typedef socket type
-
-  // Returns accepted socket. Return will be changed to typedef'ed
-  // socket type
-  int Accept();
+  // Returns accepted socket type that can be passed into CSocket ctor
+  SOCK_T Accept();
 
   bool ServerIsReady() const { return m_bReady; }
 
@@ -24,4 +24,5 @@ class CServerSocket : public CSocket {
   unsigned int m_dPort;
 };
 
+} // namespace net
 #endif // CSERVERSOCKET_H_

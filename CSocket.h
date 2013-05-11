@@ -4,7 +4,15 @@
 #include <sys/socket.h>
 #include <string>
 
+namespace net {
 // TODO(Olster) add support for UDP. Even make them separate
+#ifdef WIN32
+typedef SOCKET SOCK_T;
+const SOCK_T kInvalidSocket = INVALID_SOCKET;
+#elif defined(UNIX)
+typedef int SOCK_T;
+const SOCK_T kInvalidSocket = -1;
+#endif
 
 class CSocket {
  public:
@@ -28,14 +36,14 @@ class CSocket {
   };
 
   CSocket(SOCK_DOMAIN domain = IPv4, SOCK_TYPE type = STREAM, SOCK_PROTOCOL protocol = TCP);
-  CSocket(int sock_fd);
+  CSocket(SOCK_T sock_fd);
   virtual ~CSocket();
 
   void operator=(const CSocket& other) = delete;
   CSocket(const CSocket& other) = delete;
 
   bool SocketIsReady() const { return m_bReady; }
-  int& GetHandle() { return m_socket; }
+  SOCK_T& GetHandle() { return m_socket; }
 
   int Receive(std::string& out);
 
@@ -54,11 +62,13 @@ class CSocket {
   static int Select(int maxFd, fd_set* readList, fd_set* writeList,
                      fd_set* errorList, timeval* tv);
  protected:
-  int m_socket;
+  SOCK_T m_socket;
 
  private:
   int m_nLastError = 0;
   bool m_bReady = false;;
 };
+
+} // namespace net
 
 #endif // CSOCKET_H_

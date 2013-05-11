@@ -2,9 +2,20 @@
 #include <iostream>
 #include <netinet/in.h>
 
+namespace net {
+
 CServerSocket::CServerSocket(unsigned int port) {
   m_bReady = SocketIsReady();
   m_dPort = port;
+
+  if (m_bReady) {
+#ifdef DEBUG
+    std::cout << "Socket created, redy to be bound: " << m_socket << std::endl;
+  }
+#endif
+}
+
+bool CServerSocket::Bind() {
   if (m_bReady) {
     sockaddr_in myaddr;
 
@@ -12,7 +23,6 @@ CServerSocket::CServerSocket(unsigned int port) {
     myaddr.sin_port = htons(m_dPort);
     myaddr.sin_addr.s_addr = INADDR_ANY;
 
-    // TODO(Olster): Don't do bind() in a constructor, it might fail
     int retval = bind(m_socket, (sockaddr*)&myaddr, sizeof myaddr);
     if (retval < 0) {
       // Failed to bind a socket
@@ -20,21 +30,31 @@ CServerSocket::CServerSocket(unsigned int port) {
     }
   }
 
-  if (m_bReady) {
 #ifdef DEBUG
-    std::cout << "Socket created: " << m_socket << std::endl;
+  if (!m_bReady) {
+    std::cout << "Couldn't bind the socket" << std::endl;
+  } else {
+    std::cout << "Socket is bound" << std::endl;
   }
 #endif
+
+  return m_bReady;
 }
 
 bool CServerSocket::Listen(int pendingConnections) {
   m_bReady = listen(m_socket, pendingConnections) == 0;
 #ifdef DEBUG
-  std::cout << "Socket is listening on port " << m_dPort << std::endl;
+  if (!m_bReady) {
+    std::cout << "Listen() failed" << std::endl;
+  } else {
+    std::cout << "Socket is listening on port " << m_dPort << std::endl;
+  }
 #endif
+
+  return m_bReady;
 }
 
-int CServerSocket::Accept() {
+SOCK_T CServerSocket::Accept() {
   socklen_t len;
   int socket = accept(m_socket, NULL, &len);
 
@@ -44,3 +64,5 @@ int CServerSocket::Accept() {
 
   return socket;
 }
+
+} // namespace net

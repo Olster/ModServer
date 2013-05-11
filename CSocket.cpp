@@ -5,6 +5,8 @@
 #include <cstring>
 #include <unistd.h>
 
+namespace net {
+
 CSocket::CSocket(SOCK_DOMAIN domain, SOCK_TYPE type, SOCK_PROTOCOL protocol) {
   int nProtocol;
   switch (protocol) {
@@ -30,7 +32,7 @@ CSocket::CSocket(SOCK_DOMAIN domain, SOCK_TYPE type, SOCK_PROTOCOL protocol) {
   m_bReady = m_socket != -1;
 }
 
-CSocket::CSocket(int sock_fd) {
+CSocket::CSocket(SOCK_T sock_fd) {
   m_socket = sock_fd;
   m_bReady = true;
 }
@@ -71,3 +73,5 @@ int CSocket::Select(int maxFd, fd_set* readList,
 
   return select(maxFd, readList, writeList, errorList, tv);
 }
+
+} // namespace net
