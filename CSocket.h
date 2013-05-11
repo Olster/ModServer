@@ -2,11 +2,15 @@
 #define CSOCKET_H_
 
 #include <sys/socket.h>
+#include <string>
 
 // TODO(Olster) add support for UDP. Even make them separate
 
 class CSocket {
  public:
+ // NOTE(Olster): It's C++11, so I could use class enum
+ // but in this circumastances I need to use these as ints as well
+
   enum SOCK_DOMAIN {
     IPv4 = PF_INET,
     IPv6 = PF_INET6
@@ -32,6 +36,11 @@ class CSocket {
 
   bool SocketIsReady() const { return m_bReady; }
   int& GetHandle() { return m_socket; }
+
+  int Receive(std::string& out);
+
+  // Returns number of chars (bytes?) sent
+  int Send(const std::string& data);
 
   enum CLOSE_TYPE {
     CLOSE_RECEIVE = 0,

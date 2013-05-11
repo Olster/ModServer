@@ -2,7 +2,6 @@
 #define CSERVERSOCKET_H_
 
 #include "CSocket.h"
-#include <string>
 
 class CServerSocket : public CSocket {
  public:
@@ -17,12 +16,6 @@ class CServerSocket : public CSocket {
   // Returns accepted socket. Return will be changed to typedef'ed
   // socket type
   int Accept();
-
-  // NOTE: Temporarily added |sock|
-  int Receive(int scok, std::string& out);
-
-  // Returns number of chars (bytes?) sent
-  int Send(int sock, const std::string& data);
 
   bool ServerIsReady() const { return m_bReady; }
 

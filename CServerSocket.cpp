@@ -44,24 +44,3 @@ int CServerSocket::Accept() {
 
   return socket;
 }
-
-int CServerSocket::Receive(int sock, std::string& out) {
-  char str[1024];
-  int read = recv(sock, str, (sizeof str)/(sizeof str[0]), 0);
-
-  if (read < 1) {
-    return read;
-  }
-
-  str[read - 2] = '\0';
-
-  out = str;
-
-  return read;
-}
-
-int CServerSocket::Send(int sock, const std::string& data) {
-  int sent = send(sock, data.c_str(), data.length(), 0);
-
-  return sent;
-}

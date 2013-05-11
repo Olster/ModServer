@@ -32,6 +32,8 @@ int main() {
   list<int> acceptedSocks;
 
   int acceptedSock = 0;
+  CSocket* sock = nullptr;
+
   bool bAnsverAvailable = false;
 
   // 3 min timeout structure
@@ -88,7 +90,9 @@ int main() {
         cout << "Receiving from " << acceptedSock << endl;
         std::string data;
 
-        if (httpServer.Receive(acceptedSock, data) < 1) {
+        sock = new CSocket(acceptedSock);
+
+        if (sock->Receive(data) < 1) {
           cout << "Socket " << acceptedSock << " closed the connection" << endl;
           FD_CLR(acceptedSock, &master);
         }
@@ -121,12 +125,14 @@ int main() {
       if (FD_ISSET(acceptedSock, &writeList) && bAnsverAvailable) {
         cout << "Sending data to " << acceptedSock << endl;
         std::string htmlFile("<doctype html>\n<html><title>I am working</title><body><h1>Hey!</h1></body></html>\n");
-        httpServer.Send(acceptedSock, "HTTP/1.0 200 OK\nContent-Type: text/html\n\n" + htmlFile);
+        sock->Send("HTTP/1.0 200 OK\nContent-Type: text/html\n\n" + htmlFile);
 
         cout << "Data sent, closing connection " << acceptedSock << endl;
 
         // Socket was closed, removing from master set
-        close(acceptedSock);
+        //close(acceptedSock);
+
+        delete sock;
 
         FD_CLR(acceptedSock, &master);
 

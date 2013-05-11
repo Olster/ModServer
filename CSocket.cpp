@@ -39,6 +39,25 @@ CSocket::~CSocket() {
   close(m_socket);
 }
 
+int CSocket::Send(const std::string& data) {
+  return send(m_socket, data.c_str(), data.length(), 0);
+}
+
+int CSocket::Receive(std::string& out) {
+  char str[1024];
+  int read = recv(m_socket, str, (sizeof str)/(sizeof str[0]), 0);
+
+  if (read < 1) {
+    return read;
+  }
+
+  str[read - 2] = '\0';
+
+  out = str;
+
+  return read;
+}
+
 bool CSocket::Close(CLOSE_TYPE type) {
   int errorCode = shutdown(m_socket, type);
 
