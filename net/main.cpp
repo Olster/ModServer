@@ -6,6 +6,8 @@
 #include <error.h> // For perror()
 #include <list>
 
+#include <unistd.h> // sleep()
+
 #include <random>
 
 using namespace std;
@@ -112,6 +114,8 @@ int main() {
     } else {
       //cout << "Not sending" << endl;
     }
+
+    sleep(0);
   }
 
   cin.ignore();
