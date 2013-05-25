@@ -9,7 +9,6 @@
 #include "CServerSocket.h"
 
 // Temps
-#include <cstdio>
 #include <error.h> // For perror()
 
 using namespace std;
@@ -17,12 +16,13 @@ using namespace std;
 // TODO(Olster): Make a separate class or move to another file
 struct Resource {
   string path;
-
   string MIMEtype;
+
+  string data;
 };
 
 Resource resRequested(const string& header);
-string getRes(const string& path);
+void getRes(Resource& res);
 
 int main() {
   // Port 2563 as a default
@@ -54,7 +54,7 @@ int main() {
   tv.tv_sec = 5 * 60;
   tv.tv_usec = 0l;
 
-  std::string dataReceived;
+  string dataReceived;
 
   while (true) {
     timeval timeLeft = tv;
@@ -75,9 +75,6 @@ int main() {
       break;
     }
 
-    // When Chrome is in non-incognito mode, we accept
-    // 2 sockets for some reason
-    // TODO(Olster): Find a cause end eliminate the problem
     if (FD_ISSET(httpServer.GetHandle(), &readList)) {
       cout << "Accepting socket" << endl;
       acceptedSock = httpServer.Accept();
@@ -91,11 +88,9 @@ int main() {
     if (FD_ISSET(acceptedSock, &readList)) {
       cout << "Receiving from " << acceptedSock << endl;
 
-      if (sock) {
-        delete sock;
-        sock = nullptr;
+      if (!sock) {
+        sock = new net::CSocket(acceptedSock);
       }
-      sock = new net::CSocket(acceptedSock);
 
       if (sock->Receive(dataReceived) < 1) {
         cout << "Socket " << acceptedSock << " closed the connection" << endl;
@@ -119,18 +114,15 @@ int main() {
       string headerLine = dataReceived.substr(0, dataReceived.find('\n'));
 
       Resource res = resRequested(headerLine);
-
-      std::string htmlFile = "";
-
       if (sock) {
-        string formatted = "HTTP/1.1 200 OK\nContent-Type: " + res.MIMEtype + "\nContent-Length: " + std::to_string(htmlFile.length()) + "\n\n" + htmlFile;
+        string formatted = "HTTP/1.1 200 OK\nContent-Type: " + res.MIMEtype + "\nContent-Length: " + std::to_string(res.data.length()) + "\n\n" + res.data;
 
 #ifdef DEBUG
-        cout << "\n\nSending: " << formatted << endl << endl;
+        cout << "\nSending: " << formatted << endl << endl;
 #endif
 
         int sent = sock->Send(formatted);
-        cout << "Data sent: " << sent << " out of " << htmlFile.length() << "+" << endl;
+        cout << "Data sent: " << sent << " out of " << res.data.length() << "+" << endl;
       } else {
         cout << "Socket was closed" << endl;
       }
@@ -146,6 +138,11 @@ int main() {
     //sleep(0);
   }
 
+  if (sock) {
+    delete sock;
+    sock = nullptr;
+  }
+
   cin.ignore();
   return 0;
 }
@@ -155,17 +152,18 @@ Resource resRequested(const string& header) {
   cout << "Asking for resource with header: " << header << endl;
 #endif
 
-  Resource out {"", ""};
+  Resource out;
+
   // GET PATH HTTP
   string::size_type firstSpace = header.find(' ');
   string::size_type secondSpace = header.find(' ', firstSpace + 1);
 
   if (firstSpace == string::npos || secondSpace == string::npos) {
-    // Empty resource
+    // Empty resource identificator in header
 #ifdef DEBUG
   cout << "Couldn't get the resource URI" << header << endl;
 #endif
-    return Resource {"", ""};
+    return Resource {"", "", ""};
   }
 
   // requested_resource.extension
@@ -174,23 +172,31 @@ Resource resRequested(const string& header) {
 
   // If |resourceName| is empty, then we're requesting the site root
   if (resourceName.empty()) {
-    return Resource{"index.html", "text/html"};
+    // Leaving data field empty
+    // Will look more clear when we make a separate class
+    return Resource {"index.html", "text/html"};
   }
+
+//  // If request had spaces in it, they would be changed into |%20|
+//  string::size_type space = 0;
+//  while ((space = resourceName.find("%20")) != string::npos) {
+//    // Replace 3 characters |%20| with space
+//    resourceName.replace(space, 3, " ");
+//  }
 
   out.path = resourceName;
 #ifdef DEBUG
-  cout << "Resource URI: " << resourceName << " Length: " << resourceName.length() << endl;
+  cout << "\tResource URI: " << resourceName << " Length: " << resourceName.length() << endl;
 #endif
   // Find the last dot for extension (path can have multiple dots)
   string::size_type extensionDot = resourceName.find_last_of('.');
   string extension = resourceName.substr(extensionDot + 1);
 
 #ifdef DEBUG
-  cout << "Extension: " << extension << " Length: " << extension.length() << endl;
+  cout << "\tExtension: " << extension << " Length: " << extension.length() << endl;
 #endif
 
   // TODO(Olster): Build a map that returns MIME type instead of ifs
-
   if (extension == "html" || extension == "htm") {
     out.MIMEtype = "text/html";
   }
@@ -212,31 +218,51 @@ Resource resRequested(const string& header) {
   }
 
 #ifdef DEBUG
-  cout << "Returning resource with path " << out.path << " type " << out.MIMEtype << endl;
+  cout << "\tReturning resource with path " << out.path << " type " << out.MIMEtype << endl;
 #endif
+
+  getRes(out);
 
   return out;
 }
 
-string getRes(const string& path) {
+void getRes(Resource& res) {
   // TODO(Olster): This is not reliable, would fail if the
   // requested file is too big
 
   FILE* file = nullptr;
-  file = fopen(path.c_str(), "rb");
+
+  // TODO(Olster): This should be set in cmd line at start
+  res.path = "/home/olster/cpp_progr/Server/bin/Debug/" + res.path;
+
+#ifdef DEBUG
+  cout << "\tOpening file " << res.path << endl;
+#endif
+
+  file = fopen(res.path.c_str(), "rb");
 
   if (!file) {
-    return "No such file";
+    // TODO(Olster): Exceptions?
+//    res.data = R"(
+//    <doctype html>
+//    <html>
+//    <head>
+//      <title>Page not found</title>
+//    </head>
+//    <body>
+//      <h2>Sorry, there is no page you requested</h2>
+//    </body>
+//    </html>
+//    )";
+
+    res.data = "";
+
+    res.MIMEtype = "text/html";
+
+    return;
   }
 
   char* buf = nullptr;
-
-  string out = "";
-
-//  while (!feof(file)) {
-//    fgets(buf, 1023, file);
-//    out += buf;
-//  }
 
   fseek(file, 0, SEEK_END);
   int size = ftell(file);
@@ -247,7 +273,7 @@ string getRes(const string& path) {
   buf[size] = '\0';
 
   // |1| is probably 1 char/byte at a time
-  // TODO(Olster): Work on this
+  // TODO(Olster): Get detailed information
   fread(buf, size, 1, file);
 
   fclose(file);
@@ -256,10 +282,8 @@ string getRes(const string& path) {
   // NOTE: Can't do the assignment, cause binary data would be corrupt
   // the constructor that takes char as a parameter will delete all non-printed
   // characters
-  out = std::string(buf, size - 1);
+  res.data = string(buf, size - 1);
 
-  delete buf;
+  delete [] buf;
   buf = nullptr;
-
-  return out;
 }
