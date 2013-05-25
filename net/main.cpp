@@ -21,8 +21,8 @@ struct Resource {
   string data;
 };
 
-Resource resRequested(const string& header);
-void getRes(Resource& res);
+Resource resourceRequested(const string& header);
+void getResource(Resource& res);
 
 int main() {
   // Port 2563 as a default
@@ -69,6 +69,14 @@ int main() {
 
     if (retCode == 0) {
       cout << "Timeout reached" << endl;
+
+      // Closing timed out connection
+      // by deleting socket for now
+      if (sock) {
+        delete sock;
+        sock = nullptr;
+      }
+
       continue;
     } else if (retCode == -1) {
       perror("An error has occured: ");
@@ -113,7 +121,8 @@ int main() {
       cout << "Sending data to " << acceptedSock << endl;
       string headerLine = dataReceived.substr(0, dataReceived.find('\n'));
 
-      Resource res = resRequested(headerLine);
+      Resource res = resourceRequested(headerLine);
+      getResource(res);
       if (sock) {
         string formatted = "HTTP/1.1 200 OK\nContent-Type: " + res.MIMEtype + "\nContent-Length: " + std::to_string(res.data.length()) + "\n\n" + res.data;
 
@@ -147,7 +156,7 @@ int main() {
   return 0;
 }
 
-Resource resRequested(const string& header) {
+Resource resourceRequested(const string& header) {
 #ifdef DEBUG
   cout << "Asking for resource with header: " << header << endl;
 #endif
@@ -174,15 +183,19 @@ Resource resRequested(const string& header) {
   if (resourceName.empty()) {
     // Leaving data field empty
     // Will look more clear when we make a separate class
+#ifdef DEBUG
+  cout << "\tNeed to return index.html" << endl;
+#endif
+
     return Resource {"index.html", "text/html"};
   }
 
-//  // If request had spaces in it, they would be changed into |%20|
-//  string::size_type space = 0;
-//  while ((space = resourceName.find("%20")) != string::npos) {
-//    // Replace 3 characters |%20| with space
-//    resourceName.replace(space, 3, " ");
-//  }
+  // If request had spaces in it, they would be changed into |%20|
+  string::size_type space = 0;
+  while ((space = resourceName.find("%20")) != string::npos) {
+    // Replace 3 characters |%20| with space
+    resourceName.replace(space, 3, " ");
+  }
 
   out.path = resourceName;
 #ifdef DEBUG
@@ -221,12 +234,10 @@ Resource resRequested(const string& header) {
   cout << "\tReturning resource with path " << out.path << " type " << out.MIMEtype << endl;
 #endif
 
-  getRes(out);
-
   return out;
 }
 
-void getRes(Resource& res) {
+void getResource(Resource& res) {
   // TODO(Olster): This is not reliable, would fail if the
   // requested file is too big
 
