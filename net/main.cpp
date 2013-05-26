@@ -76,6 +76,7 @@ int main() {
         delete sock;
         sock = nullptr;
       }
+      FD_CLR(acceptedSock, &master);
 
       continue;
     } else if (retCode == -1) {
@@ -124,7 +125,12 @@ int main() {
       Resource res = resourceRequested(headerLine);
       getResource(res);
       if (sock) {
-        string formatted = "HTTP/1.1 200 OK\nContent-Type: " + res.MIMEtype + "\nContent-Length: " + std::to_string(res.data.length()) + "\n\n" + res.data;
+        string formatted = "";
+        if (!res.MIMEtype.empty()) {
+           formatted = "HTTP/1.1 200 OK\nContent-Type: " + res.MIMEtype + "\nContent-Length: " + std::to_string(res.data.length()) + "\n\n" + res.data + "\n\n";
+        } else {
+          formatted = "HTTP/1.1 404 Not Found\n\n";
+        }
 
 #ifdef DEBUG
         cout << "\nSending: " << formatted << endl << endl;
@@ -170,7 +176,7 @@ Resource resourceRequested(const string& header) {
   if (firstSpace == string::npos || secondSpace == string::npos) {
     // Empty resource identificator in header
 #ifdef DEBUG
-  cout << "Couldn't get the resource URI" << header << endl;
+  cout << "\tCouldn't get the resource URI" << header << endl;
 #endif
     return Resource {"", "", ""};
   }
@@ -191,6 +197,7 @@ Resource resourceRequested(const string& header) {
   }
 
   // If request had spaces in it, they would be changed into |%20|
+  // TODO(Olster): User regex_replace when it's working
   string::size_type space = 0;
   while ((space = resourceName.find("%20")) != string::npos) {
     // Replace 3 characters |%20| with space
@@ -198,22 +205,30 @@ Resource resourceRequested(const string& header) {
   }
 
   out.path = resourceName;
+
 #ifdef DEBUG
   cout << "\tResource URI: " << resourceName << " Length: " << resourceName.length() << endl;
 #endif
-  // Find the last dot for extension (path can have multiple dots)
+
   string::size_type extensionDot = resourceName.find_last_of('.');
   string extension = resourceName.substr(extensionDot + 1);
 
 #ifdef DEBUG
-  cout << "\tExtension: " << extension << " Length: " << extension.length() << endl;
+  cout << "\tExtension: " << extension << endl;
 #endif
 
   // TODO(Olster): Build a map that returns MIME type instead of ifs
+
+  // Text
   if (extension == "html" || extension == "htm") {
     out.MIMEtype = "text/html";
   }
 
+  if (extension == "css") {
+    out.MIMEtype = "text/css";
+  }
+
+  // Image
   if (extension == "ico ") {
     out.MIMEtype = "image/x-image";
   }
@@ -238,6 +253,8 @@ Resource resourceRequested(const string& header) {
 }
 
 void getResource(Resource& res) {
+  // Should return error code if any
+
   // TODO(Olster): This is not reliable, would fail if the
   // requested file is too big
 
@@ -254,19 +271,19 @@ void getResource(Resource& res) {
 
   if (!file) {
     // TODO(Olster): Exceptions?
-//    res.data = R"(
-//    <doctype html>
-//    <html>
-//    <head>
-//      <title>Page not found</title>
-//    </head>
-//    <body>
-//      <h2>Sorry, there is no page you requested</h2>
-//    </body>
-//    </html>
-//    )";
+    res.data = R"(
+    <doctype html>
+    <html>
+    <head>
+      <title>Page not found</title>
+    </head>
+    <body>
+      <h2>Sorry, there is no page you requested</h2>
+    </body>
+    </html>
+    )";
 
-    res.data = "";
+    //res.data = "";
 
     res.MIMEtype = "text/html";
 
