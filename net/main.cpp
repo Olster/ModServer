@@ -6,7 +6,7 @@
 
 #include <iostream>
 
-#include "CServerSocket.h"
+#include "net/ServerSocket.h"
 
 // Temps
 #include <error.h> // For perror()
@@ -25,8 +25,7 @@ Resource resourceRequested(const string& header);
 void getResource(Resource& res);
 
 int main() {
-  // Port 2563 as a default
-  net::CServerSocket httpServer;
+  net::ServerSocket httpServer(2563);
   httpServer.Bind();
   httpServer.Listen(5);
 
@@ -45,7 +44,7 @@ int main() {
   int maxFd = httpServer.GetHandle();
 
   net::SOCK_T acceptedSock = 0;
-  net::CSocket* sock = nullptr;
+  net::TCPSocket* sock = nullptr;
 
   bool bAnsverAvailable = false;
 
@@ -65,7 +64,7 @@ int main() {
     // We don't want to write to ourselves
     FD_CLR(httpServer.GetHandle(), &writeList);
 
-    int retCode = net::CSocket::Select(maxFd + 1, &readList, &writeList, NULL, &timeLeft);
+    int retCode = net::Socket::Select(maxFd + 1, &readList, &writeList, NULL, &timeLeft);
 
     if (retCode == 0) {
       cout << "Timeout reached" << endl;
@@ -86,7 +85,7 @@ int main() {
 
     if (FD_ISSET(httpServer.GetHandle(), &readList)) {
       cout << "Accepting socket" << endl;
-      acceptedSock = httpServer.Accept();
+      sock = httpServer.Accept();
       if (acceptedSock > maxFd) {
         maxFd = acceptedSock;
       }
@@ -98,7 +97,7 @@ int main() {
       cout << "Receiving from " << acceptedSock << endl;
 
       if (!sock) {
-        sock = new net::CSocket(acceptedSock);
+        sock = new net::Socket(acceptedSock);
       }
 
       if (sock->Receive(dataReceived) < 1) {
@@ -193,7 +192,7 @@ Resource resourceRequested(const string& header) {
   cout << "\tNeed to return index.html" << endl;
 #endif
 
-    return Resource {"index.html", "text/html"};
+    return Resource {"index.html", "text/html", ""};
   }
 
   // If request had spaces in it, they would be changed into |%20|

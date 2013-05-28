@@ -1,10 +1,10 @@
-#include "CServerSocket.h"
+#include "ServerSocket.h"
 #include <iostream>
 #include <netinet/in.h>
 
 namespace net {
 
-CServerSocket::CServerSocket(unsigned int port) {
+ServerSocket::ServerSocket(unsigned int port) {
   m_bReady = SocketIsReady();
   m_dPort = port;
 
@@ -15,7 +15,7 @@ CServerSocket::CServerSocket(unsigned int port) {
 #endif
 }
 
-bool CServerSocket::Bind() {
+bool ServerSocket::Bind() {
   if (m_bReady) {
     sockaddr_in myaddr;
 
@@ -41,7 +41,7 @@ bool CServerSocket::Bind() {
   return m_bReady;
 }
 
-bool CServerSocket::Listen(int pendingConnections) {
+bool ServerSocket::Listen(int pendingConnections) {
   m_bReady = listen(m_socket, pendingConnections) == 0;
 #ifdef DEBUG
   if (!m_bReady) {
@@ -54,15 +54,8 @@ bool CServerSocket::Listen(int pendingConnections) {
   return m_bReady;
 }
 
-SOCK_T CServerSocket::Accept() {
-  socklen_t len;
-  int socket = accept(m_socket, NULL, &len);
+int ServerSocket::Accept(TCPSocket& sock) {
 
-#ifdef DEBUG
-  std::cout << "Socket accepted connection: " << socket << std::endl;
-#endif
-
-  return socket;
 }
 
 } // namespace net

@@ -1,0 +1,39 @@
+#include "TCPSocket.h"
+
+#include <netinet/in.h>
+#include <sys/socket.h>
+
+TCPSocket::TCPSocket(Socket::SOCK_DOMAIN domain)
+ : Socket(domain) {
+
+}
+
+int TCPSocket::Open() {
+  m_socket = socket(m_domain, SOCK_STREAM, IPPROTO_TCP);
+
+  // Unblocking the blocked socket
+  int yes = 1;
+  setsockopt(m_socket, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof yes);
+
+  // socket() returns -1 on error
+  m_bReady = m_socket != -1;
+}
+
+int TCPSocket::Send(const std::string& data) {
+  return send(m_socket, data.c_str(), data.length(), 0);
+}
+
+int Receive(std::string& data) {
+  char str[1024*4]; // 4kb
+  int read = recv(m_socket, str, (sizeof str)/(sizeof str[0]), 0);
+
+  if (read < 1) {
+    return read;
+  }
+
+  str[read - 2] = '\0';
+
+  out = str;
+
+  return read;
+}
