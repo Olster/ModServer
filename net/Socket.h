@@ -32,6 +32,8 @@ class Socket : public base::Object {
   Socket(const Socket&& other) = delete;
 
   bool SocketIsReady() const { return m_bReady; }
+  bool SocketSetReady(bool ready) { m_bReady = ready; }
+
   SOCK_T& GetHandle() { return m_socket; }
 
   virtual int Open() = 0;

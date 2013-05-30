@@ -7,15 +7,14 @@ namespace net {
 
 class ServerSocket : public TCPSocket {
  public:
-  ServerSocket(unsigned int port);
+  ServerSocket(unsigned int port, SOCK_DOMAIN domain = SOCK_DOMAIN::IPv4);
   ~ServerSocket() = default;
 
   bool Bind();
 
   bool Listen(int pendingConnections);
 
-  // Returns error code
-  int Accept(TCPSocket& sock);
+  TCPSocket* Accept();
 
   bool ServerIsReady() const { return m_bReady; }
 

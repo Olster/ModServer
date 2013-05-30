@@ -26,6 +26,7 @@ void getResource(Resource& res);
 
 int main() {
   net::ServerSocket httpServer(2563);
+  httpServer.Open();
   httpServer.Bind();
   httpServer.Listen(5);
 
@@ -43,6 +44,7 @@ int main() {
 
   int maxFd = httpServer.GetHandle();
 
+  // TODO(Olster): Do I still need |acceptedSock|?
   net::SOCK_T acceptedSock = 0;
   net::TCPSocket* sock = nullptr;
 
@@ -86,23 +88,22 @@ int main() {
     if (FD_ISSET(httpServer.GetHandle(), &readList)) {
       cout << "Accepting socket" << endl;
       sock = httpServer.Accept();
-      if (acceptedSock > maxFd) {
-        maxFd = acceptedSock;
+
+      net::SOCK_T sockFileDescr = sock->GetHandle();
+
+      if (sockFileDescr > maxFd) {
+        maxFd = sockFileDescr;
       }
 
-      FD_SET(acceptedSock, &master);
+      FD_SET(sockFileDescr, &master);
     }
 
-    if (FD_ISSET(acceptedSock, &readList)) {
-      cout << "Receiving from " << acceptedSock << endl;
-
-      if (!sock) {
-        sock = new net::Socket(acceptedSock);
-      }
+    if (sock != nullptr && FD_ISSET(sock->GetHandle(), &readList)) {
+      cout << "Receiving from " << sock->GetHandle() << endl;
 
       if (sock->Receive(dataReceived) < 1) {
-        cout << "Socket " << acceptedSock << " closed the connection" << endl;
-        FD_CLR(acceptedSock, &master);
+        cout << "Socket " << sock->GetHandle() << " closed the connection" << endl;
+        FD_CLR(sock->GetHandle(), &master);
         dataReceived.clear();
 
         delete sock;
@@ -117,8 +118,8 @@ int main() {
       //cout << "Not receiving" << endl;
     }
 
-    if (FD_ISSET(acceptedSock, &writeList) && bAnsverAvailable) {
-      cout << "Sending data to " << acceptedSock << endl;
+    if (sock != nullptr && FD_ISSET(sock->GetHandle(), &writeList) && bAnsverAvailable) {
+      cout << "Sending data to " << sock->GetHandle() << endl;
       string headerLine = dataReceived.substr(0, dataReceived.find('\n'));
 
       Resource res = resourceRequested(headerLine);

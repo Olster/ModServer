@@ -1,7 +1,9 @@
-#include "TCPSocket.h"
+#include "net/TCPSocket.h"
 
 #include <netinet/in.h>
 #include <sys/socket.h>
+
+namespace net {
 
 TCPSocket::TCPSocket(Socket::SOCK_DOMAIN domain)
  : Socket(domain) {
@@ -23,7 +25,7 @@ int TCPSocket::Send(const std::string& data) {
   return send(m_socket, data.c_str(), data.length(), 0);
 }
 
-int Receive(std::string& data) {
+int TCPSocket::Receive(std::string& data) {
   char str[1024*4]; // 4kb
   int read = recv(m_socket, str, (sizeof str)/(sizeof str[0]), 0);
 
@@ -33,7 +35,9 @@ int Receive(std::string& data) {
 
   str[read - 2] = '\0';
 
-  out = str;
+  data = str;
 
   return read;
 }
+
+} // namespace net

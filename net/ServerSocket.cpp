@@ -4,15 +4,11 @@
 
 namespace net {
 
-ServerSocket::ServerSocket(unsigned int port) {
-  m_bReady = SocketIsReady();
+ServerSocket::ServerSocket(unsigned int port, SOCK_DOMAIN domain)
+ : TCPSocket(domain) {
   m_dPort = port;
 
-  if (m_bReady) {
-#ifdef DEBUG
-    std::cout << "Socket created, redy to be bound: " << m_socket << std::endl;
-  }
-#endif
+  // m_bReady is false, guaranteed by initialization in Socket class
 }
 
 bool ServerSocket::Bind() {
@@ -28,6 +24,11 @@ bool ServerSocket::Bind() {
       // Failed to bind a socket
       m_bReady = false;
     }
+  } else {
+#ifdef DEBUG
+    std::cout << "Socket hasn't been opened" << std::endl;
+#endif
+    return m_bReady;
   }
 
 #ifdef DEBUG
@@ -54,8 +55,18 @@ bool ServerSocket::Listen(int pendingConnections) {
   return m_bReady;
 }
 
-int ServerSocket::Accept(TCPSocket& sock) {
+TCPSocket* ServerSocket::Accept() {
+  socklen_t sockLen;
+  SOCK_T sock = accept(m_socket, 0, &sockLen);
 
+  // accept() returns negative file descr on error
+  if (sock < 0) {
+    return nullptr;
+  }
+
+  TCPSocket* retSock = new TCPSocket(m_domain);
+  retSock->GetHandle() = sock;
+  retSock->SocketSetReady(true);
 }
 
 } // namespace net

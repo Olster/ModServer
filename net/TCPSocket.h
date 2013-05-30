@@ -1,7 +1,7 @@
 #ifndef NET_TCPSOCKET_H_
 #define NET_TCPSOCKET_H_
 
-#include "Socket.h"
+#include "net/Socket.h"
 
 namespace net {
 
