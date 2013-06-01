@@ -8,10 +8,15 @@ ServerSocket::ServerSocket(unsigned int port, SOCK_DOMAIN domain)
  : TCPSocket(domain) {
   m_dPort = port;
 
+#ifdef DEBUG
+  std::cout << "Info: Creating server socket on port " << m_dPort << std::endl;
+#endif
+
   // m_bReady is false, guaranteed by initialization in Socket class
 }
 
 bool ServerSocket::Bind() {
+  // |m_bReady| is set to |true| by successful Open()
   if (m_bReady) {
     sockaddr_in myaddr;
 
@@ -26,16 +31,16 @@ bool ServerSocket::Bind() {
     }
   } else {
 #ifdef DEBUG
-    std::cout << "Socket hasn't been opened" << std::endl;
+    std::cout << "Error: Socket hasn't been opened" << std::endl;
 #endif
-    return m_bReady;
+    return false;
   }
 
 #ifdef DEBUG
   if (!m_bReady) {
-    std::cout << "Couldn't bind the socket" << std::endl;
+    std::cout << "Error: Couldn't bind the socket" << std::endl;
   } else {
-    std::cout << "Socket is bound" << std::endl;
+    std::cout << "Info: Socket is bound" << std::endl;
   }
 #endif
 
@@ -43,12 +48,19 @@ bool ServerSocket::Bind() {
 }
 
 bool ServerSocket::Listen(int pendingConnections) {
-  m_bReady = listen(m_socket, pendingConnections) == 0;
+  if (pendingConnections < 1) {
+    return false;
+  }
+
+  if (m_bReady) {
+    m_bReady = listen(m_socket, pendingConnections) == 0;
+  }
+
 #ifdef DEBUG
   if (!m_bReady) {
-    std::cout << "Listen() failed" << std::endl;
+    std::cout << "Error: Listen() failed" << std::endl;
   } else {
-    std::cout << "Socket is listening on port " << m_dPort << std::endl;
+    std::cout << "Info: Socket is listening on port " << m_dPort << std::endl;
   }
 #endif
 
@@ -56,8 +68,17 @@ bool ServerSocket::Listen(int pendingConnections) {
 }
 
 TCPSocket* ServerSocket::Accept() {
+  if (!m_bReady) {
+
+#ifdef DEBUG
+    std::cout << "Error: Socket is not ready to accept" << std::endl;
+#endif
+
+    return nullptr;
+  }
+
   socklen_t sockLen;
-  SOCK_T sock = accept(m_socket, 0, &sockLen);
+  InternalSockType sock = accept(m_socket, 0, &sockLen);
 
   // accept() returns negative file descr on error
   if (sock < 0) {
@@ -65,8 +86,10 @@ TCPSocket* ServerSocket::Accept() {
   }
 
   TCPSocket* retSock = new TCPSocket(m_domain);
-  retSock->GetHandle() = sock;
-  retSock->SocketSetReady(true);
+//  retSock->SetHandle(sock);
+//  retSock->SocketSetReady(true);
+  retSock->m_socket = sock;
+  retSock->m_bReady = true;
 }
 
 } // namespace net

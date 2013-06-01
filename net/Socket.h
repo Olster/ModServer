@@ -8,11 +8,11 @@
 namespace net {
 
 #if defined(WIN32)
-using SOCK_T = SOCKET;
-const SOCK_T kInvalidSocket = INVALID_SOCKET;
+using InternalSockType = SOCKET;
+const InternalSockType kInvalidSocket = INVALID_SOCKET;
 #elif defined(UNIX)
-using SOCK_T = int;
-const SOCK_T kInvalidSocket = -1;
+using InternalSockType = int;
+const InternalSockType kInvalidSocket = -1;
 #endif
 
 class Socket : public base::Object {
@@ -32,9 +32,8 @@ class Socket : public base::Object {
   Socket(const Socket&& other) = delete;
 
   bool SocketIsReady() const { return m_bReady; }
-  bool SocketSetReady(bool ready) { m_bReady = ready; }
 
-  SOCK_T& GetHandle() { return m_socket; }
+  InternalSockType GetHandle() const { return m_socket; }
 
   virtual int Open() = 0;
 
@@ -52,9 +51,15 @@ class Socket : public base::Object {
 
   virtual std::string ToString() const override { return "net::Socket."; }
  protected:
+  // Sets new handle for the socket, sets |m_bReady| flag to false
+  void SetHandle(InternalSockType sock);
+
+  // NOTE(Olster): Only derived classes can set socket to ready state
+  bool SocketSetReady(bool isReady) { m_bReady = isReady; }
+
   SOCK_DOMAIN m_domain;
 
-  SOCK_T m_socket = kInvalidSocket;
+  InternalSockType m_socket = kInvalidSocket;
   bool m_bReady = false;
 };
 

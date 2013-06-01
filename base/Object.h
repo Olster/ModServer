@@ -15,4 +15,4 @@ class Object {
 
 } // namespace base
 
-#endif // OBJECT_H_
+#endif // BASE_OBJECT_H_

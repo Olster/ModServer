@@ -10,6 +10,10 @@ class ServerSocket : public TCPSocket {
   ServerSocket(unsigned int port, SOCK_DOMAIN domain = SOCK_DOMAIN::IPv4);
   ~ServerSocket() = default;
 
+  void operator=(const ServerSocket& other) = delete;
+  ServerSocket(const ServerSocket& other) = delete;
+  ServerSocket(const ServerSocket&& other) = delete;
+
   bool Bind();
 
   bool Listen(int pendingConnections);
@@ -18,7 +22,7 @@ class ServerSocket : public TCPSocket {
 
   bool ServerIsReady() const { return m_bReady; }
 
-  std::string ToString() const override { return TCPSocket::ToString() + "ServerSocket"; }
+  std::string ToString() const override { return TCPSocket::ToString() + "ServerSocket."; }
  private:
   unsigned int m_dPort;
 };

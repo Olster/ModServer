@@ -44,8 +44,6 @@ int main() {
 
   int maxFd = httpServer.GetHandle();
 
-  // TODO(Olster): Do I still need |acceptedSock|?
-  net::SOCK_T acceptedSock = 0;
   net::TCPSocket* sock = nullptr;
 
   bool bAnsverAvailable = false;
@@ -74,10 +72,10 @@ int main() {
       // Closing timed out connection
       // by deleting socket for now
       if (sock) {
+        FD_CLR(sock->GetHandle(), &master);
         delete sock;
         sock = nullptr;
       }
-      FD_CLR(acceptedSock, &master);
 
       continue;
     } else if (retCode == -1) {
@@ -89,7 +87,7 @@ int main() {
       cout << "Accepting socket" << endl;
       sock = httpServer.Accept();
 
-      net::SOCK_T sockFileDescr = sock->GetHandle();
+      net::InternalSockType sockFileDescr = sock->GetHandle();
 
       if (sockFileDescr > maxFd) {
         maxFd = sockFileDescr;

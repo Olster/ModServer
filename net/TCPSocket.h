@@ -8,7 +8,7 @@ namespace net {
 class TCPSocket : public Socket {
  public:
   TCPSocket(Socket::SOCK_DOMAIN domain);
-  virtual ~TCPSocket() {}
+  ~TCPSocket() {}
 
   void operator=(const TCPSocket& other) = delete;
   TCPSocket(const TCPSocket& other) = delete;
@@ -21,6 +21,10 @@ class TCPSocket : public Socket {
   int Receive(std::string& data);
 
   std::string ToString() const override { return Socket::ToString() + "TCPSocket."; }
+ private:
+  // TODO(Olster): Investigate another way of letting ServerSocket
+  // access protected members of TCPSocket
+  friend class ServerSocket;
 };
 
 } // namespace net

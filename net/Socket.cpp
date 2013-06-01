@@ -24,8 +24,14 @@ bool Socket::Close(CLOSE_TYPE type) {
 int Socket::Select(int maxFd, fd_set* readList,
                     fd_set* writeList, fd_set* errorList,
                     timeval* tv) {
-
   return select(maxFd, readList, writeList, errorList, tv);
+}
+
+void Socket::SetHandle(InternalSockType sock) {
+  m_socket = sock;
+
+  // Resetting ready flag
+  m_bReady = false;
 }
 
 } // namespace net
