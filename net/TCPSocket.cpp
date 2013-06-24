@@ -10,7 +10,7 @@ TCPSocket::TCPSocket(Socket::SOCK_DOMAIN domain)
 
 }
 
-int TCPSocket::Open() {
+bool TCPSocket::Open() {
   m_socket = socket(m_domain, SOCK_STREAM, IPPROTO_TCP);
 
   // Unblocking the blocked socket
@@ -19,6 +19,8 @@ int TCPSocket::Open() {
 
   // socket() returns -1 on error
   m_bReady = m_socket != -1;
+
+  return m_bReady;
 }
 
 int TCPSocket::Send(const std::string& data) {

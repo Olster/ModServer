@@ -12,9 +12,10 @@ class TCPSocket : public Socket {
 
   void operator=(const TCPSocket& other) = delete;
   TCPSocket(const TCPSocket& other) = delete;
-  TCPSocket(const TCPSocket&& other) = delete;
+  void operator=(TCPSocket&& other) = delete;
+  TCPSocket(TCPSocket&& other) = delete;
 
-  int Open() override;
+  bool Open() override;
 
   int Send(const std::string& data);
 
@@ -28,4 +29,5 @@ class TCPSocket : public Socket {
 };
 
 } // namespace net
+
 #endif // NET_TCPSOCKET_H_

@@ -1,7 +1,7 @@
 #ifndef NET_SERVERSOCKET_H_
 #define NET_SERVERSOCKET_H_
 
-#include "TCPSocket.h"
+#include "net/TCPSocket.h"
 
 namespace net {
 
@@ -12,7 +12,8 @@ class ServerSocket : public TCPSocket {
 
   void operator=(const ServerSocket& other) = delete;
   ServerSocket(const ServerSocket& other) = delete;
-  ServerSocket(const ServerSocket&& other) = delete;
+  void operator=(ServerSocket&& other) = delete;
+  ServerSocket(ServerSocket&& other) = delete;
 
   bool Bind();
 
@@ -28,4 +29,5 @@ class ServerSocket : public TCPSocket {
 };
 
 } // namespace net
+
 #endif // CSERVERSOCKET_H_

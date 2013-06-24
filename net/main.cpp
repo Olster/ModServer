@@ -1,8 +1,8 @@
-/*
-  This file is intended for testing putposes only
-  currently it looks like a mess where I'm trying to figure out
-  the concepts of HTTP protocol
-*/
+//
+// This file is intended for testing putposes only
+// currently it looks like a mess where I'm trying to figure out
+// the concepts of HTTP protocol
+//
 
 #include <iostream>
 
@@ -25,10 +25,10 @@ Resource resourceRequested(const string& header);
 void getResource(Resource& res);
 
 int main() {
-  net::ServerSocket httpServer(2563);
-  httpServer.Open();
-  httpServer.Bind();
-  httpServer.Listen(5);
+  net::ServerSocket httpServerSocket(2563);
+  httpServerSocket.Open();
+  httpServerSocket.Bind();
+  httpServerSocket.Listen(5);
 
   // Everything below is just testing.
 
@@ -40,9 +40,9 @@ int main() {
   FD_ZERO(&readList);
   FD_ZERO(&writeList);
 
-  FD_SET(httpServer.GetHandle(), &master);
+  FD_SET(httpServerSocket.GetHandle(), &master);
 
-  int maxFd = httpServer.GetHandle();
+  int maxFd = httpServerSocket.GetHandle();
 
   net::TCPSocket* sock = nullptr;
 
@@ -62,12 +62,12 @@ int main() {
     writeList = master;
 
     // We don't want to write to ourselves
-    FD_CLR(httpServer.GetHandle(), &writeList);
+    FD_CLR(httpServerSocket.GetHandle(), &writeList);
 
     int retCode = net::Socket::Select(maxFd + 1, &readList, &writeList, NULL, &timeLeft);
 
     if (retCode == 0) {
-      cout << "Timeout reached" << endl;
+      cout << "Info: Timeout reached" << endl;
 
       // Closing timed out connection
       // by deleting socket for now
@@ -83,9 +83,9 @@ int main() {
       break;
     }
 
-    if (FD_ISSET(httpServer.GetHandle(), &readList)) {
-      cout << "Accepting socket" << endl;
-      sock = httpServer.Accept();
+    if (FD_ISSET(httpServerSocket.GetHandle(), &readList)) {
+      cout << "Info: Accepting socket" << endl;
+      sock = httpServerSocket.Accept();
 
       net::InternalSockType sockFileDescr = sock->GetHandle();
 
@@ -96,55 +96,65 @@ int main() {
       FD_SET(sockFileDescr, &master);
     }
 
-    if (sock != nullptr && FD_ISSET(sock->GetHandle(), &readList)) {
-      cout << "Receiving from " << sock->GetHandle() << endl;
+    if (sock) {
+      if (FD_ISSET(sock->GetHandle(), &readList)) {
+        cout << "Info: Receiving from " << sock->GetHandle() << endl;
 
-      if (sock->Receive(dataReceived) < 1) {
-        cout << "Socket " << sock->GetHandle() << " closed the connection" << endl;
-        FD_CLR(sock->GetHandle(), &master);
-        dataReceived.clear();
+        int readSize = sock->Receive(dataReceived);
 
-        delete sock;
-        sock = nullptr;
+        if (readSize > 0) {
+          cout << dataReceived << endl;
+          bAnsverAvailable = true;
+        } else if (readSize == 0) {
+          cout << "Info: Socket " << sock->GetHandle() << " closed the connection" << endl;
+          FD_CLR(sock->GetHandle(), &master);
+          dataReceived.clear();
+
+          delete sock;
+          sock = nullptr;
+
+          bAnsverAvailable = false;
+        } else {
+          cout << "Error: Socket error" << endl;
+        }
+      }
+    } else {
+      cout << "Info: sock is NULL" << endl;
+    }
+
+    if (sock) {
+      if (FD_ISSET(sock->GetHandle(), &writeList) && bAnsverAvailable) {
+        cout << "Info: Sending data to " << sock->GetHandle() << endl;
+        string headerLine = dataReceived.substr(0, dataReceived.find('\n'));
+
+        Resource res = resourceRequested(headerLine);
+        getResource(res);
+        if (sock) {
+          string formatted = "";
+          if (!res.MIMEtype.empty()) {
+             formatted = "HTTP/1.1 200 OK\nContent-Type: " + res.MIMEtype + "\nContent-Length: " + std::to_string(res.data.length()) + "\n\n" + res.data + "\n\n";
+          } else {
+            formatted = "HTTP/1.1 404 Not Found\n\n";
+          }
+
+  #ifdef DEBUG
+          cout << "\nSending: " << formatted << endl << endl;
+  #endif
+
+          sock->Send(formatted);
+          cout << "Info: Data sent" << endl;
+        } else {
+          cout << "Socket was closed" << endl;
+        }
+
+        //FD_CLR(acceptedSock, &master);
 
         bAnsverAvailable = false;
       } else {
-        cout << dataReceived << endl;
-        bAnsverAvailable = true;
+        //cout << "Not sending" << endl;
       }
     } else {
-      //cout << "Not receiving" << endl;
-    }
-
-    if (sock != nullptr && FD_ISSET(sock->GetHandle(), &writeList) && bAnsverAvailable) {
-      cout << "Sending data to " << sock->GetHandle() << endl;
-      string headerLine = dataReceived.substr(0, dataReceived.find('\n'));
-
-      Resource res = resourceRequested(headerLine);
-      getResource(res);
-      if (sock) {
-        string formatted = "";
-        if (!res.MIMEtype.empty()) {
-           formatted = "HTTP/1.1 200 OK\nContent-Type: " + res.MIMEtype + "\nContent-Length: " + std::to_string(res.data.length()) + "\n\n" + res.data + "\n\n";
-        } else {
-          formatted = "HTTP/1.1 404 Not Found\n\n";
-        }
-
-#ifdef DEBUG
-        cout << "\nSending: " << formatted << endl << endl;
-#endif
-
-        int sent = sock->Send(formatted);
-        cout << "Data sent: " << sent << " out of " << res.data.length() << "+" << endl;
-      } else {
-        cout << "Socket was closed" << endl;
-      }
-
-      //sFD_CLR(acceptedSock, &master);
-
-      bAnsverAvailable = false;
-    } else {
-      //cout << "Not sending" << endl;
+      cout << "Info: sock is NULL" << endl;
     }
 
     // Don't think I need sleep, select() acts as a sleep I presume
@@ -162,10 +172,12 @@ int main() {
 
 Resource resourceRequested(const string& header) {
 #ifdef DEBUG
-  cout << "Asking for resource with header: " << header << endl;
+  cout << "Info: Asking for resource with header: " << header << endl;
 #endif
 
   Resource out;
+
+  // TODO(Olster): Use HTTPParser here
 
   // GET PATH HTTP
   string::size_type firstSpace = header.find(' ');
@@ -251,14 +263,15 @@ Resource resourceRequested(const string& header) {
 }
 
 void getResource(Resource& res) {
-  // Should return error code if any
+  // Should return error code
 
   // TODO(Olster): This is not reliable, would fail if the
-  // requested file is too big
+  // requested file is too big. Use chunked transfer encoding?
 
   FILE* file = nullptr;
 
-  // TODO(Olster): This should be set in cmd line at start
+  // TODO(Olster): The path to the folder containing resources will be set
+  // when creating the HTTPServer as a parameter in a constructor
   res.path = "/home/olster/cpp_progr/Server/bin/Debug/" + res.path;
 
 #ifdef DEBUG
@@ -276,7 +289,7 @@ void getResource(Resource& res) {
       <title>Page not found</title>
     </head>
     <body>
-      <h2>Sorry, there is no page you requested</h2>
+      <h2>Sorry, the page you requested does not exist</h2>
     </body>
     </html>
     )";
@@ -298,14 +311,15 @@ void getResource(Resource& res) {
   buf = new char[size + 1];
   buf[size] = '\0';
 
-  // |1| is probably 1 char/byte at a time
-  // TODO(Olster): Get detailed information
+  // Read EVERYTHING in one go: read chunk of the size |size|
+  // once.
+  // TODO(Olster): Check for error code after reading
   fread(buf, size, 1, file);
 
   fclose(file);
   file = nullptr;
 
-  // NOTE: Can't do the assignment, cause binary data would be corrupt
+  // NOTE(Olster): Can't do the assignment, cause binary data would be corrupt
   // the constructor that takes char as a parameter will delete all non-printed
   // characters
   res.data = string(buf, size - 1);

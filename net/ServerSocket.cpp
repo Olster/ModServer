@@ -5,9 +5,7 @@
 namespace net {
 
 ServerSocket::ServerSocket(unsigned int port, SOCK_DOMAIN domain)
- : TCPSocket(domain) {
-  m_dPort = port;
-
+ : TCPSocket(domain), m_dPort(port) {
 #ifdef DEBUG
   std::cout << "Info: Creating server socket on port " << m_dPort << std::endl;
 #endif
@@ -86,10 +84,10 @@ TCPSocket* ServerSocket::Accept() {
   }
 
   TCPSocket* retSock = new TCPSocket(m_domain);
-//  retSock->SetHandle(sock);
-//  retSock->SocketSetReady(true);
   retSock->m_socket = sock;
   retSock->m_bReady = true;
+
+  return retSock;
 }
 
 } // namespace net

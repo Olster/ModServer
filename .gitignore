@@ -1,6 +1,8 @@
 
 *~	# Don't need any temp files
 
+*_log.html # Code::Blocks makes html build logs
+
 bin/
 obj/
 *.log

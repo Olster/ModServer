@@ -29,13 +29,14 @@ class Socket : public base::Object {
 
   void operator=(const Socket& other) = delete;
   Socket(const Socket& other) = delete;
-  Socket(const Socket&& other) = delete;
+  void operator=(Socket&& other) = delete;
+  Socket(Socket&& other) = delete;
 
   bool SocketIsReady() const { return m_bReady; }
 
   InternalSockType GetHandle() const { return m_socket; }
 
-  virtual int Open() = 0;
+  virtual bool Open() = 0;
 
   enum CLOSE_TYPE {
     CLOSE_RECEIVE = 0,
@@ -54,8 +55,8 @@ class Socket : public base::Object {
   // Sets new handle for the socket, sets |m_bReady| flag to false
   void SetHandle(InternalSockType sock);
 
-  // NOTE(Olster): Only derived classes can set socket to ready state
-  bool SocketSetReady(bool isReady) { m_bReady = isReady; }
+  // NOTE: Only derived classes can set socket to ready state
+  void SocketSetReady(bool isReady) { m_bReady = isReady; }
 
   SOCK_DOMAIN m_domain;
 
