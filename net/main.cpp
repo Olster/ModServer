@@ -6,7 +6,8 @@
 
 #include <iostream>
 
-#include "net/ServerSocket.h"
+#include "net/server_socket.h"
+#include "net/http_parser.h"
 
 // Temps
 #include <error.h> // For perror()
@@ -21,7 +22,7 @@ struct Resource {
   string data;
 };
 
-Resource resourceRequested(const string& header);
+Resource resourceRequested(const string& pathToRes);
 void getResource(Resource& res);
 
 int main() {
@@ -54,6 +55,7 @@ int main() {
   tv.tv_usec = 0l;
 
   string dataReceived;
+  net::HTTPParser requestParser;
 
   while (true) {
     timeval timeLeft = tv;
@@ -104,7 +106,12 @@ int main() {
 
         if (readSize > 0) {
           cout << dataReceived << endl;
-          bAnsverAvailable = true;
+
+          net::ParserState state = requestParser.Parse(dataReceived);
+
+          if (state == net::ParserState::PARSED) {
+            bAnsverAvailable = true;
+          }
         } else if (readSize == 0) {
           cout << "Info: Socket " << sock->GetHandle() << " closed the connection" << endl;
           FD_CLR(sock->GetHandle(), &master);
@@ -125,10 +132,14 @@ int main() {
     if (sock) {
       if (FD_ISSET(sock->GetHandle(), &writeList) && bAnsverAvailable) {
         cout << "Info: Sending data to " << sock->GetHandle() << endl;
-        string headerLine = dataReceived.substr(0, dataReceived.find('\n'));
 
-        Resource res = resourceRequested(headerLine);
-        getResource(res);
+        Resource res {"", "", ""};
+
+        if (requestParser.GetState() == net::ParserState::PARSED) {
+          res = resourceRequested(requestParser.GetResourceURI());
+          getResource(res);
+        }
+
         if (sock) {
           string formatted = "";
           if (!res.MIMEtype.empty()) {
@@ -170,58 +181,44 @@ int main() {
   return 0;
 }
 
-Resource resourceRequested(const string& header) {
+Resource resourceRequested(const string& pathToRes) {
 #ifdef DEBUG
-  cout << "Info: Asking for resource with header: " << header << endl;
+  cout << "Info: Asking for resource: " << pathToRes << endl;
 #endif
 
   Resource out;
 
-  // TODO(Olster): Use HTTPParser here
+  // Remove the slash in the beginning
 
-  // GET PATH HTTP
-  string::size_type firstSpace = header.find(' ');
-  string::size_type secondSpace = header.find(' ', firstSpace + 1);
-
-  if (firstSpace == string::npos || secondSpace == string::npos) {
-    // Empty resource identificator in header
-#ifdef DEBUG
-  cout << "\tCouldn't get the resource URI" << header << endl;
-#endif
-    return Resource {"", "", ""};
-  }
-
-  // requested_resource.extension
-  // |+2| counting that space we found and "/"
-  string resourceName = header.substr(firstSpace + 2, secondSpace - firstSpace - 2);
-
-  // If |resourceName| is empty, then we're requesting the site root
-  if (resourceName.empty()) {
-    // Leaving data field empty
-    // Will look more clear when we make a separate class
+  // If |pathToRes| is empty, then we're requesting the site root
+  if (pathToRes == "/") {
 #ifdef DEBUG
   cout << "\tNeed to return index.html" << endl;
 #endif
 
-    return Resource {"index.html", "text/html", ""};
+    return {"index.html", "text/html", ""};
   }
 
   // If request had spaces in it, they would be changed into |%20|
-  // TODO(Olster): User regex_replace when it's working
+  // TODO(Olster): User regex_replace when it's working. Make HTTPParser do it,
+  // wouldn't need the path copy
+
+  std::string pathCopy = pathToRes;
+
   string::size_type space = 0;
-  while ((space = resourceName.find("%20")) != string::npos) {
+  while ((space = pathCopy.find("%20")) != string::npos) {
     // Replace 3 characters |%20| with space
-    resourceName.replace(space, 3, " ");
+    pathCopy.replace(space, 3, " ");
   }
 
-  out.path = resourceName;
+  out.path = pathCopy;
 
 #ifdef DEBUG
-  cout << "\tResource URI: " << resourceName << " Length: " << resourceName.length() << endl;
+  cout << "\tResource URI: " << pathCopy << endl;
 #endif
 
-  string::size_type extensionDot = resourceName.find_last_of('.');
-  string extension = resourceName.substr(extensionDot + 1);
+  string::size_type extensionDot = pathCopy.find_last_of('.');
+  string extension = pathCopy.substr(extensionDot + 1);
 
 #ifdef DEBUG
   cout << "\tExtension: " << extension << endl;
@@ -271,7 +268,9 @@ void getResource(Resource& res) {
   FILE* file = nullptr;
 
   // TODO(Olster): The path to the folder containing resources will be set
-  // when creating the HTTPServer as a parameter in a constructor
+  // when creating the HTTPServer as a parameter in a constructor.
+  // Or make a configuration class and pass it as a parameter.
+
   res.path = "/home/olster/cpp_progr/Server/bin/Debug/" + res.path;
 
 #ifdef DEBUG

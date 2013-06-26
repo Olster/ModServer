@@ -1,4 +1,4 @@
-#include "net/Socket.h"
+#include "net/socket.h"
 
 #include <sys/select.h>
 #include <unistd.h> // for close()

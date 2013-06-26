@@ -3,7 +3,7 @@
 
 #include <sys/socket.h>
 
-#include "base/Object.h"
+#include "base/object.h"
 
 namespace net {
 
@@ -55,7 +55,7 @@ class Socket : public base::Object {
   // Sets new handle for the socket, sets |m_bReady| flag to false
   void SetHandle(InternalSockType sock);
 
-  // NOTE: Only derived classes can set socket to ready state
+  // NOTE(Olster): Only derived classes can set socket to ready state
   void SocketSetReady(bool isReady) { m_bReady = isReady; }
 
   SOCK_DOMAIN m_domain;
