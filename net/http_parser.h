@@ -12,7 +12,6 @@ namespace net {
 
 class HTTPParser : public base::Object {
  public:
-
   enum RequestMethod {
     GET,
     HEAD,
@@ -46,24 +45,20 @@ class HTTPParser : public base::Object {
   void Reset();
 
   ParserState GetState() const { return m_internalState; }
+  bool IsRequestValid() const { return m_internalState == ParserState::PARSED; }
 
   RequestMethod GetRequestMethod() const { return m_reqMethod; }
-
   std::string GetResourceURI() const { return m_resourceURI; }
-
   HTTPVersion GetHTTPVersion() const { return m_httpVer; }
-
   int GetMajHTTPVersion() const { return m_dHTTPMajVer; }
   int GetMinHTTPVersion() const { return m_dHTTPMinVer; }
 
   int GetErrorPos() const { return m_dErrorPos; }
 
   std::string ToString() const override { return "net::HTTPParser."; }
-
  private:
   // Chops off request line grom request in the process
   ParserState ParseRequestLine(std::string& request);
-
   ParserState ParseHeaders(std::string& request);
 
   ParserState m_internalState = ParserState::NOT_PARSED;

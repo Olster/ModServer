@@ -8,22 +8,17 @@
 
 #include "net/server_socket.h"
 #include "net/http_parser.h"
+#include "net/resource.h"
 
 // Temps
 #include <error.h> // For perror()
 
 using namespace std;
 
-// TODO(Olster): Make a separate class or move to another file
-struct Resource {
-  string path;
-  string MIMEtype;
+net::Resource fillResource(const net::HTTPParser& parser, bool& success);
 
-  string data;
-};
-
-Resource resourceRequested(const string& pathToRes);
-void getResource(Resource& res);
+//net::Resource resourceRequested(const string& pathToRes);
+bool getResource(std::string filePath, net::Resource& res);
 
 int main() {
   net::ServerSocket httpServerSocket(2563);
@@ -133,19 +128,16 @@ int main() {
       if (FD_ISSET(sock->GetHandle(), &writeList) && bAnsverAvailable) {
         cout << "Info: Sending data to " << sock->GetHandle() << endl;
 
-        Resource res {"", "", ""};
-
-        if (requestParser.GetState() == net::HTTPParser::ParserState::PARSED) {
-          res = resourceRequested(requestParser.GetResourceURI());
-          getResource(res);
-        }
-
-        if (sock) {
+        if (requestParser.IsRequestValid()) {
           string formatted = "";
-          if (!res.MIMEtype.empty()) {
-             formatted = "HTTP/1.1 200 OK\nContent-Type: " + res.MIMEtype + "\nContent-Length: " + std::to_string(res.data.length()) + "\n\n" + res.data + "\n\n";
+
+          bool success = false;
+          net::Resource res = fillResource(requestParser, success);
+
+          if (!success) {
+            formatted = "HTTP/1.1 404 Not Found\nContent-Type: " + res.GetMIMEType() + "\nContent-Length: " + std::to_string(res.GetData().length()) + "\n\n" + res.GetData() + "\n\n";
           } else {
-            formatted = "HTTP/1.1 404 Not Found\n\n";
+            formatted = "HTTP/1.1 200 OK\nContent-Type: " + res.GetMIMEType() + "\nContent-Length: " + std::to_string(res.GetData().length()) + "\n\n" + res.GetData() + "\n\n";
           }
 
   #ifdef DEBUG
@@ -155,14 +147,12 @@ int main() {
           sock->Send(formatted);
           cout << "Info: Data sent" << endl;
         } else {
-          cout << "Socket was closed" << endl;
+          cout << "Invalid request" << endl;
         }
 
         //FD_CLR(acceptedSock, &master);
 
         bAnsverAvailable = false;
-      } else {
-        //cout << "Not sending" << endl;
       }
     } else {
       cout << "Info: sock is NULL" << endl;
@@ -181,85 +171,98 @@ int main() {
   return 0;
 }
 
-Resource resourceRequested(const string& pathToRes) {
-#ifdef DEBUG
-  cout << "Info: Asking for resource: " << pathToRes << endl;
-#endif
+net::Resource fillResource(const net::HTTPParser& parser, bool& success) {
+  // Asking for site root
+  net::Resource out;
 
-  Resource out;
-
-  // Remove the slash in the beginning
-
-  // If |pathToRes| is empty, then we're requesting the site root
-  if (pathToRes == "/") {
-#ifdef DEBUG
-  cout << "\tNeed to return index.html" << endl;
-#endif
-
-    return {"index.html", "text/html", ""};
+  if (parser.GetResourceURI() == "/") {
+    success = getResource("index.html", out);
+    return out;
   }
 
-  // If request had spaces in it, they would be changed into |%20|
-  // TODO(Olster): User regex_replace when it's working. Make HTTPParser do it,
-  // wouldn't need the path copy
-
-  std::string pathCopy = pathToRes;
-
-  string::size_type space = 0;
-  while ((space = pathCopy.find("%20")) != string::npos) {
-    // Replace 3 characters |%20| with space
-    pathCopy.replace(space, 3, " ");
-  }
-
-  out.path = pathCopy;
-
-#ifdef DEBUG
-  cout << "\tResource URI: " << pathCopy << endl;
-#endif
-
-  string::size_type extensionDot = pathCopy.find_last_of('.');
-  string extension = pathCopy.substr(extensionDot + 1);
-
-#ifdef DEBUG
-  cout << "\tExtension: " << extension << endl;
-#endif
-
-  // TODO(Olster): Build a map that returns MIME type instead of ifs
-
-  // Text
-  if (extension == "html" || extension == "htm") {
-    out.MIMEtype = "text/html";
-  }
-
-  if (extension == "css") {
-    out.MIMEtype = "text/css";
-  }
-
-  // Image
-  if (extension == "ico ") {
-    out.MIMEtype = "image/x-image";
-  }
-
-  if (extension == "png") {
-    out.MIMEtype = "image/png";
-  }
-
-  if (extension == "gif") {
-    out.MIMEtype = "image/gif";
-  }
-
-  if (extension == "jpg" || extension == "jpeg") {
-    out.MIMEtype = "image/jpeg";
-  }
-
-#ifdef DEBUG
-  cout << "\tReturning resource with path " << out.path << " type " << out.MIMEtype << endl;
-#endif
-
+  success = getResource(parser.GetResourceURI(), out);
   return out;
 }
 
-void getResource(Resource& res) {
+//net::Resource resourceRequested(const string& pathToRes) {
+//#ifdef DEBUG
+//  cout << "Info: Asking for resource: " << pathToRes << endl;
+//#endif
+//
+//  net::Resource out;
+//
+//  // Remove the slash in the beginning
+//
+//  // If |pathToRes| is empty, then we're requesting the site root
+//  if (pathToRes == "/") {
+//#ifdef DEBUG
+//  cout << "\tNeed to return index.html" << endl;
+//#endif
+//
+//    return {"index.html", "text/html", ""};
+//  }
+//
+//  // If request had spaces in it, they would be changed into |%20|
+//  // TODO(Olster): User regex_replace when it's working. Make HTTPParser do it,
+//  // wouldn't need the path copy
+//
+//  std::string pathCopy = pathToRes;
+//
+//  string::size_type space = 0;
+//  while ((space = pathCopy.find("%20")) != string::npos) {
+//    // Replace 3 characters |%20| with space
+//    pathCopy.replace(space, 3, " ");
+//  }
+//
+//  out.path = pathCopy;
+//
+//#ifdef DEBUG
+//  cout << "\tResource URI: " << pathCopy << endl;
+//#endif
+//
+//  string::size_type extensionDot = pathCopy.find_last_of('.');
+//  string extension = pathCopy.substr(extensionDot + 1);
+//
+//#ifdef DEBUG
+//  cout << "\tExtension: " << extension << endl;
+//#endif
+//
+//  // TODO(Olster): Build a map that returns MIME type instead of ifs
+//
+//  // Text
+//  if (extension == "html" || extension == "htm") {
+//    out.MIMEtype = "text/html";
+//  }
+//
+//  if (extension == "css") {
+//    out.MIMEtype = "text/css";
+//  }
+//
+//  // Image
+//  if (extension == "ico ") {
+//    out.MIMEtype = "image/x-image";
+//  }
+//
+//  if (extension == "png") {
+//    out.MIMEtype = "image/png";
+//  }
+//
+//  if (extension == "gif") {
+//    out.MIMEtype = "image/gif";
+//  }
+//
+//  if (extension == "jpg" || extension == "jpeg") {
+//    out.MIMEtype = "image/jpeg";
+//  }
+//
+//#ifdef DEBUG
+//  cout << "\tReturning resource with path " << out.path << " type " << out.MIMEtype << endl;
+//#endif
+//
+//  return out;
+//}
+
+bool getResource(std::string filePath, net::Resource& res) {
   // Should return error code
 
   // TODO(Olster): This is not reliable, would fail if the
@@ -271,33 +274,31 @@ void getResource(Resource& res) {
   // when creating the HTTPServer as a parameter in a constructor.
   // Or make a configuration class and pass it as a parameter.
 
-  res.path = "/home/olster/cpp_progr/Server/bin/Debug/" + res.path;
+  filePath = "/home/olster/cpp_progr/Server/bin/Debug/" + filePath;
 
 #ifdef DEBUG
-  cout << "\tOpening file " << res.path << endl;
+  cout << "\tOpening file " << filePath << endl;
 #endif
 
-  file = fopen(res.path.c_str(), "rb");
+  file = fopen(filePath.c_str(), "rb");
 
   if (!file) {
     // TODO(Olster): Exceptions?
-    res.data = R"(
-    <doctype html>
-    <html>
-    <head>
-      <title>Page not found</title>
-    </head>
-    <body>
-      <h2>Sorry, the page you requested does not exist</h2>
-    </body>
-    </html>
-    )";
+    res.SetData(R"(
+      <doctype html>
+      <html>
+      <head>
+        <title>Page not found</title>
+      </head>
+      <body>
+        <h2>Sorry, the page you requested does not exist</h2>
+      </body>
+      </html>
+    )");
 
-    //res.data = "";
+    res.SetMIMEType("text/html");
 
-    res.MIMEtype = "text/html";
-
-    return;
+    return false;
   }
 
   char* buf = nullptr;
@@ -321,8 +322,10 @@ void getResource(Resource& res) {
   // NOTE(Olster): Can't do the assignment, cause binary data would be corrupt
   // the constructor that takes char as a parameter will delete all non-printed
   // characters
-  res.data = string(buf, size - 1);
+  res.SetData(string(buf, size - 1));
 
   delete [] buf;
   buf = nullptr;
+
+  return true;
 }

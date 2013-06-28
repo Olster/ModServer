@@ -1,0 +1,22 @@
+<html>
+<head>
+<title>Server build log</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /></head>
+<body>
+<tt>
+Build started on: <u>28-06-2013 at 19:42.07</u><br />
+Build ended on: <u>28-06-2013 at 19:42.08</u><p />
+<b>-------------- Build: Debug in Server (compiler: GNU GCC Compiler)---------------</b><br />
+g++ -Wshadow -Wredundant-decls -Weffc++ -std=c++11 -Wextra -Wall -fexceptions -DDEBUG  -Weffc++ -std=c++11 -Wextra -Wall -g -DUNIX -DDEBUG  -Wredundant-decls -Winline -Wunreachable-code -std=c++0x -Wall   -I/home/olster/cpp_progr/Server/  -c /home/olster/cpp_progr/Server/net/main.cpp -o obj/Debug/net/main.o<br />
+In file included from /home/olster/cpp_progr/Server/net/main.cpp:10:0:<br />
+/home/olster/cpp_progr/Server/net/http_parser.h: In constructor "net::HTTPParser::HTTPParser()":<br />
+<font color="#0000ff">/home/olster/cpp_progr/Server/net/http_parser.h:33:3: warning: "net::HTTPParser::m_resourceURI" should be initialized in the member initialization list [-Weffc++]</font><br />
+/home/olster/cpp_progr/Server/net/main.cpp: In function "int main()":<br />
+/home/olster/cpp_progr/Server/net/main.cpp:53:19: note: synthesized method "net::HTTPParser::HTTPParser()" first required here <br />
+g++  -o bin/Debug/Server obj/Debug/net/http_parser.o obj/Debug/net/main.o obj/Debug/net/resource.o obj/Debug/net/server_socket.o obj/Debug/net/socket.o obj/Debug/net/tcp_socket.o<br />
+Output size is 197.63 KB<br />
+<font color="#0000ff">Process terminated with status 0 (0 minutes, 0 seconds)</font><br />
+<font color="#0000ff">0 errors, 1 warnings (0 minutes, 0 seconds)</font><br />
+</tt>
+</body>
+</html>
