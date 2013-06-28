@@ -107,9 +107,9 @@ int main() {
         if (readSize > 0) {
           cout << dataReceived << endl;
 
-          net::ParserState state = requestParser.Parse(dataReceived);
+          net::HTTPParser::ParserState state = requestParser.Parse(dataReceived);
 
-          if (state == net::ParserState::PARSED) {
+          if (state == net::HTTPParser::ParserState::PARSED) {
             bAnsverAvailable = true;
           }
         } else if (readSize == 0) {
@@ -135,7 +135,7 @@ int main() {
 
         Resource res {"", "", ""};
 
-        if (requestParser.GetState() == net::ParserState::PARSED) {
+        if (requestParser.GetState() == net::HTTPParser::ParserState::PARSED) {
           res = resourceRequested(requestParser.GetResourceURI());
           getResource(res);
         }

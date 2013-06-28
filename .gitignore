@@ -2,10 +2,14 @@
 *~	# Don't need any temp files
 
 *_log.html # Code::Blocks makes html build logs
+**unittest.cpp # Not uploading unittests for now
 
 bin/
 obj/
-*.log
+testing/
+
+MakeTest
+
 *.txt
 *.layout
 *.cbp

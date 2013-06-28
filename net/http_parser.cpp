@@ -28,7 +28,7 @@ inline int appendDigit(int number, int digit) {
 
 } // namespace
 
-ParserState HTTPParser::Parse(std::string& request) {
+HTTPParser::ParserState HTTPParser::Parse(std::string& request) {
   Reset();
 
   m_internalState = ParseRequestLine(request);
@@ -49,7 +49,7 @@ void HTTPParser::Reset() {
   m_resourceURI.clear();
 }
 
-ParserState HTTPParser::ParseRequestLine(std::string& request) {
+HTTPParser::ParserState HTTPParser::ParseRequestLine(std::string& request) {
   if (request.empty()) {
     m_dErrorPos = 0;
     return ParserState::ERROR;
@@ -138,7 +138,7 @@ ParserState HTTPParser::ParseRequestLine(std::string& request) {
           m_dHTTPMinVer = appendDigit(m_dHTTPMinVer, currentChar - '0');
 
           currentCharPos++;
-        } else if (currentChar == '\r') {
+        } else if (currentChar == '\r' || currentChar == '\n') {
           // TODO(Olster): Not all clients send exactly "\r\n".Some send "\n\n"
           state = ReqLineParseState::PARSED;
           currentCharPos++;
@@ -197,7 +197,7 @@ ParserState HTTPParser::ParseRequestLine(std::string& request) {
   return ParserState::PARSED;
 }
 
-ParserState HTTPParser::ParseHeaders(std::string& request) {
+HTTPParser::ParserState HTTPParser::ParseHeaders(std::string& request) {
   // UNUSED, if you may
   (void)request;
 

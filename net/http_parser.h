@@ -10,26 +10,27 @@
 
 namespace net {
 
-enum RequestMethod {
-  GET,
-  HEAD,
-  ERROR
-};
-
-enum class ParserState {
-  NOT_PARSED,
-  PARSED,
-  ERROR
-};
-
-enum class HTTPVersion {
-  VER_1_0,
-  VER_1_1,
-  VER_CUSTOM
-};
-
-class HTTPParser : base::Object {
+class HTTPParser : public base::Object {
  public:
+
+  enum RequestMethod {
+    GET,
+    HEAD,
+    ERROR
+  };
+
+  enum class ParserState {
+    NOT_PARSED,
+    PARSED,
+    ERROR
+  };
+
+  enum class HTTPVersion {
+    VER_1_0,
+    VER_1_1,
+    VER_CUSTOM
+  };
+
   HTTPParser() = default;
   ~HTTPParser() = default;
 
@@ -57,7 +58,7 @@ class HTTPParser : base::Object {
 
   int GetErrorPos() const { return m_dErrorPos; }
 
-  std::string ToString() const override { return "net::HTTPParser"; }
+  std::string ToString() const override { return "net::HTTPParser."; }
 
  private:
   // Chops off request line grom request in the process
