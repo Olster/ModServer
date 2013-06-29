@@ -127,6 +127,8 @@ std::cout << "\tInfo: Accepting socket" << std::endl;
 #ifdef DEBUG
 std::cout << "\tInfo: Socket was closed" << std::endl;
 #endif
+            FD_CLR(recieverSock->GetHandle(), &masterSet);
+
             delete recieverSock;
             recieverSock = nullptr;
 
