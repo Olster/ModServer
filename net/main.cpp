@@ -15,254 +15,194 @@
 
 using namespace std;
 
-net::Resource fillResource(const net::HTTPParser& parser, bool& success);
-
-//net::Resource resourceRequested(const string& pathToRes);
-bool getResource(std::string filePath, net::Resource& res);
+//net::Resource fillResource(const net::HTTPParser& parser, bool& success);
+bool fillResource(const net::HTTPParser& parser, net::Resource& res);
+bool loadResource(std::string filePath, net::Resource& res);
 
 int main() {
-  net::ServerSocket httpServerSocket(2563);
-  httpServerSocket.Open();
-  httpServerSocket.Bind();
-  httpServerSocket.Listen(5);
+  net::ServerSocket serverSock(2555);
 
-  // Everything below is just testing.
+  if (!serverSock.Open()) {
+    cout << "Error: Couldn't open socket" << endl;
+    return 1;
+  }
 
-  fd_set master;
-  fd_set readList;
-  fd_set writeList;
+  if (!serverSock.Bind()) {
+    cout << "Error: Couldn't bind socket" << endl;
+    return 2;
+  }
 
-  FD_ZERO(&master);
-  FD_ZERO(&readList);
-  FD_ZERO(&writeList);
+  if (!serverSock.Listen(1)) {
+    cout << "Error: failed to Listen()" << endl;
+    return 3;
+  }
 
-  FD_SET(httpServerSocket.GetHandle(), &master);
-
-  int maxFd = httpServerSocket.GetHandle();
-
-  net::TCPSocket* sock = nullptr;
-
-  bool bAnsverAvailable = false;
-
-  // 5 min timeout structure
-  timeval tv;
-  tv.tv_sec = 5 * 60;
-  tv.tv_usec = 0l;
-
-  string dataReceived;
+  net::TCPSocket* recieverSock = nullptr;
+  std::string request;
+  std::string response;
+  net::Resource resource;
   net::HTTPParser requestParser;
 
+  bool allDataSent = true;
+
+  std::string notFoundResponse =
+R"(<!DOCTYPE html>
+<html>
+<head>
+  <title>It's not the page you might be looking for</title>
+</head>
+<body>
+  <h3>Sorry, the page you requested is not available</h3>
+</body>
+</html>)";
+
+  int maxFileDescr = serverSock.GetHandle();
+
+  fd_set masterSet;
+  fd_set readerSet;
+  fd_set writerSet;
+
+  FD_ZERO(&masterSet);
+  FD_ZERO(&readerSet);
+  FD_ZERO(&writerSet);
+
+  FD_SET(serverSock.GetHandle(), &masterSet);
+
+  // Structure for select() timeout
+  timeval timeout;
+  timeout.tv_sec = 5*60;  // 5 mins
+  timeout.tv_usec = 0;
+
+  // Main loop of the server. Will loop until select() returns an error
+  // (select() timeout doesn't break the loop).
   while (true) {
-    timeval timeLeft = tv;
+    // Copy master set to read and write set,
+    // exclude serverSocket from writers set -- we won't write to ourselves
+    readerSet = masterSet;
+    writerSet = masterSet;
 
-    readList = master;
-    writeList = master;
+    FD_CLR(serverSock.GetHandle(), &writerSet);
 
-    // We don't want to write to ourselves
-    FD_CLR(httpServerSocket.GetHandle(), &writeList);
+    // Make a copy of timeout structure. Select() modifies it,
+    // filling it with time left before timing out
+    timeval timeLeft = timeout;
 
-    int retCode = net::Socket::Select(maxFd + 1, &readList, &writeList, NULL, &timeLeft);
+    int retCode = net::Socket::Select(maxFileDescr + 1, &readerSet, &writerSet, 0, &timeLeft);
 
     if (retCode == 0) {
-      cout << "Info: Timeout reached" << endl;
-
-      // Closing timed out connection
-      // by deleting socket for now
-      if (sock) {
-        FD_CLR(sock->GetHandle(), &master);
-        delete sock;
-        sock = nullptr;
-      }
-
+      cout << "Info: select() timed out" << endl;
       continue;
     } else if (retCode == -1) {
-      perror("An error has occured: ");
+      perror("Error: select() ");
       break;
     }
 
-    if (FD_ISSET(httpServerSocket.GetHandle(), &readList)) {
-      cout << "Info: Accepting socket" << endl;
-      sock = httpServerSocket.Accept();
-
-      net::InternalSockType sockFileDescr = sock->GetHandle();
-
-      if (sockFileDescr > maxFd) {
-        maxFd = sockFileDescr;
+    // If serverSocket is ready to read, then it has pending connections
+    // and Accept() won't block
+    if (FD_ISSET(serverSock.GetHandle(), &readerSet)) {
+#ifdef DEBUG
+std::cout << "\tInfo: Accepting socket" << std::endl;
+#endif
+      if (recieverSock) {
+        delete recieverSock;
+        recieverSock = nullptr;
       }
 
-      FD_SET(sockFileDescr, &master);
+      recieverSock = serverSock.Accept();
+
+      if (recieverSock->GetHandle() > maxFileDescr) {
+        maxFileDescr = recieverSock->GetHandle();
+      }
+
+      FD_SET(recieverSock->GetHandle(), &masterSet);
     }
 
-    if (sock) {
-      if (FD_ISSET(sock->GetHandle(), &readList)) {
-        cout << "Info: Receiving from " << sock->GetHandle() << endl;
+    if (recieverSock) {
+      // Receive
+      if (FD_ISSET(recieverSock->GetHandle(), &readerSet)) {
+        if (allDataSent) {
+          int bytesReceived = recieverSock->Receive(request);
+          if (bytesReceived == 0) {
+            // Connection closed
+#ifdef DEBUG
+std::cout << "\tInfo: Socket was closed" << std::endl;
+#endif
+            delete recieverSock;
+            recieverSock = nullptr;
 
-        int readSize = sock->Receive(dataReceived);
-
-        if (readSize > 0) {
-          cout << dataReceived << endl;
-
-          net::HTTPParser::ParserState state = requestParser.Parse(dataReceived);
-
-          if (state == net::HTTPParser::ParserState::PARSED) {
-            bAnsverAvailable = true;
+            continue;
           }
-        } else if (readSize == 0) {
-          cout << "Info: Socket " << sock->GetHandle() << " closed the connection" << endl;
-          FD_CLR(sock->GetHandle(), &master);
-          dataReceived.clear();
 
-          delete sock;
-          sock = nullptr;
+          if (bytesReceived == -1) {
+            // Socket error
+#ifdef DEBUG
+std::cout << "\tError: Connection error" << std::endl;
+#endif
+            delete recieverSock;
+            recieverSock = nullptr;
 
-          bAnsverAvailable = false;
-        } else {
-          cout << "Error: Socket error" << endl;
+            continue;
+          }
+
+#ifdef DEBUG
+std::cout << "Received:\n" << request << std::endl;
+#endif
+
+          requestParser.Parse(request);
+
+          if (requestParser.IsRequestValid()) {
+            // If resource doesn't exist, give the 404 error
+            bool resLoaded = fillResource(requestParser, resource);
+
+            if (!resLoaded) {
+              response = "HTTP/1.1 404 Not Found\nContent-type: text/html\nContent-length: " +
+                         std::to_string(notFoundResponse.length()) + "\n\n" +
+                         notFoundResponse + "\n\n";
+            } else {
+              response = "HTTP/1.1 200 OK\nContent-Type: " +
+                          resource.GetMIMEType() + "\nContent-Length: " +
+                          std::to_string(resource.GetData().length()) +
+                          "\n\n" + resource.GetData() + "\n\n";
+            }
+          }
         }
+        // Can't receive if not all data had been sent
       }
-    } else {
-      cout << "Info: sock is NULL" << endl;
-    }
 
-    if (sock) {
-      if (FD_ISSET(sock->GetHandle(), &writeList) && bAnsverAvailable) {
-        cout << "Info: Sending data to " << sock->GetHandle() << endl;
+      // Send
+      if (FD_ISSET(recieverSock->GetHandle(), &writerSet)) {
+        // If we have nothing to send, then go on
+        if (!response.empty()) {
+#ifdef DEBUG
+std::cout << "\tSending\n" << response << std::endl;
+#endif
 
-        if (requestParser.IsRequestValid()) {
-          string formatted = "";
-
-          bool success = false;
-          net::Resource res = fillResource(requestParser, success);
-
-          if (!success) {
-            formatted = "HTTP/1.1 404 Not Found\nContent-Type: " + res.GetMIMEType() + "\nContent-Length: " + std::to_string(res.GetData().length()) + "\n\n" + res.GetData() + "\n\n";
+          int bytesSent = recieverSock->Send(response);
+          if (bytesSent >= response.length()) {
+            allDataSent = true;
+            response.clear();
           } else {
-            formatted = "HTTP/1.1 200 OK\nContent-Type: " + res.GetMIMEType() + "\nContent-Length: " + std::to_string(res.GetData().length()) + "\n\n" + res.GetData() + "\n\n";
+            response = response.substr(bytesSent);
+            allDataSent = false;
           }
-
-  #ifdef DEBUG
-          cout << "\nSending: " << formatted << endl << endl;
-  #endif
-
-          sock->Send(formatted);
-          cout << "Info: Data sent" << endl;
-        } else {
-          cout << "Invalid request" << endl;
         }
-
-        //FD_CLR(acceptedSock, &master);
-
-        bAnsverAvailable = false;
       }
-    } else {
-      cout << "Info: sock is NULL" << endl;
     }
-
-    // Don't think I need sleep, select() acts as a sleep I presume
-    //sleep(0);
   }
 
-  if (sock) {
-    delete sock;
-    sock = nullptr;
-  }
-
-  cin.ignore();
   return 0;
 }
 
-net::Resource fillResource(const net::HTTPParser& parser, bool& success) {
-  // Asking for site root
-  net::Resource out;
-
+bool fillResource(const net::HTTPParser& parser, net::Resource& res) {
   if (parser.GetResourceURI() == "/") {
-    success = getResource("index.html", out);
-    return out;
+    // Asking for the site root
+    return loadResource("index.html", res);
   }
 
-  success = getResource(parser.GetResourceURI(), out);
-  return out;
+  return loadResource(parser.GetResourceURI(), res);
 }
 
-//net::Resource resourceRequested(const string& pathToRes) {
-//#ifdef DEBUG
-//  cout << "Info: Asking for resource: " << pathToRes << endl;
-//#endif
-//
-//  net::Resource out;
-//
-//  // Remove the slash in the beginning
-//
-//  // If |pathToRes| is empty, then we're requesting the site root
-//  if (pathToRes == "/") {
-//#ifdef DEBUG
-//  cout << "\tNeed to return index.html" << endl;
-//#endif
-//
-//    return {"index.html", "text/html", ""};
-//  }
-//
-//  // If request had spaces in it, they would be changed into |%20|
-//  // TODO(Olster): User regex_replace when it's working. Make HTTPParser do it,
-//  // wouldn't need the path copy
-//
-//  std::string pathCopy = pathToRes;
-//
-//  string::size_type space = 0;
-//  while ((space = pathCopy.find("%20")) != string::npos) {
-//    // Replace 3 characters |%20| with space
-//    pathCopy.replace(space, 3, " ");
-//  }
-//
-//  out.path = pathCopy;
-//
-//#ifdef DEBUG
-//  cout << "\tResource URI: " << pathCopy << endl;
-//#endif
-//
-//  string::size_type extensionDot = pathCopy.find_last_of('.');
-//  string extension = pathCopy.substr(extensionDot + 1);
-//
-//#ifdef DEBUG
-//  cout << "\tExtension: " << extension << endl;
-//#endif
-//
-//  // TODO(Olster): Build a map that returns MIME type instead of ifs
-//
-//  // Text
-//  if (extension == "html" || extension == "htm") {
-//    out.MIMEtype = "text/html";
-//  }
-//
-//  if (extension == "css") {
-//    out.MIMEtype = "text/css";
-//  }
-//
-//  // Image
-//  if (extension == "ico ") {
-//    out.MIMEtype = "image/x-image";
-//  }
-//
-//  if (extension == "png") {
-//    out.MIMEtype = "image/png";
-//  }
-//
-//  if (extension == "gif") {
-//    out.MIMEtype = "image/gif";
-//  }
-//
-//  if (extension == "jpg" || extension == "jpeg") {
-//    out.MIMEtype = "image/jpeg";
-//  }
-//
-//#ifdef DEBUG
-//  cout << "\tReturning resource with path " << out.path << " type " << out.MIMEtype << endl;
-//#endif
-//
-//  return out;
-//}
-
-bool getResource(std::string filePath, net::Resource& res) {
+bool loadResource(std::string filePath, net::Resource& res) {
   // Should return error code
 
   // TODO(Olster): This is not reliable, would fail if the
@@ -274,7 +214,7 @@ bool getResource(std::string filePath, net::Resource& res) {
   // when creating the HTTPServer as a parameter in a constructor.
   // Or make a configuration class and pass it as a parameter.
 
-  filePath = "/home/olster/cpp_progr/Server/bin/Debug/" + filePath;
+  //filePath = "/home/olster/cpp_progr/Server/bin/Debug/" + filePath;
 
 #ifdef DEBUG
   cout << "\tOpening file " << filePath << endl;
@@ -283,21 +223,6 @@ bool getResource(std::string filePath, net::Resource& res) {
   file = fopen(filePath.c_str(), "rb");
 
   if (!file) {
-    // TODO(Olster): Exceptions?
-    res.SetData(R"(
-      <doctype html>
-      <html>
-      <head>
-        <title>Page not found</title>
-      </head>
-      <body>
-        <h2>Sorry, the page you requested does not exist</h2>
-      </body>
-      </html>
-    )");
-
-    res.SetMIMEType("text/html");
-
     return false;
   }
 
@@ -326,6 +251,41 @@ bool getResource(std::string filePath, net::Resource& res) {
 
   delete [] buf;
   buf = nullptr;
+
+  string::size_type extensionDot = filePath.find_last_of('.');
+  string extension = filePath.substr(extensionDot + 1);
+
+#ifdef DEBUG
+cout << "\tInfo: Resource extension: " << extension << endl;
+#endif
+
+  // TODO(Olster): Build a map that returns MIME type instead of ifs
+
+  // Text
+  if (extension == "html" || extension == "htm") {
+    res.SetMIMEType("text/html");
+  }
+
+  if (extension == "css") {
+    res.SetMIMEType("text/css");
+  }
+
+  // Image
+  if (extension == "ico ") {
+    res.SetMIMEType("image/x-image");
+  }
+
+  if (extension == "png") {
+    res.SetMIMEType("image/png");
+  }
+
+  if (extension == "gif") {
+    res.SetMIMEType("image/gif");
+  }
+
+  if (extension == "jpg" || extension == "jpeg") {
+    res.SetMIMEType("image/jpeg");
+  }
 
   return true;
 }

@@ -7,7 +7,7 @@ namespace net {
 ServerSocket::ServerSocket(unsigned int port, SOCK_DOMAIN domain)
  : TCPSocket(domain), m_dPort(port) {
 #ifdef DEBUG
-  std::cout << "Info: Creating server socket on port " << m_dPort << std::endl;
+  std::cout << "Info(" << ToString() << ") : Creating server socket on port " << m_dPort << std::endl;
 #endif
 
   // m_bReady is false, guaranteed by initialization in Socket class
@@ -29,16 +29,16 @@ bool ServerSocket::Bind() {
     }
   } else {
 #ifdef DEBUG
-    std::cout << "Error: Socket hasn't been opened" << std::endl;
+    std::cout << "Error(" << ToString() << "): Socket hasn't been opened" << std::endl;
 #endif
     return false;
   }
 
 #ifdef DEBUG
   if (!m_bReady) {
-    std::cout << "Error: Couldn't bind the socket" << std::endl;
+    std::cout << "Error(" << ToString() << "): Couldn't bind the socket" << std::endl;
   } else {
-    std::cout << "Info: Socket is bound" << std::endl;
+    std::cout << "Info(" << ToString() << "): Socket is bound" << std::endl;
   }
 #endif
 
@@ -56,9 +56,9 @@ bool ServerSocket::Listen(int pendingConnections) {
 
 #ifdef DEBUG
   if (!m_bReady) {
-    std::cout << "Error: Listen() failed" << std::endl;
+    std::cout << "Error(" << ToString() << "): Listen() failed" << std::endl;
   } else {
-    std::cout << "Info: Socket is listening on port " << m_dPort << std::endl;
+    std::cout << "Info(" << ToString() << "): Socket is listening on port " << m_dPort << std::endl;
   }
 #endif
 
@@ -69,7 +69,7 @@ TCPSocket* ServerSocket::Accept() {
   if (!m_bReady) {
 
 #ifdef DEBUG
-    std::cout << "Error: Socket is not ready to accept" << std::endl;
+    std::cout << "Error(" << ToString() << "): Socket is not ready to accept" << std::endl;
 #endif
 
     return nullptr;
