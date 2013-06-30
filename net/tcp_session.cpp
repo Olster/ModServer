@@ -53,17 +53,19 @@ int TCPSession::Send() {
   // If we have nothing to send, then go on
   if (!m_response.empty()) {
 #ifdef DEBUG
-std::cout << "\tSending\n" << m_response << std::endl;
+std::cout << "\tSending to " << m_receiver->GetHandle() << "\n" << m_response << std::endl;
 #endif
 
     int bytesSent = m_receiver->Send(m_response);
-    if (bytesSent >= m_response.length()) {
-      m_bAllDataSent = true;
-      m_response.clear();
-    } else {
-      m_response = m_response.substr(bytesSent);
-      m_bAllDataSent = false;
-    }
+//    if (bytesSent >= m_response.length()) {
+//      m_bAllDataSent = true;
+//      m_response.clear();
+//    } else {
+//      m_response = m_response.substr(bytesSent);
+//      m_bAllDataSent = false;
+//    }
+    m_bAllDataSent = true;
+    m_response.clear();
 
     return bytesSent;
   }

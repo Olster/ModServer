@@ -6,6 +6,7 @@
 #include <iostream>
 
 #include "net/http_server.h"
+#include <unistd.h>
 
 using namespace std;
 
@@ -46,6 +47,9 @@ int main(int argc, char** argv) {
     server.AcceptNewConnections();
 
     server.ProcessSessions();
+
+    // Don't hang up the CPU
+    usleep(10000);
   }
 
   cin.ignore();

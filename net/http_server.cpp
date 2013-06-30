@@ -11,10 +11,6 @@ namespace net {
 
 HTTPServer::HTTPServer(int port, int pendingConnections, std::string filePath)
  : m_serverSock(port), m_resourcePath(filePath) {
-#ifdef DEBUG
-std::cout << "Info: Creating server" << std::endl;
-#endif
-
   if (!m_serverSock.Open()) {
     m_strErrMsg = "Failed to open socket";
     return;
@@ -46,9 +42,6 @@ std::cout << "Info: Creating server" << std::endl;
 }
 
 HTTPServer::~HTTPServer() {
-#ifdef DEBUG
-std::cout << "Info: Destroying the server" << std::endl;
-#endif
   for (auto& session : m_sessions) {
     delete session;
     session = nullptr;
@@ -56,10 +49,6 @@ std::cout << "Info: Destroying the server" << std::endl;
 }
 
 bool HTTPServer::UpdateSessions() {
-#ifdef DEBUG
-std::cout << "Info: Updating sessions" << std::endl;
-#endif
-
   for (auto& removeItem : m_removeList) {
     FD_CLR(removeItem->GetReceiver()->GetHandle(), &m_masterSet);
 
@@ -98,9 +87,6 @@ std::cout << "Info: Updating sessions" << std::endl;
 }
 
 void HTTPServer::CloseTimedOutSessions() {
-#ifdef DEBUG
-std::cout << "Info: Closing timed out sessions" << std::endl;
-#endif
   // TODO(Olster): Find a way to determine timed out connection
 }
 
@@ -123,9 +109,6 @@ std::cout << "Info: Creating new session with " << sock->GetHandle() << std::end
 }
 
 void HTTPServer::ProcessSessions() {
-#ifdef DEBUG
-std::cout << "Info: Processing sessions" << std::endl;
-#endif
   for (auto& session : m_sessions) {
     if (session) {
       if (FD_ISSET(session->GetReceiver()->GetHandle(), &m_readSet)) {
