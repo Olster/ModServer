@@ -51,7 +51,7 @@ std::cout << "Info: Destroying the server" << std::endl;
 #endif
   for (auto& session : m_sessions) {
     delete session;
-    session = 0;
+    session = nullptr;
   }
 }
 
