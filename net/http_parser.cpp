@@ -20,8 +20,10 @@ enum ReqLineParseState {
   ERROR
 };
 
-// Appends the digit to the number
-// Doesn't check for overflow
+// int number = appendDigit(5, 3);
+// number is 53.
+// NOTE(Olster): 0 <= digit < 10
+// Doesn't check for integer overflow
 inline int appendDigit(int number, int digit) {
   return number*10 + digit;
 }
@@ -30,6 +32,10 @@ inline int appendDigit(int number, int digit) {
 
 HTTPParser::ParserState HTTPParser::Parse(std::string& request) {
   Reset();
+  if (request.empty()) {
+    m_dErrorPos = 0;
+    return ParserState::ERROR;
+  }
 
   m_internalState = ParseRequestLine(request);
 
@@ -43,18 +49,14 @@ HTTPParser::ParserState HTTPParser::Parse(std::string& request) {
 void HTTPParser::Reset() {
   m_internalState = ParserState::NOT_PARSED;
   m_dErrorPos = -1;
-  m_dHTTPMajVer = 1;
-  m_dHTTPMinVer = 1;
+  m_dHTTPMajVer = 0;
+  m_dHTTPMinVer = 0;
+  m_httpVer = HTTPVersion::VER_CUSTOM;
   m_reqMethod = RequestMethod::ERROR;
   m_resourceURI.clear();
 }
 
 HTTPParser::ParserState HTTPParser::ParseRequestLine(std::string& request) {
-  if (request.empty()) {
-    m_dErrorPos = 0;
-    return ParserState::ERROR;
-  }
-
   ReqLineParseState state = ReqLineParseState::BIG_LETTER;
 
   std::string methodString;
@@ -139,7 +141,6 @@ HTTPParser::ParserState HTTPParser::ParseRequestLine(std::string& request) {
 
           currentCharPos++;
         } else if (currentChar == '\r' || currentChar == '\n') {
-          // TODO(Olster): Not all clients send exactly "\r\n".Some send "\n\n"
           state = ReqLineParseState::PARSED;
           currentCharPos++;
         } else {

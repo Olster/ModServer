@@ -21,11 +21,15 @@ class ServerSocket : public TCPSocket {
 
   TCPSocket* Accept();
 
-  bool ServerIsReady() const { return m_bReady; }
+  bool IsServerSockReady() const { return m_bReady; }
+
+  int GetPort() const { return m_dPort; }
+  int GetPendingConnections() const { return m_dPendingConnections; }
 
   std::string ToString() const override { return TCPSocket::ToString() + "ServerSocket."; }
  private:
-  unsigned int m_dPort;
+  int m_dPort;
+  int m_dPendingConnections;
 };
 
 } // namespace net

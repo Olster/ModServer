@@ -10,6 +10,7 @@ class Resource : public base::Object {
   Resource(const std::string& data = "", const std::string MIMEType = "");
   virtual ~Resource();
 
+  // Disalow copying
   Resource(const Resource& other) = delete;
   void operator=(const Resource& other) = delete;
 
