@@ -22,8 +22,14 @@ int TCPSession::Receive() {
     int bytesReceived = m_receiver->Receive(m_request);
 
 #ifdef DEBUG
-std::cout << "Received from " << m_receiver->GetHandle() << ":\n" << m_request << std::endl;
+if (bytesReceived > 0) {
+  std::cout << "Received from " << m_receiver->GetHandle() << ":\n" << m_request << std::endl;
+}
 #endif
+
+    if (bytesReceived <= 0) {
+      return bytesReceived;
+    }
 
     m_requestParser.Parse(m_request);
     if (m_requestParser.IsRequestValid()) {
@@ -53,7 +59,7 @@ int TCPSession::Send() {
   // If we have nothing to send, then go on
   if (!m_response.empty()) {
 #ifdef DEBUG
-std::cout << "\tSending to " << m_receiver->GetHandle() << "\n" << m_response << std::endl;
+std::cout << "Sending to " << m_receiver->GetHandle() << "\n" << /*m_response <<*/ std::endl;
 #endif
 
     int bytesSent = m_receiver->Send(m_response);
@@ -165,6 +171,10 @@ std::cout << "\tInfo: Resource extension: " << extension << std::endl;
 
   if (extension == "jpg" || extension == "jpeg") {
     res.SetMIMEType("image/jpeg");
+  }
+
+  if (extension == "mp3") {
+    res.SetMIMEType("audio/mpeg");
   }
 
   return true;

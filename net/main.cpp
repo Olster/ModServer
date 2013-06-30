@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
   //net::HTTPServer(config);
 
   // Port, pending connections, path to look for sites
-  net::HTTPServer server(2563, 1, "/home/olster/cpp_progr/Server/bin/Debug");
+  net::HTTPServer server(2563, 5, "/home/olster/cpp_progr/Server/bin/Debug");
 
   //net::HTTPServer server(std::stoi(argv[1]), std::stoi(argv[2]), argv[3]);
 
