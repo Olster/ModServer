@@ -1,4 +1,4 @@
-#include "net/http_parser.h"
+#include "net/http_request_parser.h"
 
 #ifdef DEBUG
 #include <iostream>
@@ -30,7 +30,7 @@ inline int appendDigit(int number, int digit) {
 
 } // namespace
 
-HTTPParser::ParserState HTTPParser::Parse(std::string& request) {
+HttpRequestParser::ParserState HttpRequestParser::Parse(std::string& request) {
   Reset();
   if (request.empty()) {
     m_dErrorPos = 0;
@@ -46,7 +46,7 @@ HTTPParser::ParserState HTTPParser::Parse(std::string& request) {
   return m_internalState;
 }
 
-void HTTPParser::Reset() {
+void HttpRequestParser::Reset() {
   m_internalState = ParserState::NOT_PARSED;
   m_dErrorPos = -1;
   m_dHTTPMajVer = 0;
@@ -56,7 +56,7 @@ void HTTPParser::Reset() {
   m_resourceURI.clear();
 }
 
-HTTPParser::ParserState HTTPParser::ParseRequestLine(std::string& request) {
+HttpRequestParser::ParserState HttpRequestParser::ParseRequestLine(std::string& request) {
   ReqLineParseState state = ReqLineParseState::BIG_LETTER;
 
   std::string methodString;
@@ -198,7 +198,7 @@ HTTPParser::ParserState HTTPParser::ParseRequestLine(std::string& request) {
   return ParserState::PARSED;
 }
 
-HTTPParser::ParserState HTTPParser::ParseHeaders(std::string& request) {
+HttpRequestParser::ParserState HttpRequestParser::ParseHeaders(std::string& request) {
   // UNUSED, if you may
   (void)request;
 

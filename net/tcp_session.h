@@ -1,13 +1,12 @@
-#ifndef TCP_SESSION_H
-#define TCP_SESSION_H
+#ifndef NET_TCP_SESSION_H_
+#define NET_TCP_SESSION_H_
 
 #include "base/object.h"
 #include "net/resource.h"
-#include "net/http_parser.h"
+#include "net/http_request_parser.h"
 
 namespace net {
 
-// Forward declaration
 class TCPSocket;
 
 class TCPSession : public base::Object {
@@ -22,14 +21,14 @@ class TCPSession : public base::Object {
 
   std::string ToString() const override { return "net::TCPSession."; }
  private:
-  bool FillResource(const net::HTTPParser& parser, net::Resource& res);
+  bool FillResource(const net::HttpRequestParser& parser, net::Resource& res);
   bool LoadResource(std::string filePath, net::Resource& res);
 
   TCPSocket* m_receiver = nullptr;
   std::string m_request;
   std::string m_response;
   net::Resource m_resource;
-  net::HTTPParser m_requestParser;
+  net::HttpRequestParser m_requestParser;
 
   bool m_bAllDataSent = true;
 
@@ -50,4 +49,4 @@ R"(<!DOCTYPE html>
 
 } // namespace net
 
-#endif // TCP_SESSION_H
+#endif // NET_TCP_SESSION_H_

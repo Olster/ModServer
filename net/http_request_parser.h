@@ -1,16 +1,16 @@
-#ifndef NET_HTTPPARSER_H
-#define NET_HTTPPARSER_H
+#ifndef NET_HTTP_REQUEST_PARSER_H_
+#define NET_HTTP_REQUEST_PARSER_H_
 
 #include <string>
 
 #include "base/object.h"
 
 // TODO(Olster): This is a HTTPRequestParser
-// make an abstract HTTPParser and Request and Response parsers
+// make an abstract HttpRequestParser and Request and Response parsers
 
 namespace net {
 
-class HTTPParser : public base::Object {
+class HttpRequestParser : public base::Object {
  public:
   enum RequestMethod {
     GET,
@@ -30,14 +30,14 @@ class HTTPParser : public base::Object {
     VER_CUSTOM
   };
 
-  HTTPParser() = default;
-  ~HTTPParser() = default;
+  HttpRequestParser() = default;
+  ~HttpRequestParser() = default;
 
-  void operator=(const HTTPParser& other) = delete;
-  HTTPParser(const HTTPParser& other) = delete;
+  void operator=(const HttpRequestParser& other) = delete;
+  HttpRequestParser(const HttpRequestParser& other) = delete;
 
-  void operator=(HTTPParser&& other) = delete;
-  HTTPParser(HTTPParser&& other) = delete;
+  void operator=(HttpRequestParser&& other) = delete;
+  HttpRequestParser(HttpRequestParser&& other) = delete;
 
   ParserState Parse(std::string& request);
 
@@ -55,8 +55,15 @@ class HTTPParser : public base::Object {
 
   int GetErrorPos() const { return m_dErrorPos; }
 
-  std::string ToString() const override { return "net::HTTPParser."; }
+  std::string ToString() const override { return "net::HttpRequestParser."; }
  private:
+  class HeaderParser {
+   public:
+
+   private:
+
+  };
+
   // Chops off request line grom request in the process
   ParserState ParseRequestLine(std::string& request);
   ParserState ParseHeaders(std::string& request);
@@ -77,4 +84,4 @@ class HTTPParser : public base::Object {
 
 } // namespace net
 
-#endif // NET_HTTPPARSER_H
+#endif // NET_HTTP_REQUEST_PARSER_H_

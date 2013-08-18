@@ -79,7 +79,7 @@ std::cout << "Sending to " << m_receiver->GetHandle() << "\n" << /*m_response <<
   return 0;
 }
 
-bool TCPSession::FillResource(const net::HTTPParser& parser, net::Resource& res) {
+bool TCPSession::FillResource(const net::HttpRequestParser& parser, net::Resource& res) {
   if (parser.GetResourceURI() == "/") {
     // Asking for the site root
     return LoadResource("/index.html", res);
