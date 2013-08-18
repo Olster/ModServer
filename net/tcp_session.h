@@ -14,6 +14,9 @@ class TCPSession : public base::Object {
   TCPSession(net::TCPSocket* receiver, std::string resPath);
   ~TCPSession();
 
+  DISALLOW_COPY_AND_ASSIGN(TCPSession);
+  DISALLOW_MOVE(TCPSession);
+
   int Receive();
   int Send();
 

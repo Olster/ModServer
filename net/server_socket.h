@@ -10,10 +10,8 @@ class ServerSocket : public TCPSocket {
   ServerSocket(unsigned int port, SOCK_DOMAIN domain = SOCK_DOMAIN::IPv4);
   ~ServerSocket() = default;
 
-  void operator=(const ServerSocket& other) = delete;
-  ServerSocket(const ServerSocket& other) = delete;
-  void operator=(ServerSocket&& other) = delete;
-  ServerSocket(ServerSocket&& other) = delete;
+  DISALLOW_COPY_AND_ASSIGN(ServerSocket);
+  DISALLOW_MOVE(ServerSocket);
 
   bool Bind();
 

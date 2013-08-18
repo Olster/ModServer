@@ -10,10 +10,8 @@ class TCPSocket : public Socket {
   TCPSocket(Socket::SOCK_DOMAIN domain);
   ~TCPSocket() {}
 
-  void operator=(const TCPSocket& other) = delete;
-  TCPSocket(const TCPSocket& other) = delete;
-  void operator=(TCPSocket&& other) = delete;
-  TCPSocket(TCPSocket&& other) = delete;
+  DISALLOW_COPY_AND_ASSIGN(TCPSocket);
+  DISALLOW_MOVE(TCPSocket);
 
   bool Open() override;
 

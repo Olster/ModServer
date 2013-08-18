@@ -4,6 +4,7 @@
 #include <sys/socket.h>
 
 #include "base/object.h"
+#include "base/build_required.h"
 
 namespace net {
 
@@ -24,38 +25,38 @@ class Socket : public base::Object {
     IPv6 = PF_INET6
   };
 
-  Socket(SOCK_DOMAIN domain);
-  virtual ~Socket();
-
-  void operator=(const Socket& other) = delete;
-  Socket(const Socket& other) = delete;
-  void operator=(Socket&& other) = delete;
-  Socket(Socket&& other) = delete;
-
-  bool SocketIsReady() const { return m_bReady; }
-
-  InternalSockType GetHandle() const { return m_socket; }
-
-  virtual bool Open() = 0;
-
   enum CLOSE_TYPE {
     CLOSE_RECEIVE = 0,
     CLOSE_SEND,
     CLOSE_ALL
   };
 
+  Socket(SOCK_DOMAIN domain);
+  virtual ~Socket();
+
+  DISALLOW_COPY_AND_ASSIGN(Socket);
+  DISALLOW_MOVE(Socket);
+
+  bool SocketIsReady() const { return m_bReady; }
+
+  InternalSockType GetHandle() const { return m_socket; }
+
+  virtual bool Open() = 0;
   bool Close(CLOSE_TYPE type = CLOSE_ALL);
 
   // TODO(Olster): Full rewrite of Select()
-  static int Select(int maxFd, fd_set* readList, fd_set* writeList,
-                    fd_set* errorList, timeval* tv);
+  static int Select(int maxFd,
+                    fd_set* readList,
+                    fd_set* writeList,
+                    fd_set* errorList,
+                    timeval* tv);
 
   virtual std::string ToString() const override { return "net::Socket."; }
  protected:
-  // Sets new handle for the socket, sets |m_bReady| flag to false
+  // Sets new handle for the socket, sets |m_bReady| flag to false.
   void SetHandle(InternalSockType sock);
 
-  // NOTE(Olster): Only derived classes can set socket to ready state
+  // NOTE(Olster): Only derived classes can set socket to ready state.
   void SocketSetReady(bool isReady) { m_bReady = isReady; }
 
   SOCK_DOMAIN m_domain;
@@ -66,4 +67,4 @@ class Socket : public base::Object {
 
 } // namespace net
 
-#endif // net_Socket_H_
+#endif // NET_SOCKET_H_

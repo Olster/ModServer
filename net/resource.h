@@ -2,6 +2,7 @@
 #define NET_RESOURCE_H_
 
 #include "base/object.h"
+#include "base/build_required.h"
 
 namespace net {
 
@@ -10,9 +11,8 @@ class Resource : public base::Object {
   Resource(const std::string& data = "", const std::string MIMEType = "");
   virtual ~Resource();
 
-  // Disalow copying
-  Resource(const Resource& other) = delete;
-  void operator=(const Resource& other) = delete;
+
+  DISALLOW_COPY_AND_ASSIGN(Resource);
 
   Resource(Resource&& other);
   Resource& operator=(Resource&& other);

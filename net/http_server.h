@@ -4,6 +4,8 @@
 #include <list>
 
 #include "base/object.h"
+#include "base/build_required.h"
+
 #include "net/server_socket.h"
 #include "net/tcp_session.h"
 
@@ -16,11 +18,8 @@ class HTTPServer : public base::Object {
   HTTPServer(int port, int pendingConnections, std::string filePath);
   ~HTTPServer();
 
-  void operator=(const HTTPServer& other) = delete;
-  void operator=(HTTPServer&& other) = delete;
-
-  HTTPServer(const HTTPServer& other) = delete;
-  HTTPServer(HTTPServer&& other) = delete;
+  DISALLOW_COPY_AND_ASSIGN(HTTPServer);
+  DISALLOW_MOVE(HTTPServer);
 
   // Calls select() on each session socket, modyfying sets
   // of file descriptors.

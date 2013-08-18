@@ -4,6 +4,7 @@
 #include <string>
 
 #include "base/object.h"
+#include "base/build_required.h"
 
 // TODO(Olster): This is a HTTPRequestParser
 // make an abstract HttpRequestParser and Request and Response parsers
@@ -33,11 +34,8 @@ class HttpRequestParser : public base::Object {
   HttpRequestParser() = default;
   ~HttpRequestParser() = default;
 
-  void operator=(const HttpRequestParser& other) = delete;
-  HttpRequestParser(const HttpRequestParser& other) = delete;
-
-  void operator=(HttpRequestParser&& other) = delete;
-  HttpRequestParser(HttpRequestParser&& other) = delete;
+  DISALLOW_COPY_AND_ASSIGN(HttpRequestParser);
+  DISALLOW_MOVE(HttpRequestParser);
 
   ParserState Parse(std::string& request);
 
