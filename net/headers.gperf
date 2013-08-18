@@ -1,0 +1,30 @@
+%{
+enum HEADER_POS {
+  ACCEPT,
+  ACCEPT_CHARSET,
+  ACCEPT_ENCODING,
+  CONNECTION,
+  CONTENT_TYPE,
+  FROM,
+  HOST,
+  RANGE,
+  UPGRADE,
+  USER_AGENT,
+  NUM_OF_HEADERS
+};
+%}
+struct Header {
+  const char* headerName;
+  int arrayPos;
+};
+%%
+accept, HEADER_POS::ACCEPT
+accept-charset, HEADER_POS::ACCEPT_CHARSET
+accept-encoding, HEADER_POS::ACCEPT_ENCODING
+connection, HEADER_POS::CONNECTION
+content-type, HEADER_POS::CONTENT_TYPE
+from, HEADER_POS::FROM
+host, HEADER_POS::HOST
+range, HEADER_POS::RANGE
+upgrade, HEADER_POS::UPGRADE
+user-agent, HEADER_POS::USER_AGENT
