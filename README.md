@@ -1,6 +1,10 @@
 stHTTPs
 =======
 
+Outdated.
+======
+Will be rewritten soon to run on both windows and unix plaforms.
+
 Single-threaded HTTP server working on Unix sockets. Compile with ```-std=c++11``` flag for C++11 features
 and ```DDEBUG``` for debug info.
 
