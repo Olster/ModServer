@@ -27,6 +27,9 @@ int main(int argc, char* argv[]) {
         cout << "Select entered error state" << endl;
         return 2;
       break;
+      
+      default:
+      break;
     }
     
     server.AcceptNewConnections();
