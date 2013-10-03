@@ -1,5 +1,5 @@
 #include <iostream>
-#include "net/http_service.h"
+#include "net/http_server.h"
 
 using std::cout;
 using std::endl;
@@ -7,8 +7,9 @@ using std::endl;
 int main(int argc, char* argv[]) {
   // TODO(Olster): Read settings either from command line or settings file.
   net::HttpServer server("127.0.0.1", 2563, "sitename.com");
-  if (!server.Start()) {
-    cout << "Server could not start: " << server.Error() << endl;
+
+  if (server.Start() != net::HttpServer::StartErrorCode::SUCCESS) {
+    cout << "Server could not start: " << server.ErrorString() << endl;
     return 1;
   }
   
