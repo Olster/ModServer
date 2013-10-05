@@ -1,6 +1,5 @@
 #include "net/http_server.h"
 
-<<<<<<< HEAD
 namespace net {
 HttpServer::HttpServer(const char* ip, unsigned short port,
                           const std::string& resFolder, int maxListen)
@@ -34,14 +33,3 @@ int HttpServer::UpdateConnections() {
   return Socket::Select(m_maxFd + 1, readSet, writeSet, errorSet, &timeout);
 }
 } // namespace net
-=======
-HttpServer::HttpServer(const char* ip, unsigned short port, const std::string& resFolder)
- : m_listenerSocket(ip, port),
-   m_resourcesFolderPath(resFolder) {
-
-}
-
-HttpServer::~HttpServer() {
-
-}
->>>>>>> cb689a30a12ee8217ce7ae14185c13bc0f44396d

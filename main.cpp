@@ -4,11 +4,7 @@
 using std::cout;
 using std::endl;
 
-<<<<<<< HEAD
 int main() {
-=======
-int main(int argc, char* argv[]) {
->>>>>>> cb689a30a12ee8217ce7ae14185c13bc0f44396d
   // TODO(Olster): Read settings either from command line or settings file.
   net::HttpServer server("127.0.0.1", 2563, "sitename.com");
 
