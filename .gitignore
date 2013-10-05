@@ -1,4 +1,11 @@
+<<<<<<< HEAD
+.cproject
+.project
+.settings/
+Debug/
+=======
 bin/
 obj/
 *.o
 *.obj
+>>>>>>> cb689a30a12ee8217ce7ae14185c13bc0f44396d
