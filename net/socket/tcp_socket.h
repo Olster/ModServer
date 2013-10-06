@@ -9,8 +9,10 @@ class TcpSocket : public Socket {
   DISALLOW_COPY_AND_ASSIGN(TcpSocket);
   DISALLOW_MOVE(TcpSocket);
 
-  TcpSocket();
-  ~TcpSocket();
+  TcpSocket() = default;
+  ~TcpSocket() = default;
+
+  bool Open() override;
 };
 } // namespace net
 #endif // NET_SOCKET_TCP_SOCKET_H_

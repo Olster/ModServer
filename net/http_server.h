@@ -15,32 +15,20 @@ class HttpServer {
   DISALLOW_COPY_AND_ASSIGN(HttpServer);
   DISALLOW_MOVE(HttpServer);
   
-<<<<<<< HEAD
   HttpServer(const char* ip, unsigned short port,
               const std::string& resFolder, int maxListen = 10);
-=======
-  HttpServer(const char* ip, unsigned short port, const std::string& resFolder);
->>>>>>> cb689a30a12ee8217ce7ae14185c13bc0f44396d
   ~HttpServer();
 
   enum class StartErrorCode : unsigned char {
     SUCCESS = 0,
     SOCKET_NOT_OPENED,
-<<<<<<< HEAD
     SOCKET_NOT_BOUND,
     SOCKET_NOT_LISTENING
-=======
-    SOCKET_NOT_BOUND
->>>>>>> cb689a30a12ee8217ce7ae14185c13bc0f44396d
   };
   
   StartErrorCode Start();  
-  
-<<<<<<< HEAD
   std::string ErrorString() const { return m_errString; }
-=======
-  std::string ErrorString() const;
->>>>>>> cb689a30a12ee8217ce7ae14185c13bc0f44396d
+
 
   // Calls select() on all connected sockets and the listening socket.
   int UpdateConnections();
@@ -49,11 +37,7 @@ class HttpServer {
   void AcceptNewConnections();
   
   // Closes connections that have been server and disconnected/asked to close
-<<<<<<< HEAD
   // the connection; or closing those connections that are in error state.
-=======
-  // the connection; or closing those connecations that are in error state.
->>>>>>> cb689a30a12ee8217ce7ae14185c13bc0f44396d
   void CloseUntrackedConnections();
   
   void ReadRequests();
@@ -63,20 +47,18 @@ class HttpServer {
   ServerSocket m_listenerSocket;
   std::string m_resourcesFolderPath;  
   std::list<HttpConnection*> m_connections;
-<<<<<<< HEAD
   std::string m_errString;
   int m_maxListen;
 
   int m_maxFd = 0;
 
   fd_set m_masterSet;
-  fd_set m_readerSet;
-  fd_set m_writerSet;
+  fd_set m_readSet;
+  fd_set m_writeSet;
   fd_set m_errorSet;
 
-  timeval m_timeout;
-=======
->>>>>>> cb689a30a12ee8217ce7ae14185c13bc0f44396d
+  // 20 seconds default timeout.
+  timeval m_timeout = {0, 20000};
 };
 } // namespace net
 

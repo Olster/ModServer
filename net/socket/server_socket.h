@@ -10,10 +10,12 @@ public:
   DISALLOW_MOVE(ServerSocket);
 
   ServerSocket(const char* ip, unsigned short port);
-  ~ServerSocket();
+  ~ServerSocket() = default;
 
+  bool Bind();
+  bool Listen(unsigned int maxListeners);
 private:
-  char* m_ip = nullptr;
+  char m_ip[20] = {0};
   unsigned short m_port = 0;
 };
 } // namespace net
