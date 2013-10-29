@@ -13,9 +13,12 @@ public:
   ~ServerSocket() = default;
 
   bool Bind();
-  bool Listen(unsigned int maxListeners);
+  bool Listen(int maxListeners);
+
+  // Returns null on error.
+  TcpSocket* Accept();
 private:
-  char m_ip[20] = {0};
+  char m_ip[20];
   unsigned short m_port = 0;
 };
 } // namespace net

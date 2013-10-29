@@ -15,8 +15,4 @@ bool Socket::Close() {
 bool Socket::ShutDown(ShutDownCode code) {
   return shutdown(m_socket, code) != 0;
 }
-
-bool Socket::OpenHelper(int domain, int type, int protocol) {
-  return socket(domain, type, protocol) != kInvalidSocket;
-}
 } // namespace net

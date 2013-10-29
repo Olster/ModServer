@@ -13,8 +13,11 @@ ServerSocket::ServerSocket(const char* ip, unsigned short port)
  : m_port(port) {
   assert(ip && "IP cannot be null");
 
+  // Just clear the string.
+  memset(m_ip, 0, sizeof(m_ip));
+
   assert(strlen(ip) < sizeof(m_ip));
-  strcpy(m_ip, ip);
+  strcpy_s(m_ip, ip);
 }
 
 bool ServerSocket::Bind() {
@@ -26,4 +29,12 @@ bool ServerSocket::Bind() {
   return bind(m_socket, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) == 0;
 }
 
+bool ServerSocket::Listen(int maxListeners) {
+  return listen(m_socket, maxListeners) == 0;
+}
+
+TcpSocket* ServerSocket::Accept() {
+  SOCK_TYPE sock = accept(m_socket, nullptr, nullptr);
+  return (sock != kInvalidSocket) ? new TcpSocket(sock) : nullptr;
+}
 } // namespace net

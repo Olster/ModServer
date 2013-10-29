@@ -16,7 +16,7 @@ class HttpServer {
   DISALLOW_MOVE(HttpServer);
   
   HttpServer(const char* ip, unsigned short port,
-              const std::string& resFolder, int maxListen = 10);
+             const std::string& resFolder, int maxListen = 10);
   ~HttpServer();
 
   enum class StartErrorCode : unsigned char {
@@ -57,8 +57,7 @@ class HttpServer {
   fd_set m_writeSet;
   fd_set m_errorSet;
 
-  // 20 seconds default timeout.
-  timeval m_timeout = {0, 20000};
+  timeval m_timeout;
 };
 } // namespace net
 
