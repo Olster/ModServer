@@ -50,7 +50,7 @@ class HttpServer {
   std::string m_errString;
   int m_maxListen;
 
-  int m_maxFd = 0;
+  unsigned int m_maxFd = 0;
 
   fd_set m_masterSet;
   fd_set m_readSet;

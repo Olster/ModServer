@@ -22,7 +22,6 @@ int HttpConnection::ReadRequest() {
 
 void HttpConnection::ProcessRequest() {
   if (m_request.empty()) {
-    m_response.clear();
     return;
   }
 

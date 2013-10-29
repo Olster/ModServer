@@ -10,22 +10,19 @@
 #endif
 
 namespace net {
-#if defined(UNIX)
-using SOCK_TYPE = int;
-#elif defined(WIN32)
-using SOCK_TYPE = SOCKET;
-#endif
-
 class Socket {
  public:
 #if defined(UNIX)
-  SOCK_TYPE kInvalidSocket = -1;
+  using SOCK_TYPE = int;
+  static const SOCK_TYPE kInvalidSocket = -1;
 #elif defined(WIN32)
-  SOCK_TYPE kInvalidSocket = INVALID_SOCKET;
+  using SOCK_TYPE = SOCKET;
+  static const SOCK_TYPE kInvalidSocket = INVALID_SOCKET;
 #endif
 
   DISALLOW_COPY_AND_ASSIGN(Socket);
   DISALLOW_MOVE(Socket);
+
   Socket() = default;
   virtual ~Socket();
 

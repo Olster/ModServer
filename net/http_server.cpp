@@ -55,8 +55,16 @@ HttpServer::StartErrorCode HttpServer::Start() {
 
 int HttpServer::UpdateConnections() {
   m_readSet = m_masterSet;
-  m_writeSet = m_masterSet;
   m_errorSet = m_masterSet;
+
+  FD_ZERO(&m_writeSet);
+  // Poll for write only sockets from the connections that have
+  // some data to send.
+  for (const auto& conn : m_connections) {
+    if (conn->DataAvailable()) {
+      FD_SET(conn->clientSocket()->handle(), &m_writeSet);
+    }
+  }
 
   timeval timeout = m_timeout;
   return Socket::Select(m_maxFd + 1, &m_readSet, &m_writeSet, &m_errorSet, &timeout);
@@ -70,7 +78,7 @@ void HttpServer::AcceptNewConnections() {
     m_connections.push_back(new HttpConnection(newSock, m_resourcesFolderPath));
 
     // Update max FD variable.
-    SOCK_TYPE sock = newSock->handle();
+    net::Socket::SOCK_TYPE sock = newSock->handle();
     if (sock > m_maxFd) {
       m_maxFd = sock;
     }
@@ -84,6 +92,11 @@ void HttpServer::CloseUntrackedConnections() {
   auto it = m_connections.begin();
   while (it != m_connections.end()) {
     HttpConnection* conn = *it;
+
+    // conn can only be null if there was no memory to allocate it.
+    // Which would throw an exception.
+    assert(conn);
+
     if (FD_ISSET(conn->clientSocket()->handle(), &m_errorSet) || conn->ReadyClose()) {
       FD_CLR(conn->clientSocket()->handle(), &m_masterSet);
       delete conn;
@@ -125,7 +138,7 @@ void HttpServer::ProcessRequests() {
 void HttpServer::SendResponses() {
   for (auto& conn : m_connections) {
     TcpSocket* clientSock = conn->clientSocket();
-    if (FD_ISSET(clientSock->handle(), &m_writeSet) && conn->DataAvailable()) {
+    if (FD_ISSET(clientSock->handle(), &m_writeSet)) {
       int sent = conn->SendResponse();
       
       // Need to close the connection: either error or close.
