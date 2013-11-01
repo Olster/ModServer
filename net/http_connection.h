@@ -34,6 +34,23 @@ class HttpConnection {
   // Returns true if server has any data for the client.
   bool DataAvailable() const { return m_response.length() > 0; }
  private:
+  // TODO(Olster): Add more method support.
+  enum Method {
+    GET = 0,
+    METHOD_MAX // Notifies about an error.
+  };
+
+  Method MethodFromString(const std::string& method);
+
+  // TODO(Olster): Eventually add support for HTTP/2.0.
+  enum HttpVersion {
+    HTTP_1_1 = 0,
+    HTTP_ERROR
+  };
+
+  // Formats "400 Bad Request" message to send to client.
+  void FormatInvalidRequestResponse();
+
   TcpSocket* m_clientSock = nullptr;
   std::string m_files;
   bool m_bReadyClose = false;
