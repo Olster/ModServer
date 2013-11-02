@@ -6,6 +6,8 @@
 #include <string>
 #include <assert.h>
 
+#include "resource/resource.h"
+
 namespace net {
 class TcpSocket;
 
@@ -51,12 +53,17 @@ class HttpConnection {
   // Formats "400 Bad Request" message to send to client.
   void FormatInvalidRequestResponse();
 
+  // Formats "404 Not Found" message.
+  void FormatNotFoundResponse();
+
   TcpSocket* m_clientSock = nullptr;
   std::string m_files;
   bool m_bReadyClose = false;
 
   std::string m_request;
   std::string m_response;
+
+  resource::Resource m_res;
 };
 
 } // namespace net

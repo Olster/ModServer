@@ -10,7 +10,7 @@
 #endif
 
 #include <regex>
-#include <unordered_map>
+#include <map>
 
 namespace net {
 HttpConnection::~HttpConnection()  {
@@ -56,6 +56,9 @@ void HttpConnection::ProcessRequest() {
 
     // TODO(Olster): Search for ".." exploit.
     std::string resourcePath = matcherResult[2].str();
+    if (resourcePath == "/") {
+      resourcePath += "index.html";
+    }
 
     HttpVersion httpVer = HTTP_ERROR;
 
@@ -67,18 +70,19 @@ void HttpConnection::ProcessRequest() {
     // Chop off the first request line for further parsing.
     //m_request = matcherResult.format("$'");
 
-    m_response = R"(<html>
-                  <head>
-                  	<title>Hello</title>
-                  </head>
-                  <body>
-                    <h1>Testing server.</h1>
-                  </body>
-                  <html>)";
+    // Open resource file.
+    if (m_res.Open(m_files + resourcePath)) {
+      long fileSize = m_res.FileSize();
 
-    int responeSize = m_response.length();
-    m_response = "HTTP/1.1 200 OK\r\ncontent-type: text/html\r\ncontent-length: " +
-                 std::to_string(responeSize) +  "\r\n\r\n" + m_response;
+      // Assert that files is less than ~60kb.
+      assert(fileSize < 60000);
+      m_res.Read(m_response, fileSize);
+
+      m_response = "HTTP/1.1 200 OK\r\ncontent-type: text/html\r\ncontent-length: " +
+                   std::to_string(fileSize) + "\r\n\r\n" + m_response;
+    } else {
+      FormatNotFoundResponse();
+    }
   }
 
   // Request has been processed, now clear it.
@@ -94,7 +98,7 @@ int HttpConnection::SendResponse() {
 
 // This new return feature helps to make code quite shorter!
 auto HttpConnection::MethodFromString(const std::string& method) -> Method {
-  static std::unordered_map<const std::string, Method> stringToMethodMap = {
+  static std::map<const std::string, Method> stringToMethodMap = {
     {"GET", Method::GET}
   };
 
@@ -105,5 +109,13 @@ auto HttpConnection::MethodFromString(const std::string& method) -> Method {
 
   // Error, no such method.
   return Method::METHOD_MAX;
+}
+
+void HttpConnection::FormatInvalidRequestResponse() {
+
+}
+
+void HttpConnection::FormatNotFoundResponse() {
+
 }
 } // namespace net
