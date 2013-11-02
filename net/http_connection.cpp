@@ -64,8 +64,8 @@ void HttpConnection::ProcessRequest() {
       httpVer = HTTP_1_1;
     }
 
-    // Chop off the first request line.
-    m_request = matcherResult.format("$'");
+    // Chop off the first request line for further parsing.
+    //m_request = matcherResult.format("$'");
 
     m_response = R"(<html>
                   <head>
