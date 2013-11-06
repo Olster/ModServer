@@ -6,7 +6,7 @@ using std::endl;
 
 int main() {
   // TODO(Olster): Read settings either from command line or settings file.
-  net::HttpServer server("127.0.0.1", 2563, R"(C:\Users\Olster\Desktop\files)");
+  net::HttpServer server("127.0.0.1", 2563, R"(D:\HTML\Languages)");
 
   if (server.Start() != net::HttpServer::StartErrorCode::SUCCESS) {
     cout << "Server could not start: " << server.ErrorString() << endl;

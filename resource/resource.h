@@ -29,7 +29,13 @@ class Resource {
   // Reads |bytesToRead| bytes into |buffer| from file.
   // Returns number of bytes read.
   size_t Read(std::string& buffer, int bytesToRead);
+
+  // Returns the MIME type of current resource.
+  std::string MimeType() const { return m_mimeType; }
  private:
+  std::string MimeFromExtension(const std::string& ext);
+
+  std::string m_mimeType;
   FILE* m_resFile = nullptr;
 };
 }

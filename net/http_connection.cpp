@@ -52,7 +52,7 @@ void HttpConnection::ProcessRequest() {
     DEBUG_OUT("Rest: " << matcherResult.format("$'") << '\n');
 
     // Current request method.
-    Method method = MethodFromString(matcherResult[1].str());
+    //Method method = MethodFromString(matcherResult[1].str());
 
     // TODO(Olster): Search for ".." exploit.
     std::string resourcePath = matcherResult[2].str();
@@ -60,12 +60,12 @@ void HttpConnection::ProcessRequest() {
       resourcePath += "index.html";
     }
 
-    HttpVersion httpVer = HTTP_ERROR;
-
-    // TODO(Olster): Maybe add function to detect the version.
-    if ((matcherResult[3].str() == "1") && (matcherResult[4].str() == "1")) {
-      httpVer = HTTP_1_1;
-    }
+    //HttpVersion httpVer = HTTP_ERROR;
+    //
+    //// TODO(Olster): Maybe add function to detect the version.
+    //if ((matcherResult[3].str() == "1") && (matcherResult[4].str() == "1")) {
+    //  httpVer = HTTP_1_1;
+    //}
 
     // Chop off the first request line for further parsing.
     //m_request = matcherResult.format("$'");
@@ -75,10 +75,11 @@ void HttpConnection::ProcessRequest() {
       long fileSize = m_res.FileSize();
 
       // Assert that files is less than ~60kb.
+      // TODO(Olster): Figure out how to send partial responses.
       assert(fileSize < 60000);
       m_res.Read(m_response, fileSize);
 
-      m_response = "HTTP/1.1 200 OK\r\ncontent-type: text/html\r\ncontent-length: " +
+      m_response = "HTTP/1.1 200 OK\r\ncontent-type: " + m_res.MimeType() + "\r\ncontent-length: " +
                    std::to_string(fileSize) + "\r\n\r\n" + m_response;
     } else {
       FormatNotFoundResponse();
@@ -112,10 +113,10 @@ auto HttpConnection::MethodFromString(const std::string& method) -> Method {
 }
 
 void HttpConnection::FormatInvalidRequestResponse() {
-
+  m_request = "HTTP/1.1 400 Bad Request\r\nContent-type: text/html\r\nContent-length: 0\r\n\r\n";
 }
 
 void HttpConnection::FormatNotFoundResponse() {
-
+  m_request = "HTTP/1.1 404 Not Found\r\nContent-type: text/html\r\nContent-length: 0\r\n\r\n";
 }
 } // namespace net

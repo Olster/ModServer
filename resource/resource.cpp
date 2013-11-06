@@ -1,11 +1,21 @@
 #include "resource/resource.h"
 
 #include <cassert>
+#include <map>
 
 namespace resource {
 bool Resource::Open(const std::string& path) {
   // Close previously opened file, if any.
   Close();
+
+  // Determine MIME type by analyzing the extension.
+  auto extDotPos = path.rfind('.');
+  if (extDotPos != std::string::npos) {
+    std::string extension = path.substr(extDotPos + 1);
+    m_mimeType = MimeFromExtension(extension);
+  } else {
+    m_mimeType = "text/plain";
+  }
 
   m_resFile = fopen(path.c_str(), "rb");
   return m_resFile != nullptr;
@@ -37,5 +47,23 @@ size_t Resource::Read(std::string& buffer, int bytesToRead) {
   delete [] temp;
 
   return read;
+}
+
+std::string Resource::MimeFromExtension(const std::string& ext) {
+  static std::map<std::string, std::string> mimes = {
+    {"htm", "text/html"}, {"html", "text/html"},
+    {"css", "text/css"},
+    {"png", "image/png"}, {"jpeg", "image/jpeg"}, {"jpeg", "image/jpg"},
+    {"ico", "image/x-icon"},
+    {"js", "application/javascript"},
+    {"mp3", "audio/mpeg"}
+  };
+
+  auto it = mimes.find(ext);
+  if (it == mimes.end()) {
+    return "text/plain";
+  }
+
+  return it->second;
 }
 } // namespace resource
