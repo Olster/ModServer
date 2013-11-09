@@ -39,7 +39,7 @@ class HttpConnection {
   // TODO(Olster): Add more method support.
   enum Method {
     GET = 0,
-    METHOD_MAX // Notifies about an error.
+    INVALID_METHOD
   };
 
   Method MethodFromString(const std::string& method);
@@ -51,10 +51,13 @@ class HttpConnection {
   };
 
   // Formats "400 Bad Request" message to send to client.
-  void FormatInvalidRequestResponse();
+  void FormatBadRequestResponse();
 
   // Formats "404 Not Found" message.
   void FormatNotFoundResponse();
+
+  // 501 Not Implemented
+  void FormatNotImplementedResponse();
 
   TcpSocket* m_clientSock = nullptr;
   std::string m_files;

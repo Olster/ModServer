@@ -28,7 +28,12 @@ void Resource::Close() {
   }
 }
 
-long Resource::FileSize() {
+long Resource::ResourceSizeBytes() {
+  assert(m_resFile);
+  if (!m_resFile) {
+    return -1;
+  }
+
   long currFilePos = ftell(m_resFile);
 
   fseek(m_resFile, 0, SEEK_END);
@@ -40,6 +45,11 @@ long Resource::FileSize() {
 }
 
 size_t Resource::Read(std::string& buffer, int bytesToRead) {
+  assert(m_resFile);
+  if (!m_resFile) {
+    return 0;
+  }
+
   char* temp = new char[bytesToRead];
   size_t read = fread(temp, 1, bytesToRead, m_resFile);
 
@@ -49,8 +59,9 @@ size_t Resource::Read(std::string& buffer, int bytesToRead) {
   return read;
 }
 
-std::string Resource::MimeFromExtension(const std::string& ext) {
-  static std::map<std::string, std::string> mimes = {
+const std::string& Resource::MimeFromExtension(const std::string& ext) {
+  static std::map<const std::string, const std::string> mimes = {
+    {"default", "text/plain"},
     {"htm", "text/html"}, {"html", "text/html"},
     {"css", "text/css"},
     {"png", "image/png"}, {"jpeg", "image/jpeg"}, {"jpeg", "image/jpg"},
@@ -61,7 +72,10 @@ std::string Resource::MimeFromExtension(const std::string& ext) {
 
   auto it = mimes.find(ext);
   if (it == mimes.end()) {
-    return "text/plain";
+    // It's dangerous to return a reference to temporary object.
+    // Thus special entry has been added that returns "text/plain"
+    // and is the first entry in the map.
+    return mimes.begin()->second;
   }
 
   return it->second;

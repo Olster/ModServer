@@ -31,6 +31,7 @@ int HttpConnection::ReadRequest() {
   return read;
 }
 
+// TODO(Olster): Add information about server when formatting response.
 void HttpConnection::ProcessRequest() {
   if (m_request.empty()) {
     return;
@@ -42,7 +43,7 @@ void HttpConnection::ProcessRequest() {
   std::smatch matcherResult;
   if (!std::regex_search(m_request, matcherResult, requestLineRegex)) {
     DEBUG_OUT("Invalid request");
-    FormatInvalidRequestResponse();
+    FormatBadRequestResponse();
   } else {
     DEBUG_OUT("Request:");
     DEBUG_OUT("Option: " << matcherResult[1].str());
@@ -51,42 +52,55 @@ void HttpConnection::ProcessRequest() {
     DEBUG_OUT("HTTP minor version: " << matcherResult[4].str() << '\n');
     DEBUG_OUT("Rest: " << matcherResult.format("$'") << '\n');
 
-    // Current request method.
-    //Method method = MethodFromString(matcherResult[1].str());
+    do {
+      // Current request method.
+      Method method = MethodFromString(matcherResult[1].str());
+      if (method == Method::INVALID_METHOD) {
+        FormatNotImplementedResponse();
+        break;
+      }
 
-    // TODO(Olster): Search for ".." exploit.
-    std::string resourcePath = matcherResult[2].str();
-    if (resourcePath == "/") {
-      resourcePath += "index.html";
-    }
+      // TODO(Olster): Search for ".." exploit.
+      std::string resourcePath = matcherResult[2].str();
+      if (resourcePath == "/") {
+        resourcePath += "index.html";
+      }
 
-    //HttpVersion httpVer = HTTP_ERROR;
-    //
-    //// TODO(Olster): Maybe add function to detect the version.
-    //if ((matcherResult[3].str() == "1") && (matcherResult[4].str() == "1")) {
-    //  httpVer = HTTP_1_1;
-    //}
+      HttpVersion httpVer = HTTP_ERROR;
+    
+      // TODO(Olster): Maybe add function to detect the version.
+      if ((matcherResult[3].str() == "1") && (matcherResult[4].str() == "1")) {
+        httpVer = HTTP_1_1;
+      }
 
-    // Chop off the first request line for further parsing.
-    //m_request = matcherResult.format("$'");
+      if (httpVer == HTTP_ERROR) {
+        // TODO(Olster): Use 505 HTTP Version Not Supported.
+        FormatBadRequestResponse();
+        break;
+      }
 
-    // Open resource file.
-    if (m_res.Open(m_files + resourcePath)) {
-      long fileSize = m_res.FileSize();
+      // Chop off the first request line for further parsing.
+      //m_request = matcherResult.format("$'");
 
-      // Assert that files is less than ~60kb.
-      // TODO(Olster): Figure out how to send partial responses.
-      assert(fileSize < 60000);
-      m_res.Read(m_response, fileSize);
+      // Open resource file.
+      if (m_res.Open(m_files + resourcePath)) {
+        long fileSize = m_res.ResourceSizeBytes();
 
-      m_response = "HTTP/1.1 200 OK\r\ncontent-type: " + m_res.MimeType() + "\r\ncontent-length: " +
-                   std::to_string(fileSize) + "\r\n\r\n" + m_response;
-    } else {
-      FormatNotFoundResponse();
-    }
+        // Assert that files is less than ~60kb.
+        // TODO(Olster): Figure out how to send partial responses.
+        assert(fileSize < 60000);
+        m_res.Read(m_response, fileSize);
+
+        // TODO(Olster): Add FormatOKResponse() function for consistency.
+        m_response = "HTTP/1.1 200 OK\r\ncontent-type: " + m_res.MimeType() + "\r\ncontent-length: " +
+                     std::to_string(fileSize) + "\r\n\r\n" + m_response;
+      } else {
+        FormatNotFoundResponse();
+        break;
+      }
+    } while (false);
   }
 
-  // Request has been processed, now clear it.
   m_request.clear();
 }
 
@@ -109,14 +123,18 @@ auto HttpConnection::MethodFromString(const std::string& method) -> Method {
   }
 
   // Error, no such method.
-  return Method::METHOD_MAX;
+  return Method::INVALID_METHOD;
 }
 
-void HttpConnection::FormatInvalidRequestResponse() {
+void HttpConnection::FormatBadRequestResponse() {
   m_request = "HTTP/1.1 400 Bad Request\r\nContent-type: text/html\r\nContent-length: 0\r\n\r\n";
 }
 
 void HttpConnection::FormatNotFoundResponse() {
   m_request = "HTTP/1.1 404 Not Found\r\nContent-type: text/html\r\nContent-length: 0\r\n\r\n";
+}
+
+void HttpConnection::FormatNotImplementedResponse() {
+  m_request = "HTTP/1.1 501 Not Implemented\r\nContent-type: text/html\r\nContent-length: 0\r\n\r\n";
 }
 } // namespace net
