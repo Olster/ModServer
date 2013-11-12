@@ -106,7 +106,13 @@ void HttpConnection::ProcessRequest() {
 
 int HttpConnection::SendResponse() {
   int bytesSend = m_clientSock->Send(m_response.c_str(), m_response.length());
-  m_response.clear();
+  
+  if (bytesSend != m_response.length()) {
+    // Partial send.
+    m_response = m_response.substr(bytesSend);
+  } else {
+    m_response.clear();
+  }
 
   return bytesSend;
 }

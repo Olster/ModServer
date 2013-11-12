@@ -58,11 +58,14 @@ int HttpServer::UpdateConnections() {
   m_errorSet = m_masterSet;
 
   FD_ZERO(&m_writeSet);
-  // Poll for write only sockets from the connections that have
-  // some data to send.
   for (const auto& conn : m_connections) {
     if (conn->DataAvailable()) {
+      // Add socket for "ready write" check only if server has data to send.
       FD_SET(conn->clientSocket()->handle(), &m_writeSet);
+
+      // If server has data to send on socket (hasn't sent all data before),
+      // remove from ready read check.
+      FD_CLR(conn->clientSocket()->handle(), &m_readSet);
     }
   }
 
