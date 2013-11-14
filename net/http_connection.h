@@ -34,7 +34,8 @@ class HttpConnection {
   int SendResponse();
 
   // Returns true if server has any data for the client.
-  bool DataAvailable() const { return m_response.length() > 0; }
+  bool DataAvailable() const { return (m_response.length() > 0) ||
+                                      !m_bAllResourceSent; }
  private:
   // TODO(Olster): Add more method support.
   enum Method {
@@ -67,6 +68,10 @@ class HttpConnection {
   std::string m_response;
 
   resource::Resource m_res;
+  bool m_bAllResourceSent = true;
+
+  // Bytes read from resource.
+  size_t m_bytesRead = 0;
 };
 
 } // namespace net
