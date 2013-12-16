@@ -1,11 +1,10 @@
 #include "net/http_server.h"
 
 #include <assert.h>
-#include <iostream>
 
 #include "net/http_connection.h"
+#include "base/logger.h"
 
-namespace net {
 HttpServer::HttpServer(const char* ip, unsigned short port,
                        const std::string& resFolder, int maxListen)
  : m_listenerSocket(ip, port),
@@ -53,7 +52,7 @@ HttpServer::StartErrorCode HttpServer::Start() {
   return StartErrorCode::SUCCESS;
 }
 
-int HttpServer::UpdateConnections() {
+HttpServer::UpdateCode HttpServer::UpdateConnections() {
   m_readSet = m_masterSet;
   m_errorSet = m_masterSet;
 
@@ -70,7 +69,24 @@ int HttpServer::UpdateConnections() {
   }
 
   timeval timeout = m_timeout;
-  return Socket::Select(m_maxFd + 1, &m_readSet, &m_writeSet, &m_errorSet, &timeout);
+  int res = Socket::Select(m_maxFd + 1, &m_readSet, &m_writeSet, &m_errorSet, &timeout);
+
+  UpdateCode outCode = OK;
+
+  switch (res) {
+    case 0:
+      outCode = TIME_OUT;
+    break;
+
+    case -1:
+      outCode = UPDATE_ERROR;
+    break;
+
+    default:
+    break;
+  }
+
+  return outCode;
 }
 
 void HttpServer::AcceptNewConnections() {
@@ -81,8 +97,8 @@ void HttpServer::AcceptNewConnections() {
     m_connections.push_back(new HttpConnection(newSock, m_resourcesFolderPath));
 
     // Update max FD variable.
-    net::Socket::SOCK_TYPE sock = newSock->handle();
-    std::cout << "Socket " << sock << " connected" << std::endl;
+    Socket::SOCK_TYPE sock = newSock->handle();
+    Logger::Log("Socket %d connected", sock);
     if (sock > m_maxFd) {
       m_maxFd = sock;
     }
@@ -123,9 +139,10 @@ void HttpServer::ReadRequests() {
       // Error reading or closed connection, mark connection for close.
       if (read < 1) {
         if (read == 0) {
-          std::cout << "Socket " << clientSock->handle() << " closed the conenction. Read 0 bytes." << std::endl;
+          Logger::Log("Socket %d closed the conenction. Read 0 bytes.",
+                      clientSock->handle());
         } else {
-          std::cout << "Error on socket " << clientSock->handle() << std::endl;
+          Logger::Log("Error on socket %d", clientSock->handle());
         }
 
         conn->SetReadyClose();
@@ -155,11 +172,9 @@ void HttpServer::SendResponses() {
       
       // Need to close the connection: either error or close.
       if (sent < 1) {
-        std::cout << "Must close " << clientSock->handle() << ". Couldn't send" << std::endl;
+        Logger::Log("Must close %d. Couldn't send data.", clientSock->handle());
         conn->SetReadyClose();
       }
     }
   }
 }
-
-} // namespace net

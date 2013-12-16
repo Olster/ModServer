@@ -1,16 +1,10 @@
 #include "net/http_connection.h"
-#include "net/socket/tcp_socket.h"
-
-#ifdef DEBUG
-#include <iostream>
-// Not putting brackets around on purpose.
-#define DEBUG_OUT(data) std::cout << data << std::endl;
-#else
-#define DEBUG_OUT(data)
-#endif
 
 #include <regex>
 #include <map>
+
+#include "net/socket/tcp_socket.h"
+#include "base/logger.h"
 
 class StringCleaner {
  public:
@@ -27,7 +21,6 @@ class StringCleaner {
   std::string& m_str;
 };
 
-namespace net {
 HttpConnection::~HttpConnection()  {
   if (m_clientSock) {
     delete m_clientSock;
@@ -65,18 +58,15 @@ void HttpConnection::ProcessRequest() {
 
     std::smatch matcherResult;
     if (!std::regex_search(m_request, matcherResult, requestLineRegex)) {
-      DEBUG_OUT("Invalid request");
+      Logger::Log("Invalid request");
       FormatBadRequestResponse();
 
       return;
     }
 
-    DEBUG_OUT("Request:");
-    DEBUG_OUT("Option: " << matcherResult[1].str());
-    DEBUG_OUT("Path: " << matcherResult[2].str());
-    DEBUG_OUT("HTTP major version: " << matcherResult[3].str());
-    DEBUG_OUT("HTTP minor version: " << matcherResult[4].str() << '\n');
-    DEBUG_OUT("Rest: " << matcherResult.format("$'") << '\n');
+    Logger::Log("Request:");
+    Logger::Log("Option: %s\nPath: %s\n", matcherResult[1].str().c_str(),
+                matcherResult[2].str().c_str());
 
     // TODO(Olster): Search for ".." exploit.
     resourcePath = matcherResult[2].str();
@@ -186,4 +176,3 @@ void HttpConnection::FormatNotFoundResponse() {
 void HttpConnection::FormatNotImplementedResponse() {
   m_request = "HTTP/1.1 501 Not Implemented\r\nContent-type: text/html\r\nContent-length: 0\r\n\r\n";
 }
-} // namespace net

@@ -1,31 +1,34 @@
-#include <iostream>
-#include "net/http_server.h"
+#include <cassert>
 
-using std::cout;
-using std::endl;
+#include "net/http_server.h"
+#include "base/logger.h"
 
 int main() {
-  // TODO(Olster): Read settings either from command line or settings file.
-  net::HttpServer server("127.0.0.1", 2563, R"(D:\HTML\Languages)");
+  bool logStarted = Logger::InitLog();
+  assert(logStarted);
+  if (!logStarted) {
+    printf("Log file wasn't opened.");
+    return -1;
+  }
 
-  if (server.Start() != net::HttpServer::StartErrorCode::SUCCESS) {
-    cout << "Server could not start: " << server.ErrorString() << endl;
-    return 1;
+  // TODO(Olster): Read settings either from command line or settings file.
+  HttpServer server("127.0.0.1", 2563, R"(D:\HTML\Languages)");
+
+  if (server.Start() != HttpServer::SUCCESS) {
+    Logger::Log("Server didn't start: %s", server.ErrorString().c_str());
+    return -1;
   }
   
   // TODO(Olster): Will the server need stop functionality?
   while (true) {
-    int selectRes = server.UpdateConnections();
-    switch (selectRes) {
-      // Select() timed out.
-      case 0:
+    HttpServer::UpdateCode code = server.UpdateConnections();
+    switch (code) {
+      case HttpServer::TIME_OUT:
         continue;
       break;
-      
-      // Select() error.
-      case -1:
-        // TODO(Olster): Report error here (errno?).
-        cout << "Select entered error state" << endl;
+
+      case HttpServer::UPDATE_ERROR:
+        Logger::Log("Select entered error state.");
         return 2;
       break;
       
@@ -44,5 +47,6 @@ int main() {
     server.SendResponses();
   }
   
+  Logger::UninitLog();
   return 0;
 }

@@ -3,7 +3,6 @@
 
 #include "net/socket/socket.h"
 
-namespace net {
 class TcpSocket : public Socket {
  public:
   DISALLOW_COPY_AND_ASSIGN(TcpSocket);
@@ -23,5 +22,4 @@ class TcpSocket : public Socket {
   // bytes actually read.
   int Receive(char* data, int maxSize);
 };
-} // namespace net
 #endif // NET_SOCKET_TCP_SOCKET_H_

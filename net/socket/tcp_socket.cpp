@@ -1,6 +1,5 @@
 #include "net/socket/tcp_socket.h"
 
-namespace net {
 TcpSocket::TcpSocket(SOCK_TYPE sockFd) {
   m_socket = sockFd;
 }
@@ -18,4 +17,3 @@ int TcpSocket::Send(const char* data, int sizeBytes) {
 int TcpSocket::Receive(char* data, int sizeBytes) {
   return recv(m_socket, data, sizeBytes, 0);
 }
-} // namespace net

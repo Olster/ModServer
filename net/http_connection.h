@@ -8,7 +8,6 @@
 
 #include "resource/resource.h"
 
-namespace net {
 class TcpSocket;
 
 class HttpConnection {
@@ -67,13 +66,11 @@ class HttpConnection {
   std::string m_request;
   std::string m_response;
 
-  resource::Resource m_res;
+  Resource m_res;
   bool m_bAllResourceSent = true;
 
   // Bytes read from resource.
   size_t m_bytesRead = 0;
 };
-
-} // namespace net
 
 #endif // NET_SOCKET_HTTP_CONNECTION_H_

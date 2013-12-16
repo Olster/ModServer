@@ -6,7 +6,6 @@
 #include <cstdio>
 #include <string>
 
-namespace resource {
 class Resource {
  public:
   DISALLOW_COPY_AND_ASSIGN(Resource);
@@ -42,6 +41,5 @@ class Resource {
   std::string m_mimeType;
   FILE* m_resFile = nullptr;
 };
-}
 
 #endif // RESOURCE_RESOURCE_H_

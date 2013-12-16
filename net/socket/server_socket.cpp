@@ -8,7 +8,6 @@
 #include <arpa/inet.h>
 #endif
 
-namespace net {
 ServerSocket::ServerSocket(const char* ip, unsigned short port)
  : m_port(port) {
   assert(ip && "IP cannot be null");
@@ -37,4 +36,3 @@ TcpSocket* ServerSocket::Accept() {
   SOCK_TYPE sock = accept(m_socket, nullptr, nullptr);
   return (sock != kInvalidSocket) ? new TcpSocket(sock) : nullptr;
 }
-} // namespace net

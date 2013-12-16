@@ -9,7 +9,6 @@
 #include <winsock2.h>
 #endif
 
-namespace net {
 class Socket {
  public:
 #if defined(UNIX)
@@ -59,5 +58,4 @@ class Socket {
 
   SOCK_TYPE m_socket = kInvalidSocket;
 };
-} // namespace net
 #endif // NET_SOCKET_SOCKET_H_

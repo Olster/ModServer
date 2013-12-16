@@ -7,7 +7,6 @@
 #include "base/build_required.h"
 #include "net/socket/server_socket.h"
 
-namespace net {
 class HttpConnection;
 
 class HttpServer {
@@ -19,7 +18,7 @@ class HttpServer {
              const std::string& resFolder, int maxListen = 10);
   ~HttpServer();
 
-  enum class StartErrorCode : unsigned char {
+  enum StartErrorCode {
     SUCCESS = 0,
     SOCKET_NOT_OPENED,
     SOCKET_NOT_BOUND,
@@ -29,9 +28,14 @@ class HttpServer {
   StartErrorCode Start();  
   std::string ErrorString() const { return m_errString; }
 
+  enum UpdateCode {
+    TIME_OUT,
+    UPDATE_ERROR,
+    OK
+  };
 
-  // Calls select() on all connected sockets and the listening socket.
-  int UpdateConnections();
+  // Updates info on connections: whether ready to read, write, in error state.
+  UpdateCode UpdateConnections();
   
   // Accepts pending connections.
   void AcceptNewConnections();
@@ -59,6 +63,5 @@ class HttpServer {
 
   timeval m_timeout;
 };
-} // namespace net
 
 #endif // NET_HTTP_SERVER_H_

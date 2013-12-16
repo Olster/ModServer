@@ -3,7 +3,6 @@
 #include <cassert>
 #include <map>
 
-namespace resource {
 bool Resource::Open(const std::string& path) {
   // Close previously opened file, if any.
   Close();
@@ -99,4 +98,3 @@ const std::string& Resource::MimeFromExtension(const std::string& ext) {
 
   return it->second;
 }
-} // namespace resource

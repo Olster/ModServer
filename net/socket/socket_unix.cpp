@@ -2,7 +2,6 @@
 
 #include <unistd.h>
 
-namespace net {
 Socket::~Socket() {
   ShutDown();
   Close();
@@ -15,4 +14,3 @@ bool Socket::Close() {
 bool Socket::ShutDown(ShutDownCode code) {
   return shutdown(m_socket, code) != 0;
 }
-} // namespace net

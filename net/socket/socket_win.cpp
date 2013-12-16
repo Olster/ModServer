@@ -18,7 +18,6 @@ class NetworkIniter {
 // This object initializes and uninitializes networking library in windows.
 NetworkIniter g_networkiniter;
 
-namespace net {
 Socket::~Socket() {
   ShutDown();
   Close();
@@ -31,4 +30,3 @@ bool Socket::Close() {
 bool Socket::ShutDown(ShutDownCode code) {
   return shutdown(m_socket, code) == 0;
 }
-} // namespace net
