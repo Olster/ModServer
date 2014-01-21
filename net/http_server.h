@@ -2,20 +2,21 @@
 #define NET_HTTP_SERVER_H_
 
 #include <list>
+#include <map>
 #include <string>
 
 #include "base/build_required.h"
 #include "net/socket/server_socket.h"
 
 class HttpConnection;
+class IPEndPoint;
 
 class HttpServer {
  public:
   DISALLOW_COPY_AND_ASSIGN(HttpServer);
   DISALLOW_MOVE(HttpServer);
   
-  HttpServer(const char* ip, unsigned short port,
-             const std::string& resFolder, int maxListen = 10);
+  HttpServer(const IPEndPoint& endPoint, int maxListen = 10);
   ~HttpServer();
 
   enum StartErrorCode {
@@ -26,7 +27,7 @@ class HttpServer {
   };
   
   StartErrorCode Start();  
-  std::string ErrorString() const { return m_errString; }
+  const std::string& ErrorString() const { return m_errString; }
 
   enum UpdateCode {
     TIME_OUT,
@@ -47,9 +48,20 @@ class HttpServer {
   void ReadRequests();
   void ProcessRequests();
   void SendResponses();
+
+  bool MapHostToLocalPath(const char* host, const char* localPath) {
+    if (m_hostToLocalPath.find(host) == m_hostToLocalPath.end()) {
+      m_hostToLocalPath.insert(std::make_pair(host, localPath));
+      return true;
+    }
+
+    return false;
+  }
  private:
   ServerSocket m_listenerSocket;
-  std::string m_resourcesFolderPath;  
+  
+  std::map<const std::string, const std::string> m_hostToLocalPath;
+
   std::list<HttpConnection*> m_connections;
   std::string m_errString;
   int m_maxListen;

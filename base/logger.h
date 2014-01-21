@@ -19,6 +19,7 @@ class Logger {
   static Logger& GetLogger();
 
   // Creates unique file name based on time.
+  // Move constructor applied.
   static std::string FormFileName();
 
   FILE* m_file = nullptr;

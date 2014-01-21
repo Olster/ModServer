@@ -4,7 +4,8 @@
 #include "base/build_required.h"
 
 #include <string>
-#include <assert.h>
+#include <map>
+#include <cassert>
 
 #include "resource/resource.h"
 
@@ -15,9 +16,9 @@ class HttpConnection {
   DISALLOW_COPY_AND_ASSIGN(HttpConnection);
   DISALLOW_MOVE(HttpConnection);
 
-  HttpConnection(TcpSocket* clientSock, const std::string& filesPath)
+  HttpConnection(TcpSocket* clientSock, const std::map<const std::string, const std::string>& hostToLocalPath)
    : m_clientSock(clientSock),
-     m_files(filesPath) {
+    m_hostToLocalPath(hostToLocalPath) {
     assert(m_clientSock);
   }
 
@@ -28,13 +29,17 @@ class HttpConnection {
   void SetReadyClose() { m_bReadyClose = true; }
   bool ReadyClose() const { return m_bReadyClose; }
 
+  // Reads request from the client. Doesn't parse it. Returns number of bytes read.
   int ReadRequest();
+
+  // Parces the request, forms a response.
   void ProcessRequest();
+
+  // Sends response, cutting off sent data from actual response. Returns bytes sent.
   int SendResponse();
 
-  // Returns true if server has any data for the client.
   bool DataAvailable() const { return (m_response.length() > 0) ||
-                                      !m_bAllResourceSent; }
+                                       !m_bAllResourceSent; }
  private:
   // TODO(Olster): Add more method support.
   enum Method {
@@ -60,7 +65,9 @@ class HttpConnection {
   void FormatNotImplementedResponse();
 
   TcpSocket* m_clientSock = nullptr;
-  std::string m_files;
+
+  std::map<const std::string, const std::string> m_hostToLocalPath;
+
   bool m_bReadyClose = false;
 
   std::string m_request;

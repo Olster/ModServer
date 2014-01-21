@@ -28,7 +28,11 @@ bool Logger::InitLog() {
 
 // static
 void Logger::UninitLog() {
-  std::fclose(GetLogger().m_file);
+  FILE* file = GetLogger().m_file;
+  if (file) {
+    std::fclose(file);
+    GetLogger().m_file = nullptr;
+  }
 }
 
 // static

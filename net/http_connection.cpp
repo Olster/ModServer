@@ -28,18 +28,26 @@ HttpConnection::~HttpConnection()  {
 }
 
 int HttpConnection::ReadRequest() {
-  char temp[4096];
-  int read = m_clientSock->Receive(temp, sizeof(temp));
+  m_request.clear();
+
+  int bytesToRead = 4096;
+  m_request.resize(bytesToRead);
+
+  char* str = const_cast<char*>(m_request.c_str());
+  int read = m_clientSock->Receive(str, bytesToRead);
 
   if (read > 1) {
-    temp[read - 1] = '\0';
-    m_request = std::string(temp, read);
+    m_request.resize(read + 1);
+    m_request[read + 1] = '\0';
+  } else {
+    m_request.clear();
   }
 
   return read;
 }
 
 // TODO(Olster): Add information about server when formatting response.
+// Check if the request is full.
 void HttpConnection::ProcessRequest() {
   if (m_request.empty() && m_bAllResourceSent) {
     return;
@@ -105,7 +113,14 @@ void HttpConnection::ProcessRequest() {
     assert(m_res.Opened());
     addHeader = false;
   } else {
-    bool opened = m_res.Open(m_files + resourcePath);
+
+    bool opened = false;
+
+    // TODO(Olster): Read host from headers.
+    auto it = m_hostToLocalPath.find("/");    
+    if (it != m_hostToLocalPath.end()) {
+      opened = m_res.Open(it->second + resourcePath);
+    }
     
     if (!opened) {
       FormatNotFoundResponse();

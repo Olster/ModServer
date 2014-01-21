@@ -1,6 +1,7 @@
 #include <cassert>
 
 #include "net/http_server.h"
+#include "net/ipendpoint.h"
 #include "base/logger.h"
 
 int main() {
@@ -12,7 +13,11 @@ int main() {
   }
 
   // TODO(Olster): Read settings either from command line or settings file.
-  HttpServer server("127.0.0.1", 2563, R"(D:\HTML\Languages)");
+  
+  HttpServer server(IPEndPoint("127.0.0.1", 2563));  
+  if (!server.MapHostToLocalPath("/", "D:/HTML/Languages")) {
+    Logger::Log("Didn't map host to local path");
+  }
 
   if (server.Start() != HttpServer::SUCCESS) {
     Logger::Log("Server didn't start: %s", server.ErrorString().c_str());

@@ -3,15 +3,15 @@
 #include <assert.h>
 
 #include "net/http_connection.h"
+#include "net/ipendpoint.h"
 #include "base/logger.h"
 
-HttpServer::HttpServer(const char* ip, unsigned short port,
-                       const std::string& resFolder, int maxListen)
- : m_listenerSocket(ip, port),
-   m_resourcesFolderPath(resFolder),
+HttpServer::HttpServer(const IPEndPoint& endPoint, int maxListen)
+ : m_listenerSocket(endPoint.ip(), endPoint.port()),
    m_maxListen(maxListen) {
 
   // 20 seconds default timeout.
+  // TODO(Olster): Make this configurable.
   m_timeout.tv_sec = 20;
   m_timeout.tv_usec = 0;
 
@@ -94,7 +94,7 @@ void HttpServer::AcceptNewConnections() {
     TcpSocket* newSock = m_listenerSocket.Accept();
     assert(newSock);
 
-    m_connections.push_back(new HttpConnection(newSock, m_resourcesFolderPath));
+    m_connections.push_back(new HttpConnection(newSock, m_hostToLocalPath));
 
     // Update max FD variable.
     Socket::SOCK_TYPE sock = newSock->handle();
@@ -152,8 +152,6 @@ void HttpServer::ReadRequests() {
 }
 
 void HttpServer::ProcessRequests() {
-  // TODO(Olster): Try out async here. Pass a lambda function, can't
-  // pass member functions.
   for (auto& conn : m_connections) {
     conn->ProcessRequest();
   }
