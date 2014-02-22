@@ -1,13 +1,14 @@
 #ifndef NET_SOCKET_HTTP_CONNECTION_H_
 #define NET_SOCKET_HTTP_CONNECTION_H_
 
-#include "base/build_required.h"
-
 #include <string>
 #include <map>
 #include <cassert>
 
+#include "base/build_required.h"
 #include "resource/resource.h"
+
+#include "net/http_request.h"
 
 class TcpSocket;
 
@@ -38,11 +39,10 @@ class HttpConnection {
   // Sends response, cutting off sent data from actual response. Returns bytes sent.
   int SendResponse();
 
-  bool DataAvailable() const { return (m_response.length() > 0) ||
-                                       !m_bAllResourceSent; }
+  bool DataAvailable() const { return !m_response.empty(); }
  private:
   // TODO(Olster): Add more method support.
-  enum Method {
+  enum HttpMethod {
     GET = 0,
     INVALID_METHOD
   };
@@ -70,7 +70,7 @@ class HttpConnection {
 
   bool m_bReadyClose = false;
 
-  std::string m_request;
+  HttpRequest m_request;
   std::string m_response;
 
   Resource m_res;

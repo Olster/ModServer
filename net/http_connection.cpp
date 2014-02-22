@@ -6,21 +6,6 @@
 #include "net/socket/tcp_socket.h"
 #include "base/logger.h"
 
-class StringCleaner {
- public:
-  StringCleaner(std::string& str)
-   : m_str(str) {}
-
-  ~StringCleaner() {
-    m_str.clear();
-  }
-
-  DISALLOW_COPY_AND_ASSIGN(StringCleaner);
-  DISALLOW_MOVE(StringCleaner);
- private:
-  std::string& m_str;
-};
-
 HttpConnection::~HttpConnection()  {
   if (m_clientSock) {
     delete m_clientSock;
@@ -28,19 +13,14 @@ HttpConnection::~HttpConnection()  {
 }
 
 int HttpConnection::ReadRequest() {
-  m_request.clear();
+  m_request.Clear();
 
-  int bytesToRead = 4096;
-  m_request.resize(bytesToRead);
+  char buff[4096];
+  int read = m_clientSock->Receive(buff, ARR_SIZE(buff));
 
-  char* str = const_cast<char*>(m_request.c_str());
-  int read = m_clientSock->Receive(str, bytesToRead);
-
-  if (read > 1) {
-    m_request.resize(read + 1);
-    m_request[read + 1] = '\0';
-  } else {
-    m_request.clear();
+  if (read > 0) {
+    buff[read + 1] = '\0';
+    m_request.set_request(std::string(buff, read));
   }
 
   return read;
@@ -49,16 +29,22 @@ int HttpConnection::ReadRequest() {
 // TODO(Olster): Add information about server when formatting response.
 // Check if the request is full.
 void HttpConnection::ProcessRequest() {
-  if (m_request.empty() && m_bAllResourceSent) {
+  if (m_request.Empty() && m_bAllResourceSent) {
     return;
   }
 
-  // Clear the string going out of scope.
-  StringCleaner cleaner(m_request);
+  if (m_bAllResourceSent) {
+    bool parsed = HttpRequestParser::Parse(m_request);
+    if (parsed) {
+      std::string resPath = m_request.resource_path();
+      HttpMethod method = m_request.method();
+      HttpVersion httpVer = m_request.http_version();
+    } else {
+      FormatBadRequestResponse();
+    }
+  }
 
-  std::string resourcePath;
-  Method method = Method::INVALID_METHOD;
-  HttpVersion httpVer = HTTP_ERROR;
+  
 
   if (m_bAllResourceSent) {
     // GET / HTTP/1.1\r\n...
