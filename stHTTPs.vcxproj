@@ -83,7 +83,12 @@
   <ItemGroup>
     <ClInclude Include="base\build_required.h" />
     <ClInclude Include="base\logger.h" />
+    <ClInclude Include="compression\zlib128\include\zconf.h" />
+    <ClInclude Include="compression\zlib128\include\zlib.h" />
+    <ClInclude Include="net\http.h" />
     <ClInclude Include="net\http_connection.h" />
+    <ClInclude Include="net\http_request.h" />
+    <ClInclude Include="net\http_response.h" />
     <ClInclude Include="net\http_server.h" />
     <ClInclude Include="net\ipendpoint.h" />
     <ClInclude Include="net\socket\server_socket.h" />
@@ -95,6 +100,8 @@
     <ClCompile Include="base\logger.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="net\http_connection.cpp" />
+    <ClCompile Include="net\http_request.cpp" />
+    <ClCompile Include="net\http_response.cpp" />
     <ClCompile Include="net\http_server.cpp" />
     <ClCompile Include="net\socket\server_socket.cpp" />
     <ClCompile Include="net\socket\socket_unix.cpp">

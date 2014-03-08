@@ -16,6 +16,12 @@
     <Filter Include="resource">
       <UniqueIdentifier>{ed81245c-aced-4da4-a57c-8cbe800cbce5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="compression">
+      <UniqueIdentifier>{af9efde9-0f06-49db-ba24-54e4caef339a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="compression\zlib">
+      <UniqueIdentifier>{04c58ec1-34f2-4d6c-91d9-f917ace147cb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="base\build_required.h">
@@ -43,6 +49,21 @@
       <Filter>base</Filter>
     </ClInclude>
     <ClInclude Include="net\ipendpoint.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="compression\zlib128\include\zconf.h">
+      <Filter>compression\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="compression\zlib128\include\zlib.h">
+      <Filter>compression\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="net\http_request.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="net\http_response.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="net\http.h">
       <Filter>net</Filter>
     </ClInclude>
   </ItemGroup>
@@ -73,6 +94,12 @@
     </ClCompile>
     <ClCompile Include="base\logger.cpp">
       <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="net\http_response.cpp">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="net\http_request.cpp">
+      <Filter>net</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

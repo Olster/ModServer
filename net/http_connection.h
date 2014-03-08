@@ -17,7 +17,8 @@ class HttpConnection {
   DISALLOW_COPY_AND_ASSIGN(HttpConnection);
   DISALLOW_MOVE(HttpConnection);
 
-  HttpConnection(TcpSocket* clientSock, const std::map<const std::string, const std::string>& hostToLocalPath)
+  HttpConnection(TcpSocket* clientSock,
+                 const std::map<const std::string, const std::string>& hostToLocalPath)
    : m_clientSock(clientSock),
     m_hostToLocalPath(hostToLocalPath) {
     assert(m_clientSock);
@@ -41,20 +42,6 @@ class HttpConnection {
 
   bool DataAvailable() const { return !m_response.empty(); }
  private:
-  // TODO(Olster): Add more method support.
-  enum HttpMethod {
-    GET = 0,
-    INVALID_METHOD
-  };
-
-  Method MethodFromString(const std::string& method);
-
-  // TODO(Olster): Eventually add support for HTTP/2.0.
-  enum HttpVersion {
-    HTTP_1_1 = 0,
-    HTTP_ERROR
-  };
-
   // Formats "400 Bad Request" message to send to client.
   void FormatBadRequestResponse();
 

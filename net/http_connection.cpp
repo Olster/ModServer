@@ -1,9 +1,11 @@
 #include "net/http_connection.h"
 
-#include <regex>
+
 #include <map>
 
 #include "net/socket/tcp_socket.h"
+#include "net/http.h"
+
 #include "base/logger.h"
 
 HttpConnection::~HttpConnection()  {
@@ -14,16 +16,7 @@ HttpConnection::~HttpConnection()  {
 
 int HttpConnection::ReadRequest() {
   m_request.Clear();
-
-  char buff[4096];
-  int read = m_clientSock->Receive(buff, ARR_SIZE(buff));
-
-  if (read > 0) {
-    buff[read + 1] = '\0';
-    m_request.set_request(std::string(buff, read));
-  }
-
-  return read;
+  return m_clientSock->Receive(m_request.buffer(), m_request.buffer_size());
 }
 
 // TODO(Olster): Add information about server when formatting response.
@@ -33,61 +26,34 @@ void HttpConnection::ProcessRequest() {
     return;
   }
 
-  if (m_bAllResourceSent) {
-    bool parsed = HttpRequestParser::Parse(m_request);
-    if (parsed) {
-      std::string resPath = m_request.resource_path();
-      HttpMethod method = m_request.method();
-      HttpVersion httpVer = m_request.http_version();
-    } else {
-      FormatBadRequestResponse();
-    }
-  }
-
-  
+  std::string resPath = "";
+  RequestMethod method = INVALID_METHOD;
+  HttpVersion httpVer = HTTP_ERROR;
 
   if (m_bAllResourceSent) {
-    // GET / HTTP/1.1\r\n...
-    static std::regex requestLineRegex(R"(^(GET|OPTIONS)\s+(\S+)\s+HTTP/(\d)\.(\d)[[:cntrl:]]{2}.+)");
+    HttpRequestParser::ParseRes res = HttpRequestParser::Parse(m_request);
 
-    std::smatch matcherResult;
-    if (!std::regex_search(m_request, matcherResult, requestLineRegex)) {
-      Logger::Log("Invalid request");
-      FormatBadRequestResponse();
+    switch (res) {
+      case HttpRequestParser::OK:
+        resPath = m_request.resource_path();
+        method = m_request.method();
+        httpVer = m_request.http_version();
+      break;
 
-      return;
+      case HttpRequestParser::NOT_IMPLEMENTED:
+        FormatNotImplementedResponse();
+      break;
+
+      case HttpRequestParser::VERSION_NOT_SUPPORTED:
+        // TODO(Olster): Create "Not supported" response.
+        FormatBadRequestResponse();
+      break;
+
+      default:
+      case HttpRequestParser::INVALID_REQUEST:
+        FormatBadRequestResponse();
+      break;
     }
-
-    Logger::Log("Request:");
-    Logger::Log("Option: %s\nPath: %s\n", matcherResult[1].str().c_str(),
-                matcherResult[2].str().c_str());
-
-    // TODO(Olster): Search for ".." exploit.
-    resourcePath = matcherResult[2].str();
-    if (resourcePath == "/") {
-      resourcePath += "index.html";
-    }
-
-    // Current request method.
-    Method method = MethodFromString(matcherResult[1].str());
-    if (method == Method::INVALID_METHOD) {
-      FormatNotImplementedResponse();
-      return;
-    }
-  
-    // TODO(Olster): Maybe add function to detect the version.
-    if ((matcherResult[3].str() == "1") && (matcherResult[4].str() == "1")) {
-      httpVer = HTTP_1_1;
-    }
-
-    if (httpVer == HTTP_ERROR) {
-      // TODO(Olster): Use 505 HTTP Version Not Supported.
-      FormatBadRequestResponse();
-      return;
-    }
-
-    // Chop off the first request line for further parsing.
-    //m_request = matcherResult.format("$'");
   }
 
   // If set to false, no "HTTP/1.1 200 OK"... stuff would be generated.
@@ -105,7 +71,7 @@ void HttpConnection::ProcessRequest() {
     // TODO(Olster): Read host from headers.
     auto it = m_hostToLocalPath.find("/");    
     if (it != m_hostToLocalPath.end()) {
-      opened = m_res.Open(it->second + resourcePath);
+      opened = m_res.Open(it->second + resPath);
     }
     
     if (!opened) {
@@ -141,7 +107,7 @@ void HttpConnection::ProcessRequest() {
 int HttpConnection::SendResponse() {
   int bytesSend = m_clientSock->Send(m_response.c_str(), m_response.length());
   
-  if (bytesSend != m_response.length()) {
+  if (bytesSend != static_cast<int>(m_response.length())) {
     // Partial send.
     m_response = m_response.substr(bytesSend);
   } else {
@@ -151,29 +117,14 @@ int HttpConnection::SendResponse() {
   return bytesSend;
 }
 
-// This new return feature helps to make code quite shorter!
-auto HttpConnection::MethodFromString(const std::string& method) -> Method {
-  static std::map<const std::string, Method> stringToMethodMap = {
-    {"GET", Method::GET}
-  };
-
-  auto foundElem = stringToMethodMap.find(method);
-  if (foundElem != stringToMethodMap.end()) {
-    return foundElem->second;
-  }
-
-  // Error, no such method.
-  return Method::INVALID_METHOD;
-}
-
 void HttpConnection::FormatBadRequestResponse() {
-  m_request = "HTTP/1.1 400 Bad Request\r\nContent-type: text/html\r\nContent-length: 0\r\n\r\n";
+  m_response = "HTTP/1.1 400 Bad Request\r\nContent-type: text/html\r\nContent-length: 0\r\n\r\n";
 }
 
 void HttpConnection::FormatNotFoundResponse() {
-  m_request = "HTTP/1.1 404 Not Found\r\nContent-type: text/html\r\nContent-length: 0\r\n\r\n";
+  m_response = "HTTP/1.1 404 Not Found\r\nContent-type: text/html\r\nContent-length: 0\r\n\r\n";
 }
 
 void HttpConnection::FormatNotImplementedResponse() {
-  m_request = "HTTP/1.1 501 Not Implemented\r\nContent-type: text/html\r\nContent-length: 0\r\n\r\n";
+  m_response = "HTTP/1.1 501 Not Implemented\r\nContent-type: text/html\r\nContent-length: 0\r\n\r\n";
 }
