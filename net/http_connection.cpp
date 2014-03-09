@@ -41,17 +41,16 @@ void HttpConnection::ProcessRequest() {
       break;
 
       case HttpRequestParser::NOT_IMPLEMENTED:
-        FormatNotImplementedResponse();
+        m_response.NotImplemented501();
       break;
 
       case HttpRequestParser::VERSION_NOT_SUPPORTED:
-        // TODO(Olster): Create "Not supported" response.
-        FormatBadRequestResponse();
+        m_response.VersionNotSupported505();
       break;
 
       default:
       case HttpRequestParser::INVALID_REQUEST:
-        FormatBadRequestResponse();
+        m_response.BadRequest400();
       break;
     }
   }
@@ -75,7 +74,7 @@ void HttpConnection::ProcessRequest() {
     }
     
     if (!opened) {
-      FormatNotFoundResponse();
+      m_response.NotFound404();
       return;
     }
   }
@@ -97,34 +96,22 @@ void HttpConnection::ProcessRequest() {
 
   // TODO(Olster): Add FormatOKResponse() function for consistency.
   if (addHeader) {
-    m_response = "HTTP/1.1 200 OK\r\ncontent-type: " + m_res.MimeType() + "\r\ncontent-length: " +
-                 std::to_string(fileSize) + "\r\n\r\n" + data;
+    m_response.set_data("HTTP/1.1 200 OK\r\ncontent-type: " + m_res.MimeType() + "\r\ncontent-length: " +
+                 std::to_string(fileSize) + "\r\n\r\n" + data);
   } else {
-    m_response = std::move(data);
+    m_response.set_data(data);
   }
 }
 
 int HttpConnection::SendResponse() {
-  int bytesSend = m_clientSock->Send(m_response.c_str(), m_response.length());
+  int bytesSend = m_clientSock->Send(m_response.data().c_str(), m_response.data().length());
   
-  if (bytesSend != static_cast<int>(m_response.length())) {
-    // Partial send.
-    m_response = m_response.substr(bytesSend);
+  if (bytesSend != static_cast<int>(m_response.data().length())) {
+    Logger::Log("Partial send happened, not implemented");
+    assert(false && "Partial send happened");
   } else {
-    m_response.clear();
+    m_response.Clear();
   }
 
   return bytesSend;
-}
-
-void HttpConnection::FormatBadRequestResponse() {
-  m_response = "HTTP/1.1 400 Bad Request\r\nContent-type: text/html\r\nContent-length: 0\r\n\r\n";
-}
-
-void HttpConnection::FormatNotFoundResponse() {
-  m_response = "HTTP/1.1 404 Not Found\r\nContent-type: text/html\r\nContent-length: 0\r\n\r\n";
-}
-
-void HttpConnection::FormatNotImplementedResponse() {
-  m_response = "HTTP/1.1 501 Not Implemented\r\nContent-type: text/html\r\nContent-length: 0\r\n\r\n";
 }

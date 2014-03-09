@@ -4,7 +4,18 @@
 #include "net/ipendpoint.h"
 #include "base/logger.h"
 
-int main() {
+struct LogAutoUninit {
+  ~LogAutoUninit() {
+    Logger::UninitLog();
+  }
+};
+
+int main(int argc, char** argv) {
+  if (argc < 4) {
+    printf("Usage: exeName ip port path. For example, sthttps.exe 127.0.0.1 2563 D:/SiteFolder");
+    return 0;
+  }
+
   bool logStarted = Logger::InitLog();
   assert(logStarted);
   if (!logStarted) {
@@ -12,10 +23,16 @@ int main() {
     return -1;
   }
 
-  // TODO(Olster): Read settings either from command line or settings file.
+  LogAutoUninit logUninit;
+
+  std::string ip = argv[1];
+  unsigned short port = static_cast<unsigned short>(strtoul(argv[2], NULL, 10));
+  std::string path = argv[3];
+
+  // TODO(Olster): Read settings from settings file.
   
-  HttpServer server(IPEndPoint("127.0.0.1", 2563));
-  if (!server.MapHostToLocalPath("/", "D:/HTML/Languages")) {
+  HttpServer server(IPEndPoint(ip, port));
+  if (!server.MapHostToLocalPath("/", path)) {
     Logger::Log("Didn't map host to local path");
   }
 
@@ -52,6 +69,5 @@ int main() {
     server.SendResponses();
   }
   
-  Logger::UninitLog();
   return 0;
 }

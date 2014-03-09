@@ -49,7 +49,7 @@ class HttpServer {
   void ProcessRequests();
   void SendResponses();
 
-  bool MapHostToLocalPath(const char* host, const char* localPath) {
+  bool MapHostToLocalPath(const std::string& host, const std::string& localPath) {
     if (m_hostToLocalPath.find(host) == m_hostToLocalPath.end()) {
       m_hostToLocalPath.insert(std::make_pair(host, localPath));
       return true;

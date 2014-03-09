@@ -10,8 +10,7 @@
 
 class HttpRequest {
  public:
-  HttpRequest(const std::string& request = "")
-   : m_request(request) {
+  HttpRequest() {
     m_request.resize(m_maxBytesRead + 1);
   }
 

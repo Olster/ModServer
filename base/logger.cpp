@@ -22,6 +22,8 @@ bool Logger::InitLog() {
   }
 
   std::string fileName = FormFileName();
+  printf("Log file created: %s", fileName.c_str());
+
   logger.m_file = std::fopen(fileName.c_str(), "w");
   return logger.m_file != nullptr;
 }

@@ -111,6 +111,9 @@
     <ClCompile Include="net\socket\tcp_socket.cpp" />
     <ClCompile Include="resource\resource.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

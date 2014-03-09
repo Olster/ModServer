@@ -18,6 +18,9 @@ class IPEndPoint {
     strcpy_s(m_ip, ip);
   }
 
+  IPEndPoint(const std::string& ip, unsigned short port)
+    : IPEndPoint(ip.c_str(), port) {}
+
   const char* ip() const { return m_ip; }
   unsigned short port() const { return m_port; }
 

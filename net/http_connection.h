@@ -9,6 +9,7 @@
 #include "resource/resource.h"
 
 #include "net/http_request.h"
+#include "net/http_response.h"
 
 class TcpSocket;
 
@@ -40,17 +41,8 @@ class HttpConnection {
   // Sends response, cutting off sent data from actual response. Returns bytes sent.
   int SendResponse();
 
-  bool DataAvailable() const { return !m_response.empty(); }
+  bool DataAvailable() const { return !m_response.data().empty(); }
  private:
-  // Formats "400 Bad Request" message to send to client.
-  void FormatBadRequestResponse();
-
-  // Formats "404 Not Found" message.
-  void FormatNotFoundResponse();
-
-  // 501 Not Implemented
-  void FormatNotImplementedResponse();
-
   TcpSocket* m_clientSock = nullptr;
 
   std::map<const std::string, const std::string> m_hostToLocalPath;
@@ -58,7 +50,7 @@ class HttpConnection {
   bool m_bReadyClose = false;
 
   HttpRequest m_request;
-  std::string m_response;
+  HttpResponse m_response;
 
   Resource m_res;
   bool m_bAllResourceSent = true;
