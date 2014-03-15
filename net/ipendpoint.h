@@ -15,7 +15,7 @@ class IPEndPoint {
   IPEndPoint(const char* ip, unsigned short port)
    : m_port(port) {
     assert(ip);
-    strcpy_s(m_ip, ip);
+    strcpy(m_ip, ip);
   }
 
   IPEndPoint(const std::string& ip, unsigned short port)

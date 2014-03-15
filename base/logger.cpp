@@ -64,6 +64,6 @@ inline Logger& Logger::GetLogger() {
 // static
 std::string Logger::FormFileName() {
   char name[128];
-  strftime(name, sizeof(name), "sthttps_%d%m%y%H%M.log", GetTimeInfo());
+  strftime(name, sizeof(name), "sthttps_%d%m%y_%H%M.log", GetTimeInfo());
   return name;
 }

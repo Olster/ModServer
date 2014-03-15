@@ -68,17 +68,17 @@ void HttpConnection::ProcessRequest() {
     bool opened = false;
 
     // TODO(Olster): Read host from headers.
-    auto it = m_hostToLocalPath.find("/");    
+    auto it = m_hostToLocalPath.find("/");
     if (it != m_hostToLocalPath.end()) {
       opened = m_res.Open(it->second + resPath);
     }
-    
+
     if (!opened) {
       m_response.NotFound404();
       return;
     }
   }
-  
+
   long fileSize = m_res.ResourceSizeBytes();
   assert(fileSize > 0);
 
@@ -105,7 +105,7 @@ void HttpConnection::ProcessRequest() {
 
 int HttpConnection::SendResponse() {
   int bytesSend = m_clientSock->Send(m_response.data().c_str(), m_response.data().length());
-  
+
   if (bytesSend != static_cast<int>(m_response.data().length())) {
     Logger::Log("Partial send happened, not implemented");
     assert(false && "Partial send happened");

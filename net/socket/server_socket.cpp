@@ -16,7 +16,7 @@ ServerSocket::ServerSocket(const char* ip, unsigned short port)
   memset(m_ip, 0, sizeof(m_ip));
 
   assert(strlen(ip) < sizeof(m_ip));
-  strcpy_s(m_ip, ip);
+  strcpy(m_ip, ip);
 }
 
 bool ServerSocket::Bind() {

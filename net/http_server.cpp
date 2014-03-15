@@ -135,7 +135,7 @@ void HttpServer::ReadRequests() {
     TcpSocket* clientSock = conn->clientSocket();
     if (FD_ISSET(clientSock->handle(), &m_readSet)) {
       int read = conn->ReadRequest();
-      
+
       // Error reading or closed connection, mark connection for close.
       if (read < 1) {
         if (read == 0) {
@@ -167,7 +167,7 @@ void HttpServer::SendResponses() {
     TcpSocket* clientSock = conn->clientSocket();
     if (FD_ISSET(clientSock->handle(), &m_writeSet)) {
       int sent = conn->SendResponse();
-      
+
       // Need to close the connection: either error or close.
       if (sent < 1) {
         Logger::Log("Must close %d. Couldn't send data.", clientSock->handle());

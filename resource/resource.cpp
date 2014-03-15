@@ -37,7 +37,7 @@ long Resource::ResourceSizeBytes() {
 
   fseek(m_resFile, 0, SEEK_END);
   long size = ftell(m_resFile);
-  
+
   assert(size > 0);
   if (size < 0) {
     return -1;
@@ -62,7 +62,7 @@ size_t Resource::Read(std::string& buffer, int bytesToRead, long startAt) {
   }
 
   int res = fseek(m_resFile, startAt, SEEK_SET);
-  
+
   assert(res == 0);
   if (res != 0) {
     return 0;
