@@ -48,14 +48,8 @@ long Resource::ResourceSizeBytes() {
   return size;
 }
 
-size_t Resource::Read(std::string& buffer, int bytesToRead, long startAt) {
+size_t Resource::Read(std::string& buffer, size_t bytesToRead, long startAt) {
   assert(m_resFile);
-
-  // NOTE(Olster): Do we really need to limit the size of sent data?
-  // Limit by roughly 60kB.
-  if (bytesToRead > 60000) {
-    bytesToRead = 60000;
-  }
 
   if (!m_resFile) {
     return 0;
@@ -68,11 +62,17 @@ size_t Resource::Read(std::string& buffer, int bytesToRead, long startAt) {
     return 0;
   }
 
-  char* temp = new char[bytesToRead];
+  buffer.clear();
+  buffer.resize(bytesToRead + 1);
+
+  char* temp = const_cast<char*>(buffer.c_str());
   size_t read = fread(temp, 1, bytesToRead, m_resFile);
 
-  buffer = std::string(temp, read);
-  delete [] temp;
+  if (read > 0) {
+    buffer.resize(read);
+  } else {
+    buffer.clear();
+  }
 
   return read;
 }

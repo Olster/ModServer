@@ -1,11 +1,10 @@
-#ifndef NET_HTTP_RESPONSE_H_
-#define NET_HTTP_RESPONSE_H_
+#ifndef HTTP_RESPONSE_H_
+#define HTTP_RESPONSE_H_
 
 #include <string>
 #include <vector>
 
 #include "base/build_required.h"
-#include "net/http.h"
 
 class HttpResponse {
  public:

@@ -1,12 +1,12 @@
-#ifndef NET_HTTP_REQUEST_H_
-#define NET_HTTP_REQUEST_H_
+#ifndef HTTP_REQUEST_H_
+#define HTTP_REQUEST_H_
 
 #include <string>
 #include <map>
 
 #include "base/build_required.h"
 
-#include "net/http.h"
+#include "http.h"
 
 class HttpRequest {
  public:

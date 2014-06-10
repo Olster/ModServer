@@ -28,7 +28,7 @@ class Resource {
   // Reads |bytesToRead| bytes into |buffer| from file starting at
   // |startAt| byte.
   // Returns number of bytes read.
-  size_t Read(std::string& buffer, int bytesToRead, long startAt = 0);
+  size_t Read(std::string& buffer, size_t bytesToRead, long startAt = 0);
 
   // Returns the MIME type of current resource.
   const std::string& MimeType() const { return m_mimeType; }

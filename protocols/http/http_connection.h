@@ -8,8 +8,8 @@
 #include "base/build_required.h"
 #include "resource/resource.h"
 
-#include "net/http_request.h"
-#include "net/http_response.h"
+#include "http_request.h"
+#include "http_response.h"
 
 class TcpSocket;
 

@@ -1,5 +1,5 @@
-#ifndef NET_HTTP_H_
-#define NET_HTTP_H_
+#ifndef HTTP_H_
+#define HTTP_H_
 
 // TODO(Olster): Add more method support.
 // Request methods.

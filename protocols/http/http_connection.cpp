@@ -1,10 +1,9 @@
-#include "net/http_connection.h"
-
+#include "http_connection.h"
 
 #include <map>
 
 #include "net/socket/tcp_socket.h"
-#include "net/http.h"
+#include "http.h"
 
 #include "base/logger.h"
 
@@ -27,32 +26,32 @@ void HttpConnection::ProcessRequest() {
   }
 
   std::string resPath = "";
-  RequestMethod method = INVALID_METHOD;
-  HttpVersion httpVer = HTTP_ERROR;
+  //RequestMethod method = INVALID_METHOD;
+  //HttpVersion httpVer = HTTP_ERROR;
 
   if (m_bAllResourceSent) {
-    HttpRequestParser::ParseRes res = HttpRequestParser::Parse(m_request);
-
-    switch (res) {
-      case HttpRequestParser::OK:
-        resPath = m_request.resource_path();
-        method = m_request.method();
-        httpVer = m_request.http_version();
-      break;
-
-      case HttpRequestParser::NOT_IMPLEMENTED:
-        m_response.NotImplemented501();
-      break;
-
-      case HttpRequestParser::VERSION_NOT_SUPPORTED:
-        m_response.VersionNotSupported505();
-      break;
-
-      default:
-      case HttpRequestParser::INVALID_REQUEST:
-        m_response.BadRequest400();
-      break;
-    }
+    //HttpRequestParser::ParseRes res = HttpRequestParser::Parse(m_request);
+    //
+    //switch (res) {
+    //  case HttpRequestParser::OK:
+    //    resPath = m_request.resource_path();
+    //    method = m_request.method();
+    //    httpVer = m_request.http_version();
+    //  break;
+    //
+    //  case HttpRequestParser::NOT_IMPLEMENTED:
+    //    m_response.NotImplemented501();
+    //  break;
+    //
+    //  case HttpRequestParser::VERSION_NOT_SUPPORTED:
+    //    m_response.VersionNotSupported505();
+    //  break;
+    //
+    //  default:
+    //  case HttpRequestParser::INVALID_REQUEST:
+    //    m_response.BadRequest400();
+    //  break;
+    //}
   }
 
   // If set to false, no "HTTP/1.1 200 OK"... stuff would be generated.

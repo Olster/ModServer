@@ -8,13 +8,12 @@
 
 #define DISALLOW_MOVE(Type)\
   Type(Type&& other) = delete;\
-  Type& operator=(Type&& other) = delete;
+  Type& operator=(Type&& other) = delete
 
 // Mark variable as unused.
-#ifdef UNUSED
-#undef UNUSED
-#endif
+#ifndef UNUSED
 #define UNUSED(var) ((void)(var))
+#endif
 
 // Safely determine the size of the array.
 template <class Type, unsigned int ArrSize>

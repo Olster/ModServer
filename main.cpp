@@ -1,8 +1,7 @@
-#include <cassert>
-
-#include "net/http_server.h"
-#include "net/ipendpoint.h"
+#include "net/server.h"
+#include "net/ip_endpoint.h"
 #include "base/logger.h"
+#include "protocol_factory/http_protocol_factory.h"
 
 struct LogAutoUninit {
   ~LogAutoUninit() {
@@ -12,15 +11,17 @@ struct LogAutoUninit {
 
 int main(int argc, char** argv) {
   if (argc < 4) {
-    printf("Usage: exeName ip port path. For example, sthttps.exe 127.0.0.1 2563 D:/SiteFolder");
+
+    // TODO(Olster): Make a command line parser.
+    // Passing params without flags for now.
+    printf("Usage: exeName ip port path. For example,"
+           "sthttps.exe /addr:127.0.0.1 /port:2563 /host:D:/SiteFolder");
     return 0;
   }
 
-  bool logStarted = Logger::InitLog();
-  assert(logStarted);
-  if (!logStarted) {
+  if (!Logger::InitLog()) {
     printf("Log file wasn't opened.");
-    return -1;
+    return 0;
   }
 
   LogAutoUninit logUninit;
@@ -30,43 +31,51 @@ int main(int argc, char** argv) {
   std::string path = argv[3];
 
   // TODO(Olster): Read settings from settings file.
-  
-  HttpServer server(IPEndPoint(ip, port));
-  if (!server.MapHostToLocalPath("/", path)) {
-    Logger::Log("Didn't map host to local path");
-  }
 
-  if (server.Start() != HttpServer::SUCCESS) {
-    Logger::Log("Server didn't start: %s", server.ErrorString().c_str());
-    return -1;
+  Server httpServer(IPEndPoint(ip, port), new HttpProtocolFactory);
+  Server::StartErrorCode rc = httpServer.Start();
+
+  // TODO(Olster): Get actual underlying error codes.
+  switch (rc) {
+    case Server::SOCKET_NOT_OPENED:
+      Logger::Log("Socket wasn't opened");
+      return 0;
+    break;
+
+    case Server::SOCKET_NOT_BOUND:
+      Logger::Log("Socket wasn't bound");
+      return 0;
+    break;
+
+    case Server::SOCKET_NOT_LISTENING:
+      Logger::Log("Socket isn't listening");
+      return 0;
+    break;
+
+    case Server::SUCCESS:
+    default:
+    break;
   }
   
-  // TODO(Olster): Will the server need stop functionality?
-  while (true) {
-    HttpServer::UpdateCode code = server.UpdateConnections();
+  while (!httpServer.Stopped()) {
+    Server::UpdateCode code = httpServer.UpdateConnections();
     switch (code) {
-      case HttpServer::TIME_OUT:
+      case Server::TIME_OUT:
         continue;
       break;
 
-      case HttpServer::UPDATE_ERROR:
+      case Server::UPDATE_ERROR:
         Logger::Log("Select entered error state.");
-        return 2;
+        httpServer.Shutdown();
       break;
       
       default:
       break;
     }
     
-    server.AcceptNewConnections();
-    
-    // Closes sockets to clients that have timed out, has closed the connection
-    // or asked to close the connection.
-    server.CloseUntrackedConnections();
-        
-    server.ReadRequests();
-    server.ProcessRequests();
-    server.SendResponses();
+    httpServer.AcceptNewConnections();        
+    httpServer.ReadRequests();
+    httpServer.SendResponses();
   }
   
   return 0;

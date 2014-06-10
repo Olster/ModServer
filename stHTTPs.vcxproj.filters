@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="main">
-      <UniqueIdentifier>{e356bcc8-64af-4208-801a-700a854c78b3}</UniqueIdentifier>
-    </Filter>
     <Filter Include="base">
       <UniqueIdentifier>{949e482d-1ed4-484c-a326-514fe7d7ad60}</UniqueIdentifier>
     </Filter>
@@ -16,25 +13,16 @@
     <Filter Include="resource">
       <UniqueIdentifier>{ed81245c-aced-4da4-a57c-8cbe800cbce5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="compression">
-      <UniqueIdentifier>{af9efde9-0f06-49db-ba24-54e4caef339a}</UniqueIdentifier>
+    <Filter Include="protocol_factory">
+      <UniqueIdentifier>{7ec9a50f-49dc-43c9-b395-604d1b7bc958}</UniqueIdentifier>
     </Filter>
-    <Filter Include="compression\zlib">
-      <UniqueIdentifier>{04c58ec1-34f2-4d6c-91d9-f917ace147cb}</UniqueIdentifier>
+    <Filter Include="protocols">
+      <UniqueIdentifier>{69ee501d-22b1-41d7-8fab-13c7a628047a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="base\build_required.h">
       <Filter>base</Filter>
-    </ClInclude>
-    <ClInclude Include="net\http_connection.h">
-      <Filter>net</Filter>
-    </ClInclude>
-    <ClInclude Include="net\http_server.h">
-      <Filter>net</Filter>
-    </ClInclude>
-    <ClInclude Include="net\socket\server_socket.h">
-      <Filter>net\socket</Filter>
     </ClInclude>
     <ClInclude Include="net\socket\socket.h">
       <Filter>net\socket</Filter>
@@ -48,38 +36,29 @@
     <ClInclude Include="base\logger.h">
       <Filter>base</Filter>
     </ClInclude>
-    <ClInclude Include="net\ipendpoint.h">
+    <ClInclude Include="net\server.h">
       <Filter>net</Filter>
     </ClInclude>
-    <ClInclude Include="compression\zlib128\include\zconf.h">
-      <Filter>compression\zlib</Filter>
+    <ClInclude Include="net\socket\tcp_listener.h">
+      <Filter>net\socket</Filter>
     </ClInclude>
-    <ClInclude Include="compression\zlib128\include\zlib.h">
-      <Filter>compression\zlib</Filter>
+    <ClInclude Include="protocol_factory\protocol_factory.h">
+      <Filter>protocol_factory</Filter>
     </ClInclude>
-    <ClInclude Include="net\http_request.h">
+    <ClInclude Include="protocols\protocol_handler.h">
+      <Filter>protocols</Filter>
+    </ClInclude>
+    <ClInclude Include="net\ip_endpoint.h">
       <Filter>net</Filter>
     </ClInclude>
-    <ClInclude Include="net\http_response.h">
-      <Filter>net</Filter>
+    <ClInclude Include="protocol_factory\http_protocol_factory.h">
+      <Filter>protocol_factory</Filter>
     </ClInclude>
-    <ClInclude Include="net\http.h">
-      <Filter>net</Filter>
+    <ClInclude Include="protocols\protocol_export.h">
+      <Filter>protocols</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>main</Filter>
-    </ClCompile>
-    <ClCompile Include="net\http_connection.cpp">
-      <Filter>net</Filter>
-    </ClCompile>
-    <ClCompile Include="net\http_server.cpp">
-      <Filter>net</Filter>
-    </ClCompile>
-    <ClCompile Include="net\socket\server_socket.cpp">
-      <Filter>net\socket</Filter>
-    </ClCompile>
     <ClCompile Include="net\socket\socket_unix.cpp">
       <Filter>net\socket</Filter>
     </ClCompile>
@@ -95,11 +74,18 @@
     <ClCompile Include="base\logger.cpp">
       <Filter>base</Filter>
     </ClCompile>
-    <ClCompile Include="net\http_response.cpp">
+    <ClCompile Include="net\server.cpp">
       <Filter>net</Filter>
     </ClCompile>
-    <ClCompile Include="net\http_request.cpp">
+    <ClCompile Include="net\socket\tcp_listener.cpp">
+      <Filter>net\socket</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="net\ip_endpoint.cpp">
       <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol_factory\http_protocol_factory.cpp">
+      <Filter>protocol_factory</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
