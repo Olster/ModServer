@@ -19,6 +19,9 @@
     <Filter Include="protocols">
       <UniqueIdentifier>{69ee501d-22b1-41d7-8fab-13c7a628047a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="server_plugin">
+      <UniqueIdentifier>{ed172a62-7b71-4580-8eef-c9590836bfae}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="base\build_required.h">
@@ -57,6 +60,15 @@
     <ClInclude Include="protocols\protocol_export.h">
       <Filter>protocols</Filter>
     </ClInclude>
+    <ClInclude Include="base\command_line.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="server_plugin\server_plugin.h">
+      <Filter>server_plugin</Filter>
+    </ClInclude>
+    <ClInclude Include="server_plugin\controller.h">
+      <Filter>server_plugin</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="net\socket\socket_unix.cpp">
@@ -86,6 +98,15 @@
     </ClCompile>
     <ClCompile Include="protocol_factory\http_protocol_factory.cpp">
       <Filter>protocol_factory</Filter>
+    </ClCompile>
+    <ClCompile Include="base\command_line.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="server_plugin\server_plugin.cpp">
+      <Filter>server_plugin</Filter>
+    </ClCompile>
+    <ClCompile Include="server_plugin\controller.cpp">
+      <Filter>server_plugin</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

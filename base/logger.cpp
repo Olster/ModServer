@@ -37,12 +37,43 @@ void Logger::UninitLog() {
   }
 }
 
+namespace {
+const char* SeverityString(Logger::Severity sev) {
+  const char* out = "UNKNOWN";
+
+  switch (sev) {
+    case Logger::VERBOSE:
+      out = "VERBOSE";
+    break;
+
+    case Logger::INFO:
+      out = "INFO";
+    break;
+
+    case Logger::WARN:
+      out = "WARNING";
+    break;
+
+    case Logger::ERR:
+      out = "ERROR";
+    break;
+
+    default:
+    break;
+  }
+
+  return out;
+}
+}
+
 // static
-void Logger::Log(const char* messageFormat, ...) {
+void Logger::Log(Severity sev, const char* messageFormat, ...) {
   FILE* logFile = GetLogger().m_file;
   
   assert(logFile);
   if (logFile) {
+    fprintf(logFile, "%s: ", SeverityString(sev));
+
     va_list args;
     va_start(args, messageFormat);
     vfprintf(logFile, messageFormat, args);

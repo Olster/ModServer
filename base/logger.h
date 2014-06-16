@@ -1,7 +1,6 @@
 #ifndef BASE_LOGGER_H_
 #define BASE_LOGGER_H_
 
-#include <cstdio>
 #include <string>
 
 #include "base/build_required.h"
@@ -11,7 +10,14 @@ class Logger {
   static bool InitLog();
   static void UninitLog();
 
-  static void Log(const char* messageFormat, ...);
+  enum Severity {
+    VERBOSE = 0,
+    INFO,
+    WARN,
+    ERR
+  };
+
+  static void Log(Severity sev, const char* messageFormat, ...);
  private:
   Logger() = default;
   ~Logger() = default;

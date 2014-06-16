@@ -88,6 +88,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="base\build_required.h" />
+    <ClInclude Include="base\command_line.h" />
     <ClInclude Include="base\logger.h" />
     <ClInclude Include="net\ip_endpoint.h" />
     <ClInclude Include="net\server.h" />
@@ -102,8 +103,11 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="server_plugin\controller.h" />
+    <ClInclude Include="server_plugin\server_plugin.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="base\command_line.cpp" />
     <ClCompile Include="base\logger.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="net\ip_endpoint.cpp" />
@@ -119,6 +123,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="server_plugin\controller.cpp" />
+    <ClCompile Include="server_plugin\server_plugin.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />
