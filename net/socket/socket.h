@@ -12,17 +12,16 @@
 class Socket {
  public:
 #if defined(UNIX)
-  using SOCK_TYPE = int;
+  typedef int SOCK_TYPE;
   static const SOCK_TYPE kInvalidSocket = -1;
 #elif defined(WIN32)
-  using SOCK_TYPE = SOCKET;
+  typedef SOCKET SOCK_TYPE;
   static const SOCK_TYPE kInvalidSocket = INVALID_SOCKET;
 #endif
 
-  DISALLOW_COPY_AND_ASSIGN(Socket);
-  DISALLOW_MOVE(Socket);
+  Socket()
+   : m_socket(kInvalidSocket) {}
 
-  Socket() = default;
   virtual ~Socket();
 
   // TODO(Olster): Rethink this function.
@@ -56,6 +55,10 @@ class Socket {
     return m_socket != kInvalidSocket;
   }
 
-  SOCK_TYPE m_socket = kInvalidSocket;
+  SOCK_TYPE m_socket;
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(Socket);
+  DISALLOW_MOVE(Socket);
 };
 #endif // NET_SOCKET_SOCKET_H_

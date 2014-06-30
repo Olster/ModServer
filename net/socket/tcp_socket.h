@@ -5,10 +5,7 @@
 
 class TcpSocket : public Socket {
  public:
-  DISALLOW_COPY_AND_ASSIGN(TcpSocket);
-  DISALLOW_MOVE(TcpSocket);
-
-  TcpSocket() = default;
+  TcpSocket() {}
   explicit TcpSocket(SOCK_TYPE socketFd);
 
   virtual ~TcpSocket();

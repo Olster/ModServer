@@ -59,7 +59,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>ws2_32.lib;$(SolutionDir)$(Configuration)\lib\http.lib;</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;</AdditionalDependencies>
       <GenerateMapFile>true</GenerateMapFile>
       <MapExports>true</MapExports>
     </Link>
@@ -81,49 +81,58 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>ws2_32.lib;$(SolutionDir)$(Configuration)\lib\http.lib;</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;</AdditionalDependencies>
       <GenerateMapFile>true</GenerateMapFile>
       <MapExports>true</MapExports>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="base\build_required.h" />
-    <ClInclude Include="base\command_line.h" />
     <ClInclude Include="base\logger.h" />
     <ClInclude Include="net\ip_endpoint.h" />
     <ClInclude Include="net\server.h" />
+    <ClInclude Include="net\session.h" />
     <ClInclude Include="net\socket\tcp_listener.h" />
     <ClInclude Include="net\socket\socket.h" />
     <ClInclude Include="net\socket\tcp_socket.h" />
-    <ClInclude Include="protocols\protocol_export.h" />
-    <ClInclude Include="protocols\protocol_handler.h" />
-    <ClInclude Include="protocol_factory\http_protocol_factory.h" />
-    <ClInclude Include="protocol_factory\protocol_factory.h" />
+    <ClInclude Include="net\tcp_session.h" />
+    <ClInclude Include="protocols\controller\controller_handler.h" />
+    <ClInclude Include="protocols\plugin_export.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="protocols\protocol_handler.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="resource\resource.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="server_plugin\controller.h" />
+    <ClInclude Include="server_plugin\plugin_loader.h" />
     <ClInclude Include="server_plugin\server_plugin.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="base\command_line.cpp" />
     <ClCompile Include="base\logger.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="net\ip_endpoint.cpp" />
     <ClCompile Include="net\server.cpp" />
+    <ClCompile Include="net\session.cpp" />
     <ClCompile Include="net\socket\tcp_listener.cpp" />
     <ClCompile Include="net\socket\socket_unix.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="net\socket\socket_win.cpp" />
     <ClCompile Include="net\socket\tcp_socket.cpp" />
-    <ClCompile Include="protocol_factory\http_protocol_factory.cpp" />
+    <ClCompile Include="net\tcp_session.cpp" />
+    <ClCompile Include="protocols\controller\controller_handler.cpp" />
     <ClCompile Include="resource\resource.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="server_plugin\controller.cpp" />
+    <ClCompile Include="server_plugin\plugin_loader.cpp" />
     <ClCompile Include="server_plugin\server_plugin.cpp" />
   </ItemGroup>
   <ItemGroup>

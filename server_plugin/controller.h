@@ -1,6 +1,8 @@
 #ifndef CONTROLLER_H_
 #define CONTROLLER_H_
 
+#include <list>
+
 #include "server_plugin/server_plugin.h"
 
 class Server;
@@ -12,10 +14,17 @@ class Controller : public ServerPlugin {
  public:
   Controller(Server* server);
 
-  const char* ip() const override;
-  unsigned short port() const override;
+  void ip_endpoint(IPEndPoint* ep) override;
+  SockType sock_type() override;
 
-  SessionHandler* NewHandler() override;
+  ProtocolHandler* NewProtocolHandler() override;
+  void FreeProtocolHandler(ProtocolHandler* handler) override;
+
+  const std::string& name() const override { return m_name; }
+ private:
+  Server* m_server;
+
+  static std::string m_name;
 };
 
 #endif // CONTROLLER_H_

@@ -6,12 +6,9 @@
 
 class TcpListener : public TcpSocket {
  public:
-  DISALLOW_COPY_AND_ASSIGN(TcpListener);
-  DISALLOW_MOVE(TcpListener);
-
   TcpListener(const IPEndPoint& ep);
   TcpListener(const char* ip, unsigned short port);
-  ~TcpListener() = default;
+  ~TcpListener() {}
 
   bool Bind();
   bool Listen(int maxListeners);

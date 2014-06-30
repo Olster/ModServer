@@ -1,10 +1,7 @@
 #include "net/server.h"
 #include "base/logger.h"
-#include "base/command_line.h"
 
 int main(int argc, char** argv) {
-  CommandLine::Init(argc, argv);
-
   if (!Logger::InitLog()) {
     printf("Log file wasn't opened");
     return 1;

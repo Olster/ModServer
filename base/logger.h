@@ -19,8 +19,9 @@ class Logger {
 
   static void Log(Severity sev, const char* messageFormat, ...);
  private:
-  Logger() = default;
-  ~Logger() = default;
+  Logger()
+   : m_file(NULL) {}
+  ~Logger() {}
 
   static Logger& GetLogger();
 
@@ -28,7 +29,7 @@ class Logger {
   // Move constructor applied.
   static std::string FormFileName();
 
-  FILE* m_file = nullptr;
+  FILE* m_file;
 };
 
 #endif // BASE_LOGGING_H_

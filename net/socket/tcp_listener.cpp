@@ -12,7 +12,7 @@ TcpListener::TcpListener(const IPEndPoint& ep)
  : m_ep(ep.ip(), ep.port()) {}
 
 TcpListener::TcpListener(const char* ip, unsigned short port)
- : TcpListener(IPEndPoint(ip, port)) {}
+ : m_ep(ip, port) {}
 
 bool TcpListener::Bind() {
   if (!m_ep.IsValid()) {
