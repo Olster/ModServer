@@ -1,33 +1,35 @@
 #ifndef SERVER_PLUGIN_H_
 #define SERVER_PLUGIN_H_
 
-#include <queue>
+#include <string>
 
 #include "base/build_required.h"
-#include "protocols/plugin_export.h"
+#include "server_plugin/plugin.h"
 
-// TODO(Olster): Include those here so user can just include this file.
 class ProtocolHandler;
 class IPEndPoint;
-
-// TODO(Olster): Move anywhere else?
-enum SockType {
-  TCP = 0
-};
+class DynamicLib;
 
 class ServerPlugin {
  public:
-  ServerPlugin() {}
-  virtual ~ServerPlugin() {}
+  ServerPlugin(DynamicLib* lib)
+   : m_lib(lib) {}
 
-  virtual void ip_endpoint(IPEndPoint* ep) = 0;
-  virtual SockType sock_type() = 0;
+  ~ServerPlugin();
 
-  virtual ProtocolHandler* NewProtocolHandler() = 0;
-  virtual void FreeProtocolHandler(ProtocolHandler* handler) = 0;
+  // Checks if the dynamic lib is a suitable plugin.
+  bool IsValid();
 
-  virtual const std::string& name() const = 0;
+  void ip_endpoint(IPEndPoint* ep);
+  SockType sock_type();
+
+  ProtocolHandler* NewProtocolHandler();
+
+  const std::string& name();
  private:
+  DynamicLib* m_lib;
+  std::string m_name;
+
   DISALLOW_COPY_AND_ASSIGN(ServerPlugin);
   DISALLOW_MOVE(ServerPlugin);
 };

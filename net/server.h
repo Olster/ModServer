@@ -14,7 +14,7 @@ class Server {
   Server();
   ~Server();
 
-  bool LoadPlugins();
+  bool LoadPlugins(const std::string& pluginsFolder);
 
   // Starts up controller (if registered) and plugins.
   void Run();

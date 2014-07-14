@@ -5,7 +5,6 @@
     <ClInclude Include="http_connection.h" />
     <ClInclude Include="http_request.h" />
     <ClInclude Include="http_response.h" />
-    <ClInclude Include="http_plugin.h" />
     <ClInclude Include="http_handler.h" />
     <ClInclude Include="..\..\net\ip_endpoint.h" />
   </ItemGroup>

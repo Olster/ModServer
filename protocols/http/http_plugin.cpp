@@ -1,27 +1,30 @@
-#include "protocols/http/http_plugin.h"
+#include <cstring>
+
+#include "server_plugin/plugin.h"
 #include "net/ip_endpoint.h"
 
 #include "protocols/http/http_handler.h"
 
-std::string HttpPlugin::m_name = "HTTP plugin";
-
-void HttpPlugin::ip_endpoint(IPEndPoint* ep) {
-  ep->set_ip("127.0.0.1");
-  ep->set_port(80);
+void GetPluginName(char* buf, int /*size*/) {
+  sprintf(buf, "%s", "Http");
 }
 
-ProtocolHandler* HttpPlugin::NewProtocolHandler() {
-  return new HttpHandler();
+SockType SocketType() {
+  return SockType::TCP;
 }
 
-void HttpPlugin::FreeProtocolHandler(ProtocolHandler* handler) {
+void DefaultIPv4(char* ip, int /*maxLen*/) {
+  strcpy(ip, "127.0.0.1");
+}
+
+unsigned short DefaultPort() {
+  return 80;
+}
+
+void FreeHandler(ProtocolHandler* handler) {
   delete handler;
 }
 
-ServerPlugin* NewPluginInstance() {
-  return new HttpPlugin();
-}
-
-void FreePluginInstance(ServerPlugin* plugin) {
-  delete plugin;
+ProtocolHandler* NewHandler() {
+  return new HttpHandler(FreeHandler);
 }

@@ -8,7 +8,7 @@ int main(int argc, char** argv) {
   }
 
   Server server;
-  if (!server.LoadPlugins()) {
+  if (!server.LoadPlugins("./plugins")) {
     Logger::Log(Logger::ERR, "No plugins were loaded");
   }
 

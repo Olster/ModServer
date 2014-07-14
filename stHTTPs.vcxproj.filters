@@ -72,6 +72,12 @@
     <ClInclude Include="protocols\plugin_export.h">
       <Filter>protocols</Filter>
     </ClInclude>
+    <ClInclude Include="server_plugin\plugin.h">
+      <Filter>server_plugin</Filter>
+    </ClInclude>
+    <ClInclude Include="base\dynamic_lib.h">
+      <Filter>base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="net\socket\socket_unix.cpp">
@@ -99,9 +105,6 @@
     <ClCompile Include="net\ip_endpoint.cpp">
       <Filter>net</Filter>
     </ClCompile>
-    <ClCompile Include="server_plugin\server_plugin.cpp">
-      <Filter>server_plugin</Filter>
-    </ClCompile>
     <ClCompile Include="server_plugin\controller.cpp">
       <Filter>server_plugin</Filter>
     </ClCompile>
@@ -116,6 +119,9 @@
     </ClCompile>
     <ClCompile Include="protocols\controller\controller_handler.cpp">
       <Filter>protocols\controller</Filter>
+    </ClCompile>
+    <ClCompile Include="server_plugin\server_plugin.cpp">
+      <Filter>server_plugin</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

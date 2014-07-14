@@ -1,68 +1,53 @@
 #include "server_plugin/plugin_loader.h"
-#include "server_plugin/server_plugin.h"
 
+#include <cassert>
+
+#include "base/dynamic_lib.h"
 #include "base/logger.h"
 
-// TODO(Olster): Add layer for multiplatform code.
-#include <windows.h>
-#include <tchar.h>
+#include "server_plugin/server_plugin.h"
 
 PluginLoader::~PluginLoader() {
   UnloadAll();
 }
 
-void PluginLoader::LoadAll() {
-  HMODULE http = ::LoadLibrary(_T("C://Users//Ivan//Documents//Visual Studio 2013//Projects//stHTTPs//Debug//plugins//http.dll"));
+void PluginLoader::LoadAll(const std::string& pluginsFolder) {
+  UNUSED(pluginsFolder);
 
-  if (!http) {
+  DynamicLib* httpLib = DynamicLib::Load("C://Users//Ivan//Documents//Visual Studio 2013//Projects//stHTTPs//Debug//plugins//http.dll");
+
+  if (!httpLib) {
     Logger::Log(Logger::WARN, "No HTTP plugin found");
     return;
   }
 
-  typedef ServerPlugin* (*NewPluginInstanceFn)();
-  NewPluginInstanceFn NewInstance = (NewPluginInstanceFn)
-    ::GetProcAddress(http, "NewPluginInstance");
+  ServerPlugin* plugin = new ServerPlugin(httpLib);
 
-  if (!NewInstance) {
-    ::FreeLibrary(http);
-    return;
-  }
-  
-  PluginData::FreePluginFn freePlugin = (PluginData::FreePluginFn)
-    ::GetProcAddress(http, "FreePluginInstance");
-
-  if (!freePlugin) {
-    ::FreeLibrary(http);
-    return;
-  }
-
-  PluginData* pluginData = new PluginData;
-  pluginData->freeFn = freePlugin;
-  pluginData->plugin = NewInstance();
-
-  AddPlugin(pluginData, http);
+  if (plugin->IsValid()) {
+    AddPlugin(plugin);
+  } else {
+    delete plugin;
+  }  
 }
 
 void PluginLoader::UnloadAll() {
-  // TODO(Olster): Removes controller as well!
-  for (auto& pluginDataLib : m_pluginsLibs) {
-    pluginDataLib.first->freeFn(pluginDataLib.first->plugin);
-    ::FreeLibrary(reinterpret_cast<HMODULE>(pluginDataLib.second));
-
-    delete pluginDataLib.first;
+  // NOTE(Olster): Removes controller as well!
+  for (auto& plugin : m_plugins) {
+    delete plugin;
   }
 }
 
-void PluginLoader::AddPlugin(PluginData* pluginData, void* dynamicLib) {
-  m_pluginsLibs.insert(std::make_pair(pluginData, dynamicLib));
+void PluginLoader::AddPlugin(ServerPlugin* plugin) {
+  assert(plugin);
+
+  m_plugins.push_back(plugin);
 }
 
 bool PluginLoader::HasLoadedPlugins() const {
-  return !m_pluginsLibs.empty();
+  return !m_plugins.empty();
 }
 
-void PluginLoader::GetPlugins(std::list<ServerPlugin*>& plugins) {
-  for (auto& pair : m_pluginsLibs) {
-    plugins.push_back(pair.first->plugin);
-  }
+void PluginLoader::GetPlugins(std::list<ServerPlugin*>* plugins) {
+  assert(plugins);
+  *plugins = m_plugins;
 }

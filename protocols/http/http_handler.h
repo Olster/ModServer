@@ -5,7 +5,9 @@
 
 class HttpHandler : public ProtocolHandler {
  public:
-  HttpHandler() {}
+  HttpHandler(ProtocolHandler::FreeFunc freeFn)
+   : ProtocolHandler(freeFn) {}
+
   bool HasDataToSend() const override;
 
   void DidReceive(char* data, int size) override;

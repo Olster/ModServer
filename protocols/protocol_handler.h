@@ -7,8 +7,11 @@
 
 class ProtocolHandler {
  public:
-  ProtocolHandler() {}
-  virtual ~ProtocolHandler() {}
+  typedef void (*FreeFunc)(ProtocolHandler* handler);
+
+  // Free func defines how |this| gets deleted.
+  ProtocolHandler(FreeFunc freeFunc)
+   : m_freeFunc(freeFunc) {}
 
   virtual bool HasDataToSend() const = 0;
 
@@ -20,7 +23,19 @@ class ProtocolHandler {
 
   virtual const char* data_to_send() = 0;
   virtual size_t data_to_send_size() = 0;
+
+  // Since protocol handler are exported from DLLs,
+  // they can't be just deleted. DLL passes deleter function when
+  // creating the object so it can be cleaned up however DLL wants.
+  void FreeHandler() {
+    m_freeFunc(this);
+  }
+ protected:
+   virtual ~ProtocolHandler() {}
+   friend void FreeHandler(ProtocolHandler* handler);
  private:
+  FreeFunc m_freeFunc;
+
   DISALLOW_COPY_AND_ASSIGN(ProtocolHandler);
   DISALLOW_MOVE(ProtocolHandler);
 };

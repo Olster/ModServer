@@ -9,6 +9,11 @@
 #pragma comment(lib, "ws2_32.lib")
 #endif
 
+IPEndPoint::IPEndPoint() {
+  memset(m_ip, 0, sizeof(m_ip));
+  m_port = 0;
+}
+
 IPEndPoint::IPEndPoint(const char* ip, unsigned short port)
  : m_port(port) {
   assert(ip);

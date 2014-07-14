@@ -8,6 +8,7 @@
 // IPv4 end point data.
 class IPEndPoint {
  public:
+  IPEndPoint();
   IPEndPoint(const char* ip, unsigned short port);
   IPEndPoint(const std::string& ip, unsigned short port);
 

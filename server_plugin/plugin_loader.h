@@ -2,34 +2,29 @@
 #define PLUGIN_LOADER_H_
 
 #include <list>
-#include <map>
 
 #include "base/build_required.h"
 
 class ServerPlugin;
-
-struct PluginData {
-  typedef void(*FreePluginFn)(ServerPlugin*);
-  FreePluginFn freeFn;
-
-  ServerPlugin* plugin;
-};
 
 class PluginLoader {
  public:
   PluginLoader() {}
   ~PluginLoader();
 
-  void LoadAll();
+  void LoadAll(const std::string& pluginsFolder);
   void UnloadAll();
 
-  void AddPlugin(PluginData* pluginData, void* dynamicLib = NULL);
+  // Adds a plugin to the list of plugins.
+  // Can be used if the plugin object was created in this proces.
+  void AddPlugin(ServerPlugin* plugin);
 
+  // Returns true if any plugins are loaded.
   bool HasLoadedPlugins() const;
 
-  void GetPlugins(std::list<ServerPlugin*>& plugins);
+  void GetPlugins(std::list<ServerPlugin*>* plugins);
  private:
-  std::map<PluginData*, void*> m_pluginsLibs;
+  std::list<ServerPlugin*> m_plugins;
 
   DISALLOW_COPY_AND_ASSIGN(PluginLoader);
   DISALLOW_MOVE(PluginLoader);

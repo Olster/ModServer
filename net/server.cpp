@@ -1,9 +1,11 @@
 #include "net/server.h"
 
 #include <assert.h>
+#include <functional>
 
 #include "base/logger.h"
-#include "server_plugin/controller.h"
+//#include "server_plugin/controller.h"
+#include "server_plugin/server_plugin.h"
 
 #include "net/tcp_session.h"
 
@@ -17,19 +19,13 @@ Server::~Server() {
   m_pluginLoader.UnloadAll();
 }
 
-namespace {
-extern "C" void FreeController(ServerPlugin* pl) {
-  delete pl;
-}
-}
-
-bool Server::LoadPlugins() {
+bool Server::LoadPlugins(const std::string& pluginsFolder) {
   if (m_pluginLoader.HasLoadedPlugins()) {
     Logger::Log(Logger::INFO, "Plugins were already loaded, don't load again");
     return false;
   }
 
-  m_pluginLoader.LoadAll();
+  m_pluginLoader.LoadAll(pluginsFolder);
 
   // Controller plugin controls the server.
 
@@ -97,13 +93,12 @@ void Server::UnloadAllPlugins() {
 
 void Server::InitPlugins() {
   std::list<ServerPlugin*> plugins;
-  m_pluginLoader.GetPlugins(plugins);
+  m_pluginLoader.GetPlugins(&plugins);
 
-  //for (ServerPlugin* plugin : plugins) {
-  for (auto it = plugins.begin(); it != plugins.end(); ++it) {
-    ServerPlugin* plugin = *it;
+  for (ServerPlugin* plugin : plugins) {
+    Logger::Log(Logger::INFO, "Initializing plugin: %s", plugin->name().c_str());
 
-    IPEndPoint ep("127.0.0.1", 1);
+    IPEndPoint ep;
     plugin->ip_endpoint(&ep);
 
     if (!ep.IsValid()) {
@@ -112,6 +107,8 @@ void Server::InitPlugins() {
 
       continue;
     }
+
+    Logger::Log(Logger::INFO, "Plugin %s will serve connections on %s:%d", plugin->name().c_str(), ep.ip(), ep.port());
 
     SockType type = plugin->sock_type();
     switch (type)
@@ -171,6 +168,13 @@ void Server::FillError(fd_set* /*errorSet*/) {}
 
 void Server::CloseOutdatedConnections() {}
 
+namespace {
+template <class T>
+void RemoveFromVector(std::vector<T>& v, T elem) {
+  v.erase(std::find(v.begin(), v.end(), elem));
+}
+}
+
 void Server::ReadData(const fd_set& readSet) {
   // Copy these so no iterator invalidations occur.
   std::list<Session*> readSessions;
@@ -199,22 +203,22 @@ void Server::ReadData(const fd_set& readSet) {
         break;
       }
 
-      m_sessions.erase(std::remove(m_sessions.begin(), m_sessions.end(), session), m_sessions.end());
+      RemoveFromVector(m_sessions, session);
       delete session;
     }
   }
 }
 
 void Server::SendData(const fd_set& writeSet) {
-  std::list<Session*> writeSessions;
+  std::list<Session*> sendSessions;
 
   for (Session* session : m_sessions) {
     if (FD_ISSET(session->socket()->handle(), &writeSet)) {
-      writeSessions.push_back(session);
+      sendSessions.push_back(session);
     }
   }
 
-  for (Session* session : writeSessions) {
+  for (Session* session : sendSessions) {
     int wrote = session->OnWrite();
     if (wrote < 1) {
       switch (wrote) {
@@ -230,20 +234,24 @@ void Server::SendData(const fd_set& writeSet) {
           Logger::Log(Logger::INFO, "Socket error < -1 on write %d", session->socket()->handle());
         break;
       }
+
+      RemoveFromVector(m_sessions, session);
+      delete session;
     }
   }
 }
 
 void Server::ErrorSessions(const fd_set& errorSet) {
-  std::list<Session*> errorSessions;
+  std::list<Session*> errSessions;
 
   for (Session* session : m_sessions) {
     if (FD_ISSET(session->socket()->handle(), &errorSet)) {
-      errorSessions.push_back(session);
+      errSessions.push_back(session);
     }
   }
 
-  for (Session* session : errorSessions) {
+  for (Session* session : errSessions) {
     session->OnError();
+    RemoveFromVector(m_sessions, session);
   }
 }

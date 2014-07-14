@@ -10,10 +10,5 @@ Session::Session(Socket* sock, ProtocolHandler* protoHandler)
 Session::~Session() {
   delete m_sock;
 
-  // TODO(Olster): Make plugin free the handler.
-  delete m_protoHandler;
-
-  //if (m_protoHandler) {
-  //  ProtocolHandler::Free(m_protoHandler);
-  //}
+  m_protoHandler->FreeHandler();
 }
