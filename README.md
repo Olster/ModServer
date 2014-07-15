@@ -17,9 +17,9 @@ verifier will be made that won't allow loading plugins from different compilers.
 1. HTTP (work in profress)
 
 #TODO:
-[] Add HTTP plugin.
-[] Plugin verification.
-[] Read settings from file.
-[] Makefile for UNIX.
-[] Add unit tests!
-[] Check for memory leaks. Check pointers in general.
+- [] Add HTTP plugin.
+- [] Plugin verification.
+- [] Read settings from file.
+- [] Makefile for UNIX.
+- [] Add unit tests!
+- [] Check for memory leaks. Check pointers in general.
