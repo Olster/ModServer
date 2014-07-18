@@ -101,7 +101,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="server_plugin\controller\controller_handler.h" />
+    <ClInclude Include="server_plugin\controller\controller_handler.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="server_plugin\plugin.h" />
     <ClInclude Include="server_plugin\plugin_export.h" />
     <ClInclude Include="server_plugin\plugin_loader.h" />
@@ -126,7 +129,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="server_plugin\controller\controller_handler.cpp" />
+    <ClCompile Include="server_plugin\controller\controller_handler.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="server_plugin\plugin_loader.cpp" />
     <ClCompile Include="server_plugin\server_plugin.cpp" />
   </ItemGroup>
