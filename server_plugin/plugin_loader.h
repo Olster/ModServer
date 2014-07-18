@@ -22,7 +22,8 @@ class PluginLoader {
   // Returns true if any plugins are loaded.
   bool HasLoadedPlugins() const;
 
-  void GetPlugins(std::list<ServerPlugin*>* plugins);
+  // Note that returned list isn't modifiable, but its content ARE.
+  const std::list<ServerPlugin*>& GetPlugins();
  private:
   std::list<ServerPlugin*> m_plugins;
 

@@ -8,7 +8,14 @@ int main(int argc, char** argv) {
   }
 
   Server server;
-  if (!server.LoadPlugins("./plugins")) {
+
+  std::string pluginsPath = "plugins/";
+
+#ifdef DEBUG
+  pluginsPath = "Debug/" + pluginsPath;
+#endif
+
+  if (!server.LoadPlugins(pluginsPath)) {
     Logger::Log(Logger::ERR, "No plugins were loaded");
   }
 

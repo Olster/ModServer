@@ -5,12 +5,16 @@
 #include "base/dynamic_lib.h"
 #include "net/ip_endpoint.h"
 
-ServerPlugin::~ServerPlugin() {
-  delete m_lib;
-}
+ServerPlugin::ServerPlugin() {}
+ServerPlugin::~ServerPlugin() {}
+
+DynamicPlugin::DynamicPlugin(DynamicLib* lib)
+ : m_lib(lib) {}
+
+DynamicPlugin::~DynamicPlugin() {}
 
 // Checks if the dynamic lib is a suitable plugin.
-bool ServerPlugin::IsValid() {
+bool DynamicPlugin::IsValid() {
   if (!m_lib) {
     return false;
   }
@@ -33,7 +37,7 @@ bool ServerPlugin::IsValid() {
   return true;
 }
 
-void ServerPlugin::ip_endpoint(IPEndPoint* ep) {
+void DynamicPlugin::ip_endpoint(IPEndPoint* ep) {
   assert(m_lib);
 
   typedef void (*DefaultIPv4Fn)(char* ip, int maxLen);
@@ -49,7 +53,7 @@ void ServerPlugin::ip_endpoint(IPEndPoint* ep) {
   ep->set_port(DefaultPort());
 }
 
-SockType ServerPlugin::sock_type() {
+SockType DynamicPlugin::sock_type() {
   assert(m_lib);
 
   typedef SockType (*SocketTypeFn)();
@@ -58,7 +62,7 @@ SockType ServerPlugin::sock_type() {
   return SocketType();
 }
 
-ProtocolHandler* ServerPlugin::NewProtocolHandler() {
+ProtocolHandler* DynamicPlugin::NewProtocolHandler() {
   assert(m_lib);
 
   typedef ProtocolHandler* (*NewHandlerFn)();
@@ -67,16 +71,14 @@ ProtocolHandler* ServerPlugin::NewProtocolHandler() {
   return NewHandler();
 }
 
-const std::string& ServerPlugin::name() {
-  if (m_name.empty()) {
-    typedef void(*GetPluginNameFn)(char* buf, int size);
-    GetPluginNameFn GetPluginName = (GetPluginNameFn)m_lib->GetProc("GetPluginName");
+std::string DynamicPlugin::name() {
+  assert(m_lib);
 
-    char name[MAX_PATH] = "";
-    GetPluginName(name, ARR_SIZE(name));
+  typedef void (*GetPluginNameFn)(char* buf, int size);
+  GetPluginNameFn GetPluginName = (GetPluginNameFn)m_lib->GetProc("GetPluginName");
 
-    m_name = name;
-  } 
+  char name[256] = "";
+  GetPluginName(name, ARR_SIZE(name));
 
-  return m_name;
+  return name;
 }

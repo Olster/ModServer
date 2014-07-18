@@ -92,8 +92,7 @@ void Server::UnloadAllPlugins() {
 }
 
 void Server::InitPlugins() {
-  std::list<ServerPlugin*> plugins;
-  m_pluginLoader.GetPlugins(&plugins);
+  const std::list<ServerPlugin*>& plugins = m_pluginLoader.GetPlugins();
 
   for (ServerPlugin* plugin : plugins) {
     Logger::Log(Logger::INFO, "Initializing plugin: %s", plugin->name().c_str());

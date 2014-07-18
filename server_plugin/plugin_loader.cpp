@@ -12,22 +12,17 @@ PluginLoader::~PluginLoader() {
 }
 
 void PluginLoader::LoadAll(const std::string& pluginsFolder) {
-  UNUSED(pluginsFolder);
-
-  DynamicLib* httpLib = DynamicLib::Load("C://Users//Ivan//Documents//Visual Studio 2013//Projects//stHTTPs//Debug//plugins//http.dll");
+  DynamicLib* httpLib = DynamicLib::Load(pluginsFolder + "http.dll");
 
   if (!httpLib) {
     Logger::Log(Logger::WARN, "No HTTP plugin found");
     return;
   }
 
-  ServerPlugin* plugin = new ServerPlugin(httpLib);
-
+  std::unique_ptr<DynamicPlugin> plugin(new DynamicPlugin(httpLib));
   if (plugin->IsValid()) {
-    AddPlugin(plugin);
-  } else {
-    delete plugin;
-  }  
+    AddPlugin(plugin.release());
+  }
 }
 
 void PluginLoader::UnloadAll() {
@@ -35,11 +30,12 @@ void PluginLoader::UnloadAll() {
   for (auto& plugin : m_plugins) {
     delete plugin;
   }
+
+  m_plugins.clear();
 }
 
 void PluginLoader::AddPlugin(ServerPlugin* plugin) {
   assert(plugin);
-
   m_plugins.push_back(plugin);
 }
 
@@ -47,7 +43,6 @@ bool PluginLoader::HasLoadedPlugins() const {
   return !m_plugins.empty();
 }
 
-void PluginLoader::GetPlugins(std::list<ServerPlugin*>* plugins) {
-  assert(plugins);
-  *plugins = m_plugins;
+const std::list<ServerPlugin*>& PluginLoader::GetPlugins() {
+  return m_plugins;
 }

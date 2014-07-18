@@ -3,46 +3,26 @@
 
 #include <string>
 
+#include <memory>
+
 #include "base/build_required.h"
 
-// TODO(Olster): Make different .cpp files for different platforms instead of #ifdef.
-
-#ifdef WIN32
-#include <windows.h>
-typedef HMODULE DllHandle;
-#endif
+typedef void* DllHandle;
 
 class DynamicLib {
 public:
   explicit DynamicLib(DllHandle handle)
    : m_handle(handle) {}
   
-  ~DynamicLib() {
-#ifdef WIN32
-    ::FreeLibrary(m_handle);
-#endif
+  ~DynamicLib();
 
-    m_handle = NULL;
-  }
+  // Returns pointer to exported function with name |name|.
+  // Returns NULL on error.
+  void* GetProc(const std::string& name);
 
-  void* GetProc(const std::string& name) {
-#ifdef WIN32
-    return ::GetProcAddress(m_handle, name.c_str());
-#endif
-  }
-
-  static DynamicLib* Load(const std::string& path) {
-    DllHandle handle = NULL;
-#ifdef WIN32
-    handle = ::LoadLibraryA(path.c_str());
-#endif
-
-    if (!handle) {
-      return NULL;
-    }
-
-    return new DynamicLib(handle);
-  }
+  // Loads the dynamic librry from specified path.
+  // Returns NULL if library wasn't found.
+  static DynamicLib* Load(const std::string& path);
 private:
   DllHandle m_handle = NULL;
 
