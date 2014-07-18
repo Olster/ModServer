@@ -20,3 +20,4 @@ responsible for parsing the request and provide the response.
 - [ ] Add unit tests!
 - [ ] Check for memory leaks. Check pointers in general.
 - [ ] Use smart pointers to minimize leak probability.
+- [ ] Make a branch for older compilers that don't support C++11.
