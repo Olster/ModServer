@@ -21,7 +21,3 @@ SockType Controller::sock_type() {
 ProtocolHandler* Controller::NewProtocolHandler() {
   return new ControllerHandler(m_server);
 }
-
-void Controller::FreeProtocolHandler(ProtocolHandler* handler) {
-  delete handler;
-}

@@ -97,28 +97,15 @@
     <ClInclude Include="net\socket\socket.h" />
     <ClInclude Include="net\socket\tcp_socket.h" />
     <ClInclude Include="net\tcp_session.h" />
-    <ClInclude Include="protocols\controller\controller_handler.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="protocols\plugin_export.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="protocols\protocol_handler.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClInclude>
     <ClInclude Include="resource\resource.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="server_plugin\controller.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClInclude>
+    <ClInclude Include="server_plugin\controller\controller_handler.h" />
     <ClInclude Include="server_plugin\plugin.h" />
+    <ClInclude Include="server_plugin\plugin_export.h" />
     <ClInclude Include="server_plugin\plugin_loader.h" />
+    <ClInclude Include="server_plugin\protocol_handler.h" />
     <ClInclude Include="server_plugin\server_plugin.h" />
   </ItemGroup>
   <ItemGroup>
@@ -135,18 +122,11 @@
     <ClCompile Include="net\socket\socket_win.cpp" />
     <ClCompile Include="net\socket\tcp_socket.cpp" />
     <ClCompile Include="net\tcp_session.cpp" />
-    <ClCompile Include="protocols\controller\controller_handler.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="resource\resource.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="server_plugin\controller.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="server_plugin\controller\controller_handler.cpp" />
     <ClCompile Include="server_plugin\plugin_loader.cpp" />
     <ClCompile Include="server_plugin\server_plugin.cpp" />
   </ItemGroup>

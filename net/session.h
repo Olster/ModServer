@@ -8,17 +8,17 @@ class ProtocolHandler;
 
 class Session {
  public:
-   Session(Socket* sock, ProtocolHandler* protoHandler);
-   virtual ~Session();
+  Session(Socket* sock, ProtocolHandler* protoHandler);
+  virtual ~Session();
 
-   virtual bool CanRead() = 0;
-   virtual bool HasDataToSend() = 0;
+  virtual bool CanRead() = 0;
+  virtual bool HasDataToSend() = 0;
 
-   virtual int OnRead() = 0;
-   virtual int OnWrite() = 0;
-   virtual int OnError() = 0;
+  virtual int OnRead() = 0;
+  virtual int OnWrite() = 0;
+  virtual int OnError() = 0;
 
-   Socket* socket() { return m_sock; }
+  Socket* socket() { return m_sock; }
  protected:
   Socket* m_sock;
   ProtocolHandler* m_protoHandler;

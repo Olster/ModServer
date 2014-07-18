@@ -1,7 +1,7 @@
 #include "net/session.h"
 
 #include "net/socket/socket.h"
-#include "protocols/protocol_handler.h"
+#include "server_plugin/protocol_handler.h"
 
 Session::Session(Socket* sock, ProtocolHandler* protoHandler)
  : m_sock(sock),

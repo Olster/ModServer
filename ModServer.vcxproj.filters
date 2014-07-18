@@ -13,14 +13,11 @@
     <Filter Include="resource">
       <UniqueIdentifier>{ed81245c-aced-4da4-a57c-8cbe800cbce5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="protocols">
-      <UniqueIdentifier>{69ee501d-22b1-41d7-8fab-13c7a628047a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="server_plugin">
       <UniqueIdentifier>{ed172a62-7b71-4580-8eef-c9590836bfae}</UniqueIdentifier>
     </Filter>
-    <Filter Include="protocols\controller">
-      <UniqueIdentifier>{aa72fe0b-f560-4a7c-8139-2629422f576c}</UniqueIdentifier>
+    <Filter Include="server_plugin\controller">
+      <UniqueIdentifier>{96fbe44c-ab3d-4a4f-bd3b-931a89a6e0ad}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -45,16 +42,10 @@
     <ClInclude Include="net\socket\tcp_listener.h">
       <Filter>net\socket</Filter>
     </ClInclude>
-    <ClInclude Include="protocols\protocol_handler.h">
-      <Filter>protocols</Filter>
-    </ClInclude>
     <ClInclude Include="net\ip_endpoint.h">
       <Filter>net</Filter>
     </ClInclude>
     <ClInclude Include="server_plugin\server_plugin.h">
-      <Filter>server_plugin</Filter>
-    </ClInclude>
-    <ClInclude Include="server_plugin\controller.h">
       <Filter>server_plugin</Filter>
     </ClInclude>
     <ClInclude Include="server_plugin\plugin_loader.h">
@@ -66,17 +57,20 @@
     <ClInclude Include="net\tcp_session.h">
       <Filter>net</Filter>
     </ClInclude>
-    <ClInclude Include="protocols\controller\controller_handler.h">
-      <Filter>protocols\controller</Filter>
-    </ClInclude>
-    <ClInclude Include="protocols\plugin_export.h">
-      <Filter>protocols</Filter>
-    </ClInclude>
     <ClInclude Include="server_plugin\plugin.h">
       <Filter>server_plugin</Filter>
     </ClInclude>
     <ClInclude Include="base\dynamic_lib.h">
       <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="server_plugin\plugin_export.h">
+      <Filter>server_plugin</Filter>
+    </ClInclude>
+    <ClInclude Include="server_plugin\protocol_handler.h">
+      <Filter>server_plugin</Filter>
+    </ClInclude>
+    <ClInclude Include="server_plugin\controller\controller_handler.h">
+      <Filter>server_plugin\controller</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -105,9 +99,6 @@
     <ClCompile Include="net\ip_endpoint.cpp">
       <Filter>net</Filter>
     </ClCompile>
-    <ClCompile Include="server_plugin\controller.cpp">
-      <Filter>server_plugin</Filter>
-    </ClCompile>
     <ClCompile Include="server_plugin\plugin_loader.cpp">
       <Filter>server_plugin</Filter>
     </ClCompile>
@@ -117,14 +108,14 @@
     <ClCompile Include="net\tcp_session.cpp">
       <Filter>net</Filter>
     </ClCompile>
-    <ClCompile Include="protocols\controller\controller_handler.cpp">
-      <Filter>protocols\controller</Filter>
-    </ClCompile>
     <ClCompile Include="server_plugin\server_plugin.cpp">
       <Filter>server_plugin</Filter>
     </ClCompile>
     <ClCompile Include="base\dynamic_lib_win.cpp">
       <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="server_plugin\controller\controller_handler.cpp">
+      <Filter>server_plugin\controller</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -9,12 +9,8 @@ is running, turning some of the plugins on and off.
 Such architecture helps to decouple the application layer from transport layer. Plugins don't depend where data comes from, they are only
 responsible for parsing the request and provide the response.
 
-## Disadvantages.
-C++ doesn't have any plugin/module API, so all DLLs must be built with the same compiler to work correctly. For this reason, plugin
-verifier will be made that won't allow loading plugins from different compilers.
-
 # Available plugins
-1. HTTP (work in profress)
+1. HTTP (work in progress).
 
 #TODO:
 - [ ] Add HTTP plugin.
@@ -23,3 +19,4 @@ verifier will be made that won't allow loading plugins from different compilers.
 - [ ] Makefile for UNIX.
 - [ ] Add unit tests!
 - [ ] Check for memory leaks. Check pointers in general.
+- [ ] Use smart pointers to minimize leak probability.

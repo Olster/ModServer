@@ -1,7 +1,7 @@
 #ifndef PLUGIN_H_
 #define PLUGIN_H_
 
-#include "protocols/plugin_export.h"
+#include "server_plugin/plugin_export.h"
 
 class ProtocolHandler;
 

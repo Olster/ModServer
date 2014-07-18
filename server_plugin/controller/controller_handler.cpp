@@ -1,7 +1,6 @@
-#include "protocols/controller/controller_handler.h"
+#include "server_plugin/controller/controller_handler.h"
 
 #include "base/logger.h"
-
 #include "net/server.h"
 
 void ControllerHandler::DidReceive(char* data, int /*size*/) {
