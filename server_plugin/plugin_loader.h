@@ -2,6 +2,7 @@
 #define PLUGIN_LOADER_H_
 
 #include <list>
+#include <string>
 
 #include "base/build_required.h"
 

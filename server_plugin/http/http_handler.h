@@ -1,7 +1,7 @@
 #ifndef HTTP_PROTOCOL_HANDLER_H_
 #define HTTP_PROTOCOL_HANDLER_H_
 
-#include "protocols/protocol_handler.h"
+#include "server_plugin/protocol_handler.h"
 
 class HttpHandler : public ProtocolHandler {
  public:

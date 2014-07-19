@@ -1,4 +1,4 @@
-#include "protocols/http/http_handler.h"
+#include "server_plugin/http/http_handler.h"
 
 #include <cassert>
 

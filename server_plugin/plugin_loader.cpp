@@ -7,12 +7,22 @@
 
 #include "server_plugin/server_plugin.h"
 
+namespace {
+#if defined(WIN32)
+const char* const kHttpLib = "http";
+const char* const kDllExt = ".dll";
+#else
+const char* const kHttpLib = "libhttp";
+const char* const kDllExt = ".so";
+#endif
+}
+
 PluginLoader::~PluginLoader() {
   UnloadAll();
 }
 
 void PluginLoader::LoadAll(const std::string& pluginsFolder) {
-  DynamicLib* httpLib = DynamicLib::Load(pluginsFolder + "http.dll");
+  DynamicLib* httpLib = DynamicLib::Load(pluginsFolder + kHttpLib + kDllExt);
 
   if (!httpLib) {
     Logger::Log(Logger::WARN, "No HTTP plugin found");

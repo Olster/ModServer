@@ -3,8 +3,6 @@
 
 #include <string>
 
-#include <memory>
-
 #include "base/build_required.h"
 
 typedef void* DllHandle;

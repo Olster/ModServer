@@ -1,8 +1,9 @@
 #include "base/logger.h"
 
-#include <cstdarg>
 #include <cassert>
+#include <cstdarg>
 #include <ctime>
+#include <errno.h>
 
 namespace {
 inline tm* GetTimeInfo() {
@@ -22,10 +23,17 @@ bool Logger::InitLog() {
   }
 
   std::string fileName = FormFileName();
-  printf("Log file created: %s", fileName.c_str());
-
   logger.m_file = std::fopen(fileName.c_str(), "w");
-  return logger.m_file != nullptr;
+
+  if (logger.m_file != nullptr) {
+      printf("Log file created: %s\n", fileName.c_str());
+      return true;
+  } else {
+      fprintf(stderr, "Log file '%s' wasn't created: %d\n",
+              fileName.c_str(), errno);
+  }
+
+  return false;
 }
 
 // static
@@ -72,17 +80,21 @@ void Logger::Log(Severity sev, const char* messageFormat, ...) {
   
   assert(logFile);
   if (logFile) {
-    fprintf(logFile, "%s: ", SeverityString(sev));
+    char message[1024];
+
+    int bytesUsed = sprintf(message, "%s: ", SeverityString(sev));
 
     va_list args;
     va_start(args, messageFormat);
-    vfprintf(logFile, messageFormat, args);
-    va_end(args);
 
-    // TODO(Olster): This is a temp way of adding new line in the end,
-    // come up with better solution.
-    fprintf(logFile, "\n");
-    fflush(logFile);
+    bytesUsed = vsprintf(message + bytesUsed, messageFormat, args);
+
+    // Writing outside of array might have crashed the program before this assert.
+    assert(bytesUsed < sizeof(message));
+
+    const char* const outFormat = "%s\n";
+    fprintf(logFile, outFormat, message);
+    printf(outFormat, message);
   }
 }
 

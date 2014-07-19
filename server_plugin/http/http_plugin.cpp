@@ -3,10 +3,10 @@
 #include "server_plugin/plugin.h"
 #include "net/ip_endpoint.h"
 
-#include "protocols/http/http_handler.h"
+#include "server_plugin/http/http_handler.h"
 
 void GetPluginName(char* buf, int /*size*/) {
-  sprintf(buf, "%s", "Http");
+  sprintf(buf, "%s", "HTTP");
 }
 
 SockType SocketType() {

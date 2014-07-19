@@ -1,13 +1,13 @@
 #include "net/server.h"
 
 #include <assert.h>
-#include <functional>
+#include <algorithm>
 
 #include "base/logger.h"
+#include "net/tcp_session.h"
 //#include "server_plugin/controller.h"
 #include "server_plugin/server_plugin.h"
 
-#include "net/tcp_session.h"
 
 Server::Server()
  : m_maxListen(FD_SETSIZE - 2),
@@ -84,6 +84,13 @@ void Server::Run() {
 
 void Server::RegisterSession(Session* s) {
   assert(s);
+
+  // Update the maxFd for select() to work.
+  Socket::SOCK_TYPE sockId = s->socket()->handle();
+  if (sockId >= m_maxFd) {
+      m_maxFd = sockId + 1;
+  }
+
   m_sessions.push_back(s);
 }
 
@@ -107,11 +114,11 @@ void Server::InitPlugins() {
       continue;
     }
 
-    Logger::Log(Logger::INFO, "Plugin %s will serve connections on %s:%d", plugin->name().c_str(), ep.ip(), ep.port());
+    Logger::Log(Logger::INFO, "Plugin %s will serve connections on %s:%d",
+                plugin->name().c_str(), ep.ip(), ep.port());
 
     SockType type = plugin->sock_type();
-    switch (type)
-    {
+    switch (type) {
       case TCP: {
         TcpListener* newSock = new TcpListener(ep);
 

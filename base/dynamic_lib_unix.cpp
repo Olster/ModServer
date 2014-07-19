@@ -1,22 +1,23 @@
 #include "base/dynamic_lib.h"
 
-#include <windows.h>
+#include <dlfcn.h>
 
 DynamicLib::~DynamicLib() {
-  ::FreeLibrary(reinterpret_cast<HMODULE>(m_handle));
+  ::dlclose(m_handle);
 }
 
 void* DynamicLib::GetProc(const std::string& name) {
-  return ::GetProcAddress(reinterpret_cast<HMODULE>(m_handle), name.c_str());
+  return ::dlsym(m_handle, name.c_str());
 }
 
 // static
 DynamicLib* DynamicLib::Load(const std::string& path) {
-  DllHandle handle = ::LoadLibraryA(path.c_str());
-
+  DllHandle handle = ::dlopen(path.c_str(), RTLD_LAZY);
+  
   if (!handle) {
     return NULL;
   }
-
+  
   return new DynamicLib(handle);
 }
+

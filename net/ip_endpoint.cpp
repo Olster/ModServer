@@ -1,9 +1,10 @@
 #include "net/ip_endpoint.h"
 
-#include <assert.h>
+#include <cassert>
+#include <cstring>
 
 #if defined(UNIX)
-// TODO(Olster): Figure out the correct header for UNIX.
+#include <arpa/inet.h>
 #else
 #include <winsock2.h>
 #pragma comment(lib, "ws2_32.lib")
