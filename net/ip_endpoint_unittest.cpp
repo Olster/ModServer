@@ -29,7 +29,7 @@ TEST(IpEndPointTest, SetDefault) {
 TEST(IpEndPointTest, SetGetParams) {
   IPEndPoint ep;
 
-  char* ip = "127.0.0.1";
+  const char* ip = "127.0.0.1";
   ep.set_ip(ip);
   EXPECT_STREQ(ip, ep.ip());
 
