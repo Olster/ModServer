@@ -13,12 +13,8 @@ SockType SocketType() {
   return SockType::TCP;
 }
 
-void DefaultIPv4(char* ip, int /*maxLen*/) {
-  strcpy(ip, "127.0.0.1");
-}
-
 unsigned short DefaultPort() {
-  return 80;
+  return 3652;
 }
 
 void FreeHandler(ProtocolHandler* handler) {

@@ -2,8 +2,6 @@
 #include "base/logger.h"
 
 int main(int argc, char** argv) {
-  printf("Started %s\n", argv[0]);
-
   if (argc <= 1) {
     printf("Please specify path to plugins folder");
     return 1;
@@ -28,7 +26,9 @@ int main(int argc, char** argv) {
   pluginsPath += "plugins/";
 
   if (!server.LoadPlugins(pluginsPath)) {
-    Logger::Log(Logger::ERR, "No plugins were loaded");
+    Logger::Log(Logger::ERR, "No plugins were loaded, exiting.");
+    Logger::UninitLog();
+    return 1;
   }
 
   server.Run();

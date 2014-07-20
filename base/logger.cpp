@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <cstdarg>
+#include <cstring>
 #include <ctime>
 #include <errno.h>
 
@@ -11,6 +12,33 @@ inline tm* GetTimeInfo() {
   time(&t);
 
   return std::localtime(&t);
+}
+
+const char* SeverityString(Logger::Severity sev) {
+  const char* out = "UNKNOWN";
+
+  switch (sev) {
+    case Logger::VERBOSE:
+      out = "VERBOSE";
+    break;
+
+    case Logger::INFO:
+      out = "INFO";
+    break;
+
+    case Logger::WARN:
+      out = "WARNING";
+    break;
+
+    case Logger::ERR:
+      out = "ERROR";
+    break;
+
+    default:
+    break;
+  }
+
+  return out;
 }
 }
 
@@ -45,44 +73,18 @@ void Logger::UninitLog() {
   }
 }
 
-namespace {
-const char* SeverityString(Logger::Severity sev) {
-  const char* out = "UNKNOWN";
-
-  switch (sev) {
-    case Logger::VERBOSE:
-      out = "VERBOSE";
-    break;
-
-    case Logger::INFO:
-      out = "INFO";
-    break;
-
-    case Logger::WARN:
-      out = "WARNING";
-    break;
-
-    case Logger::ERR:
-      out = "ERROR";
-    break;
-
-    default:
-    break;
-  }
-
-  return out;
-}
-}
-
 // static
 void Logger::Log(Severity sev, const char* messageFormat, ...) {
+  assert(messageFormat);
+
   FILE* logFile = GetLogger().m_file;
   
   assert(logFile);
   if (logFile) {
     char message[1024];
+    assert(strlen(messageFormat) < sizeof(message));
 
-    int bytesUsed = sprintf(message, "%s: ", SeverityString(sev));
+    int bytesUsed = sprintf(message, "%7s: ", SeverityString(sev));
 
     va_list args;
     va_start(args, messageFormat);

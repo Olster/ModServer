@@ -10,10 +10,10 @@ class TcpListener : public TcpSocket {
   TcpListener(const char* ip, unsigned short port);
   ~TcpListener() {}
 
-  bool Bind();
-  bool Listen(int maxListeners);
+  bool Bind(int* err = NULL);
+  bool Listen(int maxListeners, int* err = NULL);
 
-  SOCK_TYPE Accept();
+  SOCK_TYPE Accept(int* err = NULL);
  private:
   IPEndPoint m_ep;
 };

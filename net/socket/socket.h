@@ -31,8 +31,8 @@ class Socket {
     return select(maxFd, readSet, writeSet, errSet, timeout);
   }
 
-  virtual bool Open() = 0;
-  bool Close();
+  virtual bool Open(int* err = NULL) = 0;
+  bool Close(int* err = NULL);
 
   enum ShutDownCode {
 #if defined(UNIX)
@@ -46,14 +46,21 @@ class Socket {
 #endif
   };
 
-  bool ShutDown(ShutDownCode code = BOTH);
+  bool ShutDown(ShutDownCode code = BOTH, int* err = NULL);
 
   SOCK_TYPE handle() const { return m_socket; }
  protected:
-  bool OpenHelper(int domain, int type, int protocol) {
+  bool OpenHelper(int domain, int type, int protocol, int* err = NULL) {
     m_socket = socket(domain, type, protocol);
+
+    if (err) {
+      *err = SocketError();
+    }
+
     return m_socket != kInvalidSocket;
   }
+
+  int SocketError();
 
   SOCK_TYPE m_socket;
 

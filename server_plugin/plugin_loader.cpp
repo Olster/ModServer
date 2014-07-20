@@ -22,7 +22,8 @@ PluginLoader::~PluginLoader() {
 }
 
 void PluginLoader::LoadAll(const std::string& pluginsFolder) {
-  DynamicLib* httpLib = DynamicLib::Load(pluginsFolder + kHttpLib + kDllExt);
+  std::shared_ptr<DynamicLib> httpLib(
+        DynamicLib::Load(pluginsFolder + kHttpLib + kDllExt));
 
   if (!httpLib) {
     Logger::Log(Logger::WARN, "No HTTP plugin found");

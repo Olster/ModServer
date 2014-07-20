@@ -5,10 +5,9 @@
 
 #include "base/build_required.h"
 
-typedef void* DllHandle;
-
 class DynamicLib {
 public:
+  typedef void* DllHandle;
   explicit DynamicLib(DllHandle handle)
    : m_handle(handle) {}
   

@@ -1,7 +1,8 @@
 #include "net/server.h"
 
-#include <assert.h>
 #include <algorithm>
+#include <cassert>
+#include <memory>
 
 #include "base/logger.h"
 #include "net/tcp_session.h"
@@ -25,6 +26,7 @@ bool Server::LoadPlugins(const std::string& pluginsFolder) {
     return false;
   }
 
+  Logger::Log(Logger::INFO, "Loading plugins from %s", pluginsFolder.c_str());
   m_pluginLoader.LoadAll(pluginsFolder);
 
   // Controller plugin controls the server.
@@ -35,11 +37,16 @@ bool Server::LoadPlugins(const std::string& pluginsFolder) {
   //
   //m_pluginLoader.AddPlugin(pluginData);
 
-  return true;
+  return m_pluginLoader.HasLoadedPlugins();
 }
 
 void Server::Run() {
   InitPlugins();
+
+  if (m_sessions.empty()) {
+    Logger::Log(Logger::WARN, "No sessions were registered.");
+    return;
+  }
 
   while (true) {
     fd_set readSet;
@@ -104,8 +111,9 @@ void Server::InitPlugins() {
   for (ServerPlugin* plugin : plugins) {
     Logger::Log(Logger::INFO, "Initializing plugin: %s", plugin->name().c_str());
 
-    IPEndPoint ep;
-    plugin->ip_endpoint(&ep);
+    // TODO(Olster): Read IP from settings or command line.
+    IPEndPoint ep("127.0.0.1", 0);
+    ep.set_port(plugin->port());
 
     if (!ep.IsValid()) {
       Logger::Log(Logger::WARN, "Plugin %s returned invalid IPEndPoint: %s:%d",
@@ -120,28 +128,30 @@ void Server::InitPlugins() {
     SockType type = plugin->sock_type();
     switch (type) {
       case TCP: {
-        TcpListener* newSock = new TcpListener(ep);
+        std::shared_ptr<TcpListener> newSock(new TcpListener(ep));
 
-        if (!newSock->Open()) {
-          Logger::Log(Logger::ERR, "Socket wasn't opened %s", plugin->name().c_str());
-          delete newSock;
+        int err = 0;
+
+        if (!newSock->Open(&err)) {
+          Logger::Log(Logger::ERR, "Socket wasn't opened %s, %d",
+                      plugin->name().c_str(), err);
           continue;
         }
 
-        if (!newSock->Bind()) {
-          Logger::Log(Logger::ERR, "Socket wasn't bound %s", plugin->name().c_str());
-          delete newSock;
+        if (!newSock->Bind(&err)) {
+          Logger::Log(Logger::ERR, "Socket wasn't bound %s, %d",
+                      plugin->name().c_str(), err);
           continue;
         }
 
-        if (!newSock->Listen(m_maxListen)) {
-          Logger::Log(Logger::ERR, "Socket isn't listening %s", plugin->name().c_str());
-          delete newSock;
+        if (!newSock->Listen(m_maxListen, &err)) {
+          Logger::Log(Logger::ERR, "Socket isn't listening %s, %d",
+                      plugin->name().c_str(), err);
           continue;
         }
 
-        AcceptorSession* acceptorSession = new AcceptorSession(newSock, NULL, this, plugin);
-        
+        AcceptorSession* acceptorSession = new AcceptorSession(newSock, NULL,
+                                                               this, plugin);
         RegisterSession(acceptorSession);
       }
       break;
@@ -197,15 +207,18 @@ void Server::ReadData(const fd_set& readSet) {
     if (read < 1) {
       switch (read) {
         case 0:
-          Logger::Log(Logger::INFO, "Socket closed %d", session->socket()->handle());
+          Logger::Log(Logger::INFO, "Socket closed %d",
+                      session->socket()->handle());
         break;
 
         case -1:
-          Logger::Log(Logger::INFO, "Socket error %d", session->socket()->handle());
+          Logger::Log(Logger::INFO, "Socket error %d",
+                      session->socket()->handle());
         break;
 
         default:
-          Logger::Log(Logger::INFO, "Socket error < -1 %d", session->socket()->handle());
+          Logger::Log(Logger::INFO, "Socket error < -1 %d",
+                      session->socket()->handle());
         break;
       }
 
@@ -229,15 +242,18 @@ void Server::SendData(const fd_set& writeSet) {
     if (wrote < 1) {
       switch (wrote) {
         case 0:
-          Logger::Log(Logger::INFO, "Socket sent 0b on write %d", session->socket()->handle());
+          Logger::Log(Logger::INFO, "Socket sent 0b on write %d",
+                      session->socket()->handle());
         break;
 
         case -1:
-          Logger::Log(Logger::INFO, "Socket error on write %d", session->socket()->handle());
+          Logger::Log(Logger::INFO, "Socket error on write %d",
+                      session->socket()->handle());
         break;
 
         default:
-          Logger::Log(Logger::INFO, "Socket error < -1 on write %d", session->socket()->handle());
+          Logger::Log(Logger::INFO, "Socket error < -1 on write %d",
+                      session->socket()->handle());
         break;
       }
 

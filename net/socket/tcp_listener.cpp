@@ -14,8 +14,13 @@ TcpListener::TcpListener(const IPEndPoint& ep)
 TcpListener::TcpListener(const char* ip, unsigned short port)
  : m_ep(ip, port) {}
 
-bool TcpListener::Bind() {
+bool TcpListener::Bind(int* err) {
   if (!m_ep.IsValid()) {
+
+    if (err) {
+      *err = EINVAL;
+    }
+
     return false;
   }
 
@@ -24,13 +29,31 @@ bool TcpListener::Bind() {
   addr.sin_port = htons(m_ep.port());
   addr.sin_addr.s_addr = inet_addr(m_ep.ip());
 
-  return bind(m_socket, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) == 0;
+  int rc = bind(m_socket, reinterpret_cast<sockaddr*>(&addr), sizeof(addr));
+
+  if (err) {
+    *err = SocketError();
+  }
+
+  return rc == 0;
 }
 
-bool TcpListener::Listen(int maxListeners) {
-  return listen(m_socket, maxListeners) == 0;
+bool TcpListener::Listen(int maxListeners, int* err) {
+  int rc = listen(m_socket, maxListeners);
+
+  if (err) {
+    *err = SocketError();
+  }
+
+  return rc == 0;
 }
 
-Socket::SOCK_TYPE TcpListener::Accept() {
-  return accept(m_socket, nullptr, nullptr);
+Socket::SOCK_TYPE TcpListener::Accept(int* err) {
+  SOCK_TYPE acceptedSock = accept(m_socket, NULL, NULL);
+
+  if (err) {
+    *err = SocketError();
+  }
+
+  return acceptedSock;
 }

@@ -21,4 +21,8 @@ unsigned int (&arrSizeHelper(Type (&arr)[ArrSize]))[ArrSize];
 
 #define ARR_SIZE(arr) (sizeof(arrSizeHelper(arr)))
 
+#ifndef NULL
+#define NULL 0
+#endif
+
 #endif // BASE_BUILD_REQUIRED_H_

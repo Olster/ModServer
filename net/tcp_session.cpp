@@ -15,8 +15,9 @@ bool ConnectionSession::HasDataToSend() {
 }
 
 int ConnectionSession::OnWrite() {
-  int sent = reinterpret_cast<TcpSocket*>(m_sock)->Send(m_protoHandler->data_to_send(),
-                                                        m_protoHandler->data_to_send_size());
+  int sent = reinterpret_cast<TcpSocket*>(m_sock.get())->Send(
+        m_protoHandler->data_to_send(),
+        m_protoHandler->data_to_send_size());
 
   if (sent > 0) {
     m_protoHandler->DidSend(sent);
@@ -32,7 +33,8 @@ int ConnectionSession::OnRead() {
   char buf[requestBufSize + 1];
 
   // TODO(Olster): Provide abstraction without casting to specific type.
-  int bytesRead = reinterpret_cast<TcpSocket*>(m_sock)->Receive(buf, requestBufSize);
+  int bytesRead = reinterpret_cast<TcpSocket*>(m_sock.get())->Receive(
+        buf, requestBufSize);
   if (bytesRead < 1) {
     return bytesRead;
   }
@@ -44,10 +46,13 @@ int ConnectionSession::OnRead() {
 }
 
 int AcceptorSession::OnRead() {
-  Socket::SOCK_TYPE sock = reinterpret_cast<TcpListener*>(m_sock)->Accept();
-  ConnectionSession* acceptedSession = new ConnectionSession(new TcpSocket(sock), m_plugin->NewProtocolHandler());
+  Socket::SOCK_TYPE sock = reinterpret_cast<TcpListener*>(m_sock.get())->Accept();
+  ConnectionSession* acceptedSession = new ConnectionSession(
+        std::shared_ptr<Socket>(new TcpSocket(sock)),
+        m_plugin->NewProtocolHandler());
 
-  Logger::Log(Logger::INFO, "Socket connected: %d. Handled by plugin: \"%s\"", sock, m_plugin->name().c_str());
+  Logger::Log(Logger::INFO, "Socket connected: %d. Handled by plugin: \"%s\"",
+              sock, m_plugin->name().c_str());
 
   m_server->RegisterSession(acceptedSession);
 
