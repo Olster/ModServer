@@ -80,15 +80,15 @@
         'server_plugin/http/http_handler.cpp',
         'server_plugin/http/http_plugin.cpp'
       ],
+      'xcode_settings': {
+        'CLANG_CXX_LANGUAGE_STANDARD': 'c++11',
+        'OTHER_CPLUSPLUSFLAGS': [ '-stdlib=libc++' ]
+      },
       'conditions': [
         ['OS == "linux"', {
           'defines': [
             'UNIX'
           ],
-          'xcode_settings': {
-            'CLANG_CXX_LANGUAGE_STANDARD': 'c++11',
-            'OTHER_CPLUSPLUSFLAGS': [ '-stdlib=libc++' ]
-          },
           'cflags': [
             #'-Wall',
             #'-Wextra',
@@ -100,9 +100,92 @@
         ['OS == "win"', {
           'defines': [
             'WIN32'
-          ]
-        }]
+          ],
+        }],
       ],
+    },
+    {
+      'target_name': 'run_tests',
+      'type': 'executable',
+      'dependencies': [
+        'gtest'
+      ],
+      'sources': [
+        'base/dynamic_lib_unittest.cpp',
+        'net/ip_endpoint_unittest.cpp',
+        'net/ip_endpoint.cpp',
+        'run_tests.cpp'
+      ],
+      'include_dirs': [
+        '.'
+      ],
+      'xcode_settings': {
+        'CLANG_CXX_LANGUAGE_STANDARD': 'c++11',
+        'OTHER_CPLUSPLUSFLAGS': [ '-stdlib=libc++' ]
+      },
+      'conditions': [
+        ['OS == "linux"', {
+          'defines': [
+            'UNIX'
+          ],
+          'cflags': [
+            #'-Wall',
+            #'-Wextra',
+            #'-Weffc++',
+            # Use C++11
+            '-std=c++11',
+            '-g'
+          ],
+          'link_settings': {
+            'libraries': [
+              # Provides .so functions (dlopen, etc).
+              '-ldl',
+              '-pthread'
+            ]
+          },
+          ''
+          'sources': [
+            'base/dynamic_lib_unix.cpp'
+          ],
+        }],
+        ['OS == "win"', {
+          'defines': [
+            'WIN32'
+          ],
+          'sources': [
+            'base/dynamic_lib_win.cpp'
+          ],
+        }],
+      ],
+    },
+    {
+      'target_name': 'gtest',
+      'type': 'static_library',
+      'sources': [
+        'gtest/src/gtest-all.cc',
+        'gtest/src/gtest-death-test.cc',
+        'gtest/src/gtest-internal-inl.h',
+        'gtest/src/gtest-filepath.cc',
+        'gtest/src/gtest_main.cc',
+        'gtest/src/gtest-port.cc',
+        'gtest/src/gtest-printers.cc',
+        'gtest/src/gtest-test-part.cc',
+        'gtest/src/gtest-typed-test.cc',
+        'gtest/src/gtest.cc'
+      ],
+      'include_dirs': [
+        '.',
+        'gtest',
+        'gtest/include'
+      ],
+      'direct_dependent_settings': {
+        'defines': [
+          'UNIT_TEST'
+        ],
+        'include_dirs': [
+          'gtest/include'
+        ],
+      },
     },
   ],
 }

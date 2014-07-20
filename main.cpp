@@ -12,8 +12,6 @@ int main(int argc, char** argv) {
     return 1;
   }
 
-  Server server;
-
   std::string pluginsPath = argv[1];
   if (pluginsPath[pluginsPath.length() - 1] != '/') {
     pluginsPath += '/';
@@ -25,13 +23,12 @@ int main(int argc, char** argv) {
   
   pluginsPath += "plugins/";
 
-  if (!server.LoadPlugins(pluginsPath)) {
+  Server server;
+  if (server.LoadPlugins(pluginsPath)) {
+    server.Run();
+  } else {
     Logger::Log(Logger::ERR, "No plugins were loaded, exiting.");
-    Logger::UninitLog();
-    return 1;
   }
-
-  server.Run();
   
   Logger::UninitLog();
   return 0;
