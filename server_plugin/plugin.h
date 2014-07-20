@@ -17,7 +17,6 @@ typedef enum {
 
 PLUGIN_EXPORT SockType SocketType();
 
-PLUGIN_EXPORT void DefaultIPv4(char* ip, int maxLen);
 PLUGIN_EXPORT unsigned short DefaultPort();
 
 PLUGIN_EXPORT ProtocolHandler* NewHandler();

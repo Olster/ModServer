@@ -8,7 +8,6 @@
 #include "server_plugin/plugin.h"
 
 class ProtocolHandler;
-class IPEndPoint;
 class DynamicLib;
 
 class ServerPlugin {
@@ -19,7 +18,7 @@ class ServerPlugin {
   // Return true if plugin is valid.
   virtual bool IsValid() = 0;
 
-  virtual void ip_endpoint(IPEndPoint* ep) = 0;
+  virtual unsigned short port() = 0;
   virtual SockType sock_type() = 0;
 
   virtual ProtocolHandler* NewProtocolHandler() = 0;
@@ -32,20 +31,20 @@ class ServerPlugin {
 
 class DynamicPlugin : public ServerPlugin {
  public:
-  DynamicPlugin(DynamicLib* lib);
+  DynamicPlugin(std::shared_ptr<DynamicLib> lib);
   virtual ~DynamicPlugin();
 
   // Checks if the dynamic lib is a suitable plugin.
   virtual bool IsValid() override;
 
-  virtual void ip_endpoint(IPEndPoint* ep) override;
+  virtual unsigned short port() override;
   virtual SockType sock_type() override;
 
   virtual ProtocolHandler* NewProtocolHandler() override;
 
   virtual std::string name() override;
  private:
-  std::unique_ptr<DynamicLib> m_lib;
+  std::shared_ptr<DynamicLib> m_lib;
 };
 
 #endif // SERVER_PLUGIN_H_

@@ -8,7 +8,7 @@
 ServerPlugin::ServerPlugin() {}
 ServerPlugin::~ServerPlugin() {}
 
-DynamicPlugin::DynamicPlugin(DynamicLib* lib)
+DynamicPlugin::DynamicPlugin(std::shared_ptr<DynamicLib> lib)
  : m_lib(lib) {}
 
 DynamicPlugin::~DynamicPlugin() {}
@@ -22,7 +22,6 @@ bool DynamicPlugin::IsValid() {
   const char* exportedNames[] = {
     "GetPluginName",
     "SocketType",
-    "DefaultIPv4",
     "DefaultPort",
     "NewHandler"
   };
@@ -37,20 +36,11 @@ bool DynamicPlugin::IsValid() {
   return true;
 }
 
-void DynamicPlugin::ip_endpoint(IPEndPoint* ep) {
-  assert(m_lib);
-
-  typedef void (*DefaultIPv4Fn)(char* ip, int maxLen);
-  DefaultIPv4Fn DefaultIPv4 = (DefaultIPv4Fn)m_lib->GetProc("DefaultIPv4");
-
-  char ip[20] = "";
-  DefaultIPv4(ip, ARR_SIZE(ip));
-
+unsigned short DynamicPlugin::port() {
   typedef unsigned short (*DefaultPortFn)();
   DefaultPortFn DefaultPort = (DefaultPortFn)m_lib->GetProc("DefaultPort");
 
-  ep->set_ip(ip);
-  ep->set_port(DefaultPort());
+  return DefaultPort();
 }
 
 SockType DynamicPlugin::sock_type() {

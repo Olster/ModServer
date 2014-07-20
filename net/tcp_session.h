@@ -8,7 +8,7 @@ class ServerPlugin;
 
 class ConnectionSession : public Session {
  public:
-  ConnectionSession(Socket* sock, ProtocolHandler* protoHandler)
+  ConnectionSession(std::shared_ptr<Socket> sock, ProtocolHandler* protoHandler)
    : Session(sock, protoHandler) {}
 
   bool CanRead() override;
@@ -21,7 +21,10 @@ class ConnectionSession : public Session {
 
 class AcceptorSession : public Session {
  public:
-  AcceptorSession(Socket* sock, ProtocolHandler* protoHandler, Server* s, ServerPlugin* plugin)
+  AcceptorSession(std::shared_ptr<Socket> sock,
+                  ProtocolHandler* protoHandler,
+                  Server* s,
+                  ServerPlugin* plugin)
    : Session(sock, protoHandler),
      m_server(s), m_plugin(plugin) {}
 
@@ -33,6 +36,7 @@ class AcceptorSession : public Session {
   int OnError() override { return 0; }
 
  private:
+  // Not owning.
   Server* m_server;
   ServerPlugin* m_plugin;
 };
