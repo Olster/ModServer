@@ -202,23 +202,24 @@ void Server::ReadData(const fd_set& readSet) {
   }
 
   for (Session* session : readSessions) {
-    int read = session->OnRead();
+    int err = 0;
+    int read = session->OnRead(&err);
     
     if (read < 1) {
       switch (read) {
         case 0:
-          Logger::Log(Logger::INFO, "Socket closed %d",
-                      session->socket()->handle());
+          Logger::Log(Logger::INFO, "Socket closed %d: %d",
+                      session->socket()->handle(), err);
         break;
 
         case -1:
-          Logger::Log(Logger::INFO, "Socket error %d",
-                      session->socket()->handle());
+          Logger::Log(Logger::INFO, "Socket error %d: %d",
+                      session->socket()->handle(), err);
         break;
 
         default:
-          Logger::Log(Logger::INFO, "Socket error < -1 %d",
-                      session->socket()->handle());
+          Logger::Log(Logger::INFO, "Socket error < -1 %d: %d",
+                      session->socket()->handle(), err);
         break;
       }
 
@@ -238,22 +239,23 @@ void Server::SendData(const fd_set& writeSet) {
   }
 
   for (Session* session : sendSessions) {
-    int wrote = session->OnWrite();
+    int err = 0;
+    int wrote = session->OnWrite(&err);
     if (wrote < 1) {
       switch (wrote) {
         case 0:
-          Logger::Log(Logger::INFO, "Socket sent 0b on write %d",
-                      session->socket()->handle());
+          Logger::Log(Logger::INFO, "Socket sent 0b on write %d: %d",
+                      session->socket()->handle(), err);
         break;
 
         case -1:
-          Logger::Log(Logger::INFO, "Socket error on write %d",
-                      session->socket()->handle());
+          Logger::Log(Logger::INFO, "Socket error on write %d:%d",
+                      session->socket()->handle(), err);
         break;
 
         default:
-          Logger::Log(Logger::INFO, "Socket error < -1 on write %d",
-                      session->socket()->handle());
+          Logger::Log(Logger::INFO, "Socket error < -1 on write %d: %d",
+                      session->socket()->handle(), err);
         break;
       }
 

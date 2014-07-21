@@ -15,15 +15,29 @@
         '.'
       ],
       'sources': [
+        # Adding headers here as well make them visiable in Visual Studio.
+	'base/build_required.h',
+        'base/dynamic_lib.h',
         'base/logger.cpp',
+        'base/logger.h',
+        'net/socket/socket.cpp',
+        'net/socket/socket.h',
         'net/socket/tcp_listener.cpp',
+        'net/socket/tcp_listener.h',
         'net/socket/tcp_socket.cpp',
+        'net/socket/tcp_socket.h',
         'net/ip_endpoint.cpp',
+        'net/ip_endpoint.h',
         'net/server.cpp',
+        'net/server.h',
         'net/session.cpp',
+        'net/session.h',
         'net/tcp_session.cpp',
+        'net/tcp_session.h',
         'server_plugin/plugin_loader.cpp',
+        'server_plugin/plugin_loader.h',
         'server_plugin/server_plugin.cpp',
+        'server_plugin/server_plugin.h',
         'main.cpp'
       ],
       'xcode_settings': {
@@ -50,8 +64,7 @@
             'UNIX'
           ],
           'sources': [
-            'base/dynamic_lib_unix.cpp',  
-            'net/socket/socket_unix.cpp'       
+            'base/dynamic_lib_unix.cpp',
           ],
         }],
         ['OS == "win"', {
@@ -112,6 +125,8 @@
       ],
       'sources': [
         'base/dynamic_lib_unittest.cpp',
+        'net/socket/socket.cpp',
+        'net/socket/socket_unittest.cpp',
         'net/ip_endpoint_unittest.cpp',
         'net/ip_endpoint.cpp',
         'run_tests.cpp'
@@ -145,7 +160,7 @@
           },
           ''
           'sources': [
-            'base/dynamic_lib_unix.cpp'
+            'base/dynamic_lib_unix.cpp',
           ],
         }],
         ['OS == "win"', {
@@ -153,7 +168,8 @@
             'WIN32'
           ],
           'sources': [
-            'base/dynamic_lib_win.cpp'
+            'base/dynamic_lib_win.cpp',
+            'net/socket/socket_win.cpp'
           ],
         }],
       ],
