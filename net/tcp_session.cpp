@@ -14,10 +14,10 @@ bool ConnectionSession::HasDataToSend() {
   return m_protoHandler->HasDataToSend();
 }
 
-int ConnectionSession::OnWrite() {
+int ConnectionSession::OnWrite(int* err) {
   int sent = reinterpret_cast<TcpSocket*>(m_sock.get())->Send(
         m_protoHandler->data_to_send(),
-        m_protoHandler->data_to_send_size());
+        m_protoHandler->data_to_send_size(), err);
 
   if (sent > 0) {
     m_protoHandler->DidSend(sent);
@@ -26,7 +26,7 @@ int ConnectionSession::OnWrite() {
   return sent;
 }
 
-int ConnectionSession::OnRead() {
+int ConnectionSession::OnRead(int* err) {
   // TODO(Olster): Avoid copying.
 
   const int requestBufSize = 512;
@@ -34,7 +34,7 @@ int ConnectionSession::OnRead() {
 
   // TODO(Olster): Provide abstraction without casting to specific type.
   int bytesRead = reinterpret_cast<TcpSocket*>(m_sock.get())->Receive(
-        buf, requestBufSize);
+        buf, requestBufSize, err);
   if (bytesRead < 1) {
     return bytesRead;
   }
@@ -45,8 +45,8 @@ int ConnectionSession::OnRead() {
   return bytesRead;
 }
 
-int AcceptorSession::OnRead() {
-  Socket::SOCK_TYPE sock = reinterpret_cast<TcpListener*>(m_sock.get())->Accept();
+int AcceptorSession::OnRead(int* err) {
+  Socket::SOCK_TYPE sock = reinterpret_cast<TcpListener*>(m_sock.get())->Accept(err);
   ConnectionSession* acceptedSession = new ConnectionSession(
         std::shared_ptr<Socket>(new TcpSocket(sock)),
         m_plugin->NewProtocolHandler());

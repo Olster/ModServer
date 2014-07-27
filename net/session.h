@@ -17,9 +17,9 @@ class Session {
   virtual bool CanRead() = 0;
   virtual bool HasDataToSend() = 0;
 
-  virtual int OnRead() = 0;
-  virtual int OnWrite() = 0;
-  virtual int OnError() = 0;
+  virtual int OnRead(int* err = NULL) = 0;
+  virtual int OnWrite(int* err = NULL) = 0;
+  virtual int OnError(int* err = NULL) = 0;
 
   std::shared_ptr<Socket> socket() { return m_sock; }
  protected:

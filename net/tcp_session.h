@@ -14,9 +14,9 @@ class ConnectionSession : public Session {
   bool CanRead() override;
   bool HasDataToSend() override;
 
-  int OnRead() override;
-  int OnWrite() override;
-  int OnError() override { return 0; }
+  int OnRead(int* err = NULL) override;
+  int OnWrite(int* err = NULL) override;
+  int OnError(int* err = NULL) override { return 0; }
 };
 
 class AcceptorSession : public Session {
@@ -31,9 +31,9 @@ class AcceptorSession : public Session {
   bool CanRead() override { return true; }
   bool HasDataToSend() override { return false; }
 
-  int OnRead() override;
-  int OnWrite() override { return 0; }
-  int OnError() override { return 0; }
+  int OnRead(int* err = NULL) override;
+  int OnWrite(int* /*err*/) override { return 0; }
+  int OnError(int* /*err*/) override { return 0; }
 
  private:
   // Not owning.

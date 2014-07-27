@@ -50,17 +50,15 @@ class Socket {
 
   SOCK_TYPE handle() const { return m_socket; }
  protected:
-  bool OpenHelper(int domain, int type, int protocol, int* err = NULL) {
-    m_socket = socket(domain, type, protocol);
+  bool OpenHelper(int domain, int type, int protocol, int* err = NULL);
 
-    if (err) {
-      *err = SocketError();
-    }
-
-    return m_socket != kInvalidSocket;
+  int SocketError() {
+#if defined(WIN32)
+    return ::WSAGetLastError();
+#else
+    return errno;
+#endif
   }
-
-  int SocketError();
 
   SOCK_TYPE m_socket;
 
