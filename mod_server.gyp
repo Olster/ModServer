@@ -50,7 +50,8 @@
             'UNIX'
           ],
           'sources': [
-            'base/dynamic_lib_unix.cpp',  
+            'base/dynamic_lib_unix.cpp',
+            'base/os_info_unix.cpp',
             'net/socket/socket_unix.cpp'       
           ],
         }],

@@ -6,6 +6,10 @@
 #include <ctime>
 #include <errno.h>
 
+#include <iostream>
+
+#include "base/os_info.h"
+
 namespace {
 inline tm* GetTimeInfo() {
   time_t t;
@@ -40,6 +44,23 @@ const char* SeverityString(Logger::Severity sev) {
 
   return out;
 }
+
+void LogProgramInfo() {
+  // TODO(Olster): Read exe name and version from file.
+  Logger::Log(Logger::INFO,
+              "Basic info:\nExecutable: %s\n"
+              "Version: %s\n"
+              "OS: %s\n"
+              "OS Version: %s\n"
+              "Arch %s\n"
+              "Memory %lld (avail %lld)",
+              "mod_server", "0.0.1",
+              SystemInfo::OSName().c_str(),
+              SystemInfo::OSVersion().c_str(),
+              SystemInfo::OSArch().c_str(),
+              SystemInfo::RAMInstalledMB(),
+              SystemInfo::RAMAvailableMB());
+}
 }
 
 // static
@@ -55,6 +76,8 @@ bool Logger::InitLog() {
 
   if (logger.m_file != nullptr) {
       printf("Log file created: %s\n", fileName.c_str());
+
+      LogProgramInfo();
       return true;
   } else {
       fprintf(stderr, "Log file '%s' wasn't created: %d\n",
