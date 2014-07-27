@@ -1,7 +1,6 @@
 #include "net/socket/socket.h"
 
 #if defined(UNIX)
-#include <errno.h>
 #include <unistd.h>
 #endif
 

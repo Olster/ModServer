@@ -4,6 +4,7 @@
 #include "base/build_required.h"
 
 #if defined(UNIX)
+#include <errno.h>
 #include <sys/socket.h>
 #elif defined(WIN32)
 #include <winsock2.h>

@@ -4,7 +4,7 @@
 class TestSocket : public Socket {
  public:
   virtual bool Open(int* err = NULL) override {
-    return OpenHelper(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    return OpenHelper(AF_INET, SOCK_STREAM, 0);
   }
 };
 
