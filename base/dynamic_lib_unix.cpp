@@ -12,7 +12,7 @@ void* DynamicLib::GetProc(const std::string& name) {
 }
 
 // static
-DynamicLib* DynamicLib::Load(const std::string& path, int* err) {
+DynamicLib* DynamicLib::Load(const Path::StringType& path, int* err) {
   DllHandle handle = ::dlopen(path.c_str(), RTLD_LAZY);
   
   if (err) {

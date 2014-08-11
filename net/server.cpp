@@ -20,7 +20,7 @@ Server::~Server() {
   m_pluginLoader.UnloadAll();
 }
 
-bool Server::LoadPlugins(const std::string& pluginsFolder) {
+bool Server::LoadPlugins(const Path::StringType& pluginsFolder) {
   if (m_pluginLoader.HasLoadedPlugins()) {
     Logger::Log(Logger::INFO, "Plugins were already loaded, don't load again");
     return false;

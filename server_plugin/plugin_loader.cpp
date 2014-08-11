@@ -4,13 +4,12 @@
 
 #include "base/dynamic_lib.h"
 #include "base/logger.h"
-#include "base/path.h"
 
 #include "server_plugin/server_plugin.h"
 
 namespace {
 #if defined(WIN32)
-const char* const kDllExt = ".dll";
+const wchar_t* const kDllExt = L".dll";
 #else
 const char* const kDllExt = ".so";
 #endif
@@ -20,12 +19,12 @@ PluginLoader::~PluginLoader() {
   UnloadAll();
 }
 
-void PluginLoader::LoadAll(const std::string& pluginsFolder) {
+void PluginLoader::LoadAll(const Path::StringType& pluginsFolder) {
   Logger::Log(Logger::INFO, "Searching for plugins in %s",
               pluginsFolder.c_str());
 
   std::vector<Folder> subfolders;
-  GetAllSubfolders(Folder(pluginsFolder), &subfolders);
+  Folder(Path(pluginsFolder)).GetAllSubfolders(&subfolders);
   
   for (std::vector<Folder>::const_iterator it = subfolders.cbegin();
        it != subfolders.cend(); ++it) {
@@ -51,13 +50,13 @@ void PluginLoader::LoadAll(const std::string& pluginsFolder) {
         continue;
       }
       
-      std::shared_ptr<DynamicPlugin> plugin(new DynamicPlugin(pluginDll));
+      std::unique_ptr<DynamicPlugin> plugin(new DynamicPlugin(pluginDll));
       if (!plugin->IsValid()) {
         Logger::Log(Logger::WARN, "Not a valid plugin");
         continue;
       }
       
-      AddPlugin(plugin);
+      AddPlugin(plugin.release());
     }
   }
 }

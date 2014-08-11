@@ -14,7 +14,7 @@ SockType SocketType() {
 }
 
 unsigned short DefaultPort() {
-  return 3652;
+  return 8080;
 }
 
 void FreeHandler(ProtocolHandler* handler) {

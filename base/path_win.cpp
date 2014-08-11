@@ -1,5 +1,7 @@
 #include "base/path.h"
 
+#include <windows.h>
+
 Path::StringType Path::Absolute() const {
   StringType::value_type buf[MAX_PATH*2] = PATH_LITERAL("");
 

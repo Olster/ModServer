@@ -4,6 +4,7 @@
 #include <string>
 
 #include "base/build_required.h"
+#include "base/path.h"
 
 class DynamicLib {
 public:
@@ -19,7 +20,7 @@ public:
 
   // Loads the dynamic library from specified path.
   // Returns NULL if library wasn't found.
-  static DynamicLib* Load(const std::string& path, int* err = NULL);
+  static DynamicLib* Load(const Path::StringType& path, int* err = NULL);
 private:
   DllHandle m_handle = NULL;
 

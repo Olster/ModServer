@@ -4,14 +4,10 @@
 #include <unistd.h>
 #endif
 
-const Socket::SOCK_TYPE Socket::kInvalidSocket;
-
 #if defined(UNIX)
-  typedef int SOCK_TYPE;
-  static const SOCK_TYPE kInvalidSocket = -1;
+const Socket::SOCK_TYPE Socket::kInvalidSocket = -1;
 #elif defined(WIN32)
-  typedef SOCKET SOCK_TYPE;
-  static const SOCK_TYPE kInvalidSocket = INVALID_SOCKET;
+const Socket::SOCK_TYPE Socket::kInvalidSocket = INVALID_SOCKET;
 #endif
 
 Socket::~Socket() {

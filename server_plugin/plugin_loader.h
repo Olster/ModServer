@@ -5,6 +5,7 @@
 #include <string>
 
 #include "base/build_required.h"
+#include "base/path.h"
 
 class ServerPlugin;
 
@@ -13,7 +14,7 @@ class PluginLoader {
   PluginLoader() {}
   ~PluginLoader();
 
-  void LoadAll(const std::string& pluginsFolder);
+  void LoadAll(const Path::StringType& pluginsFolder);
   void UnloadAll();
 
   // Adds a plugin to the list of plugins.

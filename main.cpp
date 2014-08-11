@@ -1,7 +1,7 @@
 #include "net/server.h"
 #include "base/logger.h"
 
-int main(int argc, char** argv) {
+int main(int argc, Path::StringType::value_type** argv) {
   if (argc <= 1) {
     printf("Please specify path to plugins folder");
     return 1;
@@ -12,16 +12,12 @@ int main(int argc, char** argv) {
     return 1;
   }
 
-  std::string pluginsPath = argv[1];
+  Path::StringType pluginsPath = argv[1];
   if (pluginsPath[pluginsPath.length() - 1] != '/') {
     pluginsPath += '/';
   }
-
-#ifdef DEBUG
-  pluginsPath += "Debug/";
-#endif
   
-  pluginsPath += "plugins/";
+  pluginsPath += PATH_LITERAL("plugins/");
 
   Server server;
   if (server.LoadPlugins(pluginsPath)) {

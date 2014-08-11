@@ -14,10 +14,10 @@ class Socket {
  public:
 #if defined(UNIX)
   typedef int SOCK_TYPE;
-  static const SOCK_TYPE kInvalidSocket = -1;
+  static const SOCK_TYPE kInvalidSocket;
 #elif defined(WIN32)
   typedef SOCKET SOCK_TYPE;
-  static const SOCK_TYPE kInvalidSocket = INVALID_SOCKET;
+  static const SOCK_TYPE kInvalidSocket;
 #endif
 
   Socket()

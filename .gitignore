@@ -182,3 +182,8 @@ Desktop.ini
 $RECYCLE.BIN/
 
 build.bat
+*.sln
+*.vcxproj
+*.filters
+
+Default/

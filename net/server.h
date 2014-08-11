@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "base/build_required.h"
+#include "base/path.h"
 #include "net/socket/tcp_listener.h"
 #include "server_plugin/plugin_loader.h"
 
@@ -14,7 +15,7 @@ class Server {
   Server();
   ~Server();
 
-  bool LoadPlugins(const std::string& pluginsFolder);
+  bool LoadPlugins(const Path::StringType& pluginsFolder);
 
   // Starts up controller (if registered) and plugins.
   void Run();
