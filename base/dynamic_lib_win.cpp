@@ -11,9 +11,13 @@ void* DynamicLib::GetProc(const std::string& name) {
 }
 
 // static
-DynamicLib* DynamicLib::Load(const std::string& path) {
+DynamicLib* DynamicLib::Load(const std::string& path, int* err) {
   DllHandle handle = ::LoadLibraryA(path.c_str());
 
+  if (err) {
+    *err = ::GetLastError();
+  }
+  
   if (!handle) {
     return NULL;
   }

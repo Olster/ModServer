@@ -75,6 +75,7 @@
           'sources': [
             # gyp didn't parse OS properly.
             'base/dynamic_lib_win.cpp',
+            'base/path_win.cpp',
             'net/socket/socket_win.cpp'
           ],
         }],

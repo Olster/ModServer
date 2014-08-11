@@ -17,9 +17,9 @@ public:
   // Returns NULL on error.
   void* GetProc(const std::string& name);
 
-  // Loads the dynamic librry from specified path.
+  // Loads the dynamic library from specified path.
   // Returns NULL if library wasn't found.
-  static DynamicLib* Load(const std::string& path);
+  static DynamicLib* Load(const std::string& path, int* err = NULL);
 private:
   DllHandle m_handle = NULL;
 
