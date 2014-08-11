@@ -1,5 +1,5 @@
-#ifndef TCP_SESSION_H_
-#define TCP_SESSION_H_
+#ifndef NET_TCP_SESSION_H_
+#define NET_TCP_SESSION_H_
 
 #include "net/session.h"
 
@@ -9,7 +9,7 @@ class ServerPlugin;
 class ConnectionSession : public Session {
  public:
   ConnectionSession(std::shared_ptr<Socket> sock, ProtocolHandler* protoHandler)
-   : Session(sock, protoHandler) {}
+      : Session(sock, protoHandler) {}
 
   bool CanRead() override;
   bool HasDataToSend() override;
@@ -25,8 +25,8 @@ class AcceptorSession : public Session {
                   ProtocolHandler* protoHandler,
                   Server* s,
                   ServerPlugin* plugin)
-   : Session(sock, protoHandler),
-     m_server(s), m_plugin(plugin) {}
+      : Session(sock, protoHandler),
+        m_server(s), m_plugin(plugin) {}
 
   bool CanRead() override { return true; }
   bool HasDataToSend() override { return false; }
@@ -41,4 +41,4 @@ class AcceptorSession : public Session {
   ServerPlugin* m_plugin;
 };
 
-#endif // TCP_SESSION_H_
+#endif  // NET_TCP_SESSION_H_

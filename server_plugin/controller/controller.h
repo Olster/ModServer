@@ -1,7 +1,8 @@
-#ifndef CONTROLLER_H_
-#define CONTROLLER_H_
+#ifndef SERVER_PLUGIN_CONTROLLER_CONTROLLER_H_
+#define SERVER_PLUGIN_CONTROLLER_CONTROLLER_H_
 
 #include <list>
+#include <string>
 
 #include "server_plugin/server_plugin.h"
 
@@ -12,7 +13,7 @@ class Server;
 // close connections, etc.
 class Controller : public ServerPlugin {
  public:
-  Controller(Server* server);
+  explicit Controller(Server* server);
 
   void ip_endpoint(IPEndPoint* ep) override;
   SockType sock_type() override;
@@ -26,4 +27,4 @@ class Controller : public ServerPlugin {
   static std::string m_name;
 };
 
-#endif // CONTROLLER_H_
+#endif  // SERVER_PLUGIN_CONTROLLER_CONTROLLER_H_

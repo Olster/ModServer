@@ -1,12 +1,12 @@
-#ifndef NET_SOCKET_SERVER_SOCKET_H_
-#define NET_SOCKET_SERVER_SOCKET_H_
+#ifndef NET_SOCKET_TCP_LISTENER_H_
+#define NET_SOCKET_TCP_LISTENER_H_
 
-#include "net/socket/tcp_socket.h"
 #include "net/ip_endpoint.h"
+#include "net/socket/tcp_socket.h"
 
 class TcpListener : public TcpSocket {
  public:
-  TcpListener(const IPEndPoint& ep);
+  explicit TcpListener(const IPEndPoint& ep);
   TcpListener(const char* ip, unsigned short port);
   ~TcpListener() {}
 
@@ -18,4 +18,4 @@ class TcpListener : public TcpSocket {
   IPEndPoint m_ep;
 };
 
-#endif // NET_SOCKET_SERVER_SOCKET_H_
+#endif  // NET_SOCKET_TCP_LISTENER_H_

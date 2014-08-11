@@ -1,5 +1,5 @@
-#ifndef PROTOCOL_HANDLER_H_
-#define PROTOCOL_HANDLER_H_
+#ifndef SERVER_PLUGIN_PROTOCOL_HANDLER_H_
+#define SERVER_PLUGIN_PROTOCOL_HANDLER_H_
 
 #include <string>
 
@@ -10,8 +10,8 @@ class ProtocolHandler {
   typedef void (*FreeFunc)(ProtocolHandler* handler);
 
   // Free func defines how |this| gets deleted.
-  ProtocolHandler(FreeFunc freeFunc)
-   : m_freeFunc(freeFunc) {}
+  explicit ProtocolHandler(FreeFunc freeFunc)
+      : m_freeFunc(freeFunc) {}
 
   virtual bool HasDataToSend() const = 0;
 
@@ -30,9 +30,11 @@ class ProtocolHandler {
   void FreeHandler() {
     m_freeFunc(this);
   }
+
  protected:
-   virtual ~ProtocolHandler() {}
-   friend void FreeHandler(ProtocolHandler* handler);
+  virtual ~ProtocolHandler() {}
+  friend void FreeHandler(ProtocolHandler* handler);
+
  private:
   FreeFunc m_freeFunc;
 
@@ -40,4 +42,4 @@ class ProtocolHandler {
   DISALLOW_MOVE(ProtocolHandler);
 };
 
-#endif // PROTOCOL_HANDLER_H_
+#endif  // SERVER_PLUGIN_PROTOCOL_HANDLER_H_

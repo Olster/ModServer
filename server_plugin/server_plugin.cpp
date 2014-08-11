@@ -1,6 +1,7 @@
 #include "server_plugin/server_plugin.h"
 
 #include <cassert>
+#include <string>
 
 #include "base/dynamic_lib.h"
 #include "net/ip_endpoint.h"
@@ -9,7 +10,7 @@ ServerPlugin::ServerPlugin() {}
 ServerPlugin::~ServerPlugin() {}
 
 DynamicPlugin::DynamicPlugin(std::shared_ptr<DynamicLib> lib)
- : m_lib(lib) {}
+    : m_lib(lib) {}
 
 DynamicPlugin::~DynamicPlugin() {}
 
@@ -65,7 +66,8 @@ std::string DynamicPlugin::name() {
   assert(m_lib);
 
   typedef void (*GetPluginNameFn)(char* buf, int size);
-  GetPluginNameFn GetPluginName = (GetPluginNameFn)m_lib->GetProc("GetPluginName");
+  GetPluginNameFn GetPluginName = (GetPluginNameFn)m_lib->GetProc(
+      "GetPluginName");
 
   char name[256] = "";
   GetPluginName(name, ARR_SIZE(name));

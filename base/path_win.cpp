@@ -14,9 +14,11 @@ Path::StringType Path::Absolute() const {
   return StringType();
 }
 
-void Folder::GetAllSubfolders(std::vector<Folder>* subfolders, bool recursive) const {
+void Folder::GetAllSubfolders(std::vector<Folder>* subfolders,
+                              bool recursive) const {
   WIN32_FIND_DATAW findData = {0};
-  HANDLE fileFound = ::FindFirstFileW((path().ToString() + PATH_LITERAL("/*")).c_str(), &findData);
+  HANDLE fileFound = ::FindFirstFileW((path().ToString() +
+                                       PATH_LITERAL("/*")).c_str(), &findData);
 
   if (fileFound == INVALID_HANDLE_VALUE) {
     return;
@@ -25,7 +27,8 @@ void Folder::GetAllSubfolders(std::vector<Folder>* subfolders, bool recursive) c
   while (::FindNextFileW(fileFound, &findData)) {
     if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
       if (wcscmp(findData.cFileName, L"..") != 0) {
-        Folder subfolder(Path(path().ToString() + PATH_LITERAL('/') + findData.cFileName));
+        Folder subfolder(Path(path().ToString() + PATH_LITERAL('/') +
+                              findData.cFileName));
         subfolders->push_back(subfolder);
 
         if (recursive) {
@@ -38,11 +41,13 @@ void Folder::GetAllSubfolders(std::vector<Folder>* subfolders, bool recursive) c
   ::FindClose(fileFound);
 }
 
-void Folder::GetFilesWildcard(const Path::StringType& wildcard, std::vector<File>* files) const {
+void Folder::GetFilesWildcard(const Path::StringType& wildcard,
+                              std::vector<File>* files) const {
   files->clear();
 
   WIN32_FIND_DATAW findData = {0};
-  HANDLE fileFound = ::FindFirstFileW((path().ToString() + PATH_LITERAL('/') + wildcard).c_str(), &findData);
+  HANDLE fileFound = ::FindFirstFileW((path().ToString() + PATH_LITERAL('/') +
+                                       wildcard).c_str(), &findData);
 
   if (fileFound == INVALID_HANDLE_VALUE) {
     return;
@@ -50,7 +55,8 @@ void Folder::GetFilesWildcard(const Path::StringType& wildcard, std::vector<File
 
   while (::FindNextFileW(fileFound, &findData)) {
     if ((findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0) {
-      files->push_back(File(Path(path().ToString() + PATH_LITERAL('/') + findData.cFileName)));
+      files->push_back(File(Path(path().ToString() + PATH_LITERAL('/') +
+                                 findData.cFileName)));
     }
   }
 

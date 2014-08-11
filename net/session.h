@@ -1,5 +1,5 @@
-#ifndef SESSION_H_
-#define SESSION_H_
+#ifndef NET_SESSION_H_
+#define NET_SESSION_H_
 
 #include <memory>
 
@@ -31,4 +31,4 @@ class Session {
   DISALLOW_MOVE(Session);
 };
 
-#endif // SESSION_H_
+#endif  // NET_SESSION_H_

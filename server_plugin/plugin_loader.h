@@ -1,5 +1,5 @@
-#ifndef PLUGIN_LOADER_H_
-#define PLUGIN_LOADER_H_
+#ifndef SERVER_PLUGIN_PLUGIN_LOADER_H_
+#define SERVER_PLUGIN_PLUGIN_LOADER_H_
 
 #include <list>
 #include <string>
@@ -33,4 +33,4 @@ class PluginLoader {
   DISALLOW_MOVE(PluginLoader);
 };
 
-#endif // PLUGIN_LOADER_H_
+#endif  // SERVER_PLUGIN_PLUGIN_LOADER_H_

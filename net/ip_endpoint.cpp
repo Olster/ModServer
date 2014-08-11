@@ -1,8 +1,5 @@
 #include "net/ip_endpoint.h"
 
-#include <cassert>
-#include <cstring>
-
 #if defined(UNIX)
 #include <arpa/inet.h>
 #else
@@ -10,26 +7,31 @@
 #pragma comment(lib, "ws2_32.lib")
 #endif
 
+#include <cassert>
+#include <cstring>
+
+#include <string>
+
 IPEndPoint::IPEndPoint() {
   memset(m_ip, 0, sizeof(m_ip));
   m_port = 0;
 }
 
 IPEndPoint::IPEndPoint(const char* ip, unsigned short port)
- : m_port(port) {
+    : m_port(port) {
   assert(ip);
-  strcpy(m_ip, ip);
+  snprintf(m_ip, ARR_SIZE(m_ip), ip);
 }
 
 IPEndPoint::IPEndPoint(const std::string& ip, unsigned short port)
- : m_port(port) {
+    : m_port(port) {
   assert((ip.length() > 0) && (ip.length() < ARR_SIZE(m_ip) - 1));
-  strcpy(m_ip, ip.c_str());
+  snprontf(m_ip, ARR_SIZE(m_ip), ip.c_str());
 }
 
 void IPEndPoint::set_ip(const std::string& ip) {
   assert((ip.length() > 0) && (ip.length() < ARR_SIZE(m_ip) - 1));
-  strcpy(m_ip, ip.c_str());
+  snprintf(m_ip, ARR_SIZE(m_ip), ip.c_str());
 }
 
 void IPEndPoint::set_port(unsigned short port) {

@@ -5,8 +5,8 @@
 
 Session::Session(std::shared_ptr<Socket> sock,
                  ProtocolHandler* protoHandler)
- : m_sock(sock),
-   m_protoHandler(protoHandler) {}
+    : m_sock(sock),
+      m_protoHandler(protoHandler) {}
 
 Session::~Session() {
   m_protoHandler->FreeHandler();

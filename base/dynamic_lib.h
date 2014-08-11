@@ -1,5 +1,5 @@
-#ifndef DYNAMIC_LIB_H_
-#define DYNAMIC_LIB_H_
+#ifndef BASE_DYNAMIC_LIB_H_
+#define BASE_DYNAMIC_LIB_H_
 
 #include <string>
 
@@ -7,11 +7,11 @@
 #include "base/path.h"
 
 class DynamicLib {
-public:
+ public:
   typedef void* DllHandle;
   explicit DynamicLib(DllHandle handle)
-   : m_handle(handle) {}
-  
+      : m_handle(handle) {}
+
   ~DynamicLib();
 
   // Returns pointer to exported function with name |name|.
@@ -21,11 +21,11 @@ public:
   // Loads the dynamic library from specified path.
   // Returns NULL if library wasn't found.
   static DynamicLib* Load(const Path::StringType& path, int* err = NULL);
-private:
+ private:
   DllHandle m_handle = NULL;
 
   DISALLOW_COPY_AND_ASSIGN(DynamicLib);
   DISALLOW_MOVE(DynamicLib);
 };
 
-#endif // DYNAMIC_LIB_H_
+#endif  // BASE_DYNAMIC_LIB_H_

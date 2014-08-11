@@ -1,16 +1,16 @@
-#ifndef CONTROLLER_HANDLER_H_
-#define CONTROLLER_HANDLER_H_
-
-#include "protocols/protocol_handler.h"
+#ifndef SERVER_PLUGIN_CONTROLLER_CONTROLLER_HANDLER_H_
+#define SERVER_PLUGIN_CONTROLLER_CONTROLLER_HANDLER_H_
 
 #include <string>
+
+#include "protocols/protocol_handler.h"
 
 class Server;
 
 class ControllerHandler : public ProtocolHandler {
  public:
-  ControllerHandler(Server* s)
-   : m_server(s) {}
+  explicit ControllerHandler(Server* s)
+      : m_server(s) {}
 
   bool HasDataToSend() const override { return false; }
 
@@ -26,4 +26,4 @@ class ControllerHandler : public ProtocolHandler {
   Server* m_server;
 };
 
-#endif // CONTROLLER_HANDLER_H_
+#endif  // SERVER_PLUGIN_CONTROLLER_CONTROLLER_HANDLER_H_

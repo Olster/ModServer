@@ -1,5 +1,5 @@
-#ifndef OS_INFO_H_
-#define OS_INFO_H_
+#ifndef BASE_OS_INFO_H_
+#define BASE_OS_INFO_H_
 
 #include <string>
 #include <vector>
@@ -16,9 +16,9 @@ class SystemInfo {
 
   // Returns OS architecture string.
   static std::string OSArch();
- private:  
+ private:
   DISALLOW_COPY_AND_ASSIGN(SystemInfo);
   DISALLOW_MOVE(SystemInfo);
 };
 
-#endif // OS_INFO_H_
+#endif  // BASE_OS_INFO_H_

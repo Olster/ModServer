@@ -27,4 +27,4 @@ class IPEndPoint {
   DISALLOW_MOVE(IPEndPoint);
 };
 
-#endif // NET_IP_ENDPOINT_H_
+#endif  // NET_IP_ENDPOINT_H_

@@ -11,8 +11,8 @@
 
 
 Server::Server()
- : m_maxListen(FD_SETSIZE - 2),
-   m_maxFd(0) {
+     : m_maxListen(FD_SETSIZE - 2),
+     m_maxFd(0) {
   FD_ZERO(&m_masterSet);
 }
 
@@ -59,7 +59,7 @@ void Server::Run() {
 
     fd_set errorSet;
     FD_ZERO(&errorSet);
-    FillError(&writeSet);    
+    FillError(&writeSet);
 
     // 5 minutes default timeout.
     // TODO(Olster): Make this configurable.
@@ -109,7 +109,8 @@ void Server::InitPlugins() {
   const std::list<ServerPlugin*>& plugins = m_pluginLoader.GetPlugins();
 
   for (ServerPlugin* plugin : plugins) {
-    Logger::Log(Logger::INFO, "Initializing plugin: %s", plugin->name().c_str());
+    Logger::Log(Logger::INFO, "Initializing plugin: %s",
+                plugin->name().c_str());
 
     // TODO(Olster): Read IP from settings or command line.
     IPEndPoint ep("127.0.0.1", 0);
@@ -204,7 +205,7 @@ void Server::ReadData(const fd_set& readSet) {
   for (Session* session : readSessions) {
     int err = 0;
     int read = session->OnRead(&err);
-    
+
     if (read < 1) {
       switch (read) {
         case 0:

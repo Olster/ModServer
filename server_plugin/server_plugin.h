@@ -1,5 +1,5 @@
-#ifndef SERVER_PLUGIN_H_
-#define SERVER_PLUGIN_H_
+#ifndef SERVER_PLUGIN_SERVER_PLUGIN_H_
+#define SERVER_PLUGIN_SERVER_PLUGIN_H_
 
 #include <memory>
 #include <string>
@@ -24,6 +24,7 @@ class ServerPlugin {
   virtual ProtocolHandler* NewProtocolHandler() = 0;
 
   virtual std::string name() = 0;
+
  private:
   DISALLOW_COPY_AND_ASSIGN(ServerPlugin);
   DISALLOW_MOVE(ServerPlugin);
@@ -31,7 +32,7 @@ class ServerPlugin {
 
 class DynamicPlugin : public ServerPlugin {
  public:
-  DynamicPlugin(std::shared_ptr<DynamicLib> lib);
+  explicit DynamicPlugin(std::shared_ptr<DynamicLib> lib);
   virtual ~DynamicPlugin();
 
   // Checks if the dynamic lib is a suitable plugin.
@@ -43,8 +44,9 @@ class DynamicPlugin : public ServerPlugin {
   virtual ProtocolHandler* NewProtocolHandler() override;
 
   virtual std::string name() override;
+
  private:
   std::shared_ptr<DynamicLib> m_lib;
 };
 
-#endif // SERVER_PLUGIN_H_
+#endif  // SERVER_PLUGIN_SERVER_PLUGIN_H_

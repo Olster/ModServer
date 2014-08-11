@@ -18,9 +18,10 @@ class Logger {
   };
 
   static void Log(Severity sev, const char* messageFormat, ...);
+
  private:
   Logger()
-   : m_file(NULL) {}
+      : m_file(NULL) {}
   ~Logger() {}
 
   static Logger& GetLogger();
@@ -32,4 +33,4 @@ class Logger {
   FILE* m_file;
 };
 
-#endif // BASE_LOGGING_H_
+#endif  // BASE_LOGGER_H_

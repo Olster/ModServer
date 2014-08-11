@@ -1,8 +1,10 @@
 #include "base/os_info.h"
 
-#include <fstream>
 #include <sys/utsname.h>
 #include <unistd.h>
+
+#include <fstream> // NOLINT
+#include <string>
 
 #include "base/logger.h"
 
@@ -44,14 +46,14 @@ long long QueryMemory(int settingName) {
 
   return page*pageSize;
 }
-}
+}  // namespace
 
 // static
 long long SystemInfo::RAMInstalledMB() {
   return QueryMemory(_SC_PHYS_PAGES)/1024/1024;
 }
 
-//static
+// static
 long long SystemInfo::RAMAvailableMB() {
   return QueryMemory(_SC_AVPHYS_PAGES)/1024/1024;
 }

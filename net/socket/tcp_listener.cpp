@@ -9,14 +9,13 @@
 #endif
 
 TcpListener::TcpListener(const IPEndPoint& ep)
- : m_ep(ep.ip(), ep.port()) {}
+    : m_ep(ep.ip(), ep.port()) {}
 
 TcpListener::TcpListener(const char* ip, unsigned short port)
- : m_ep(ip, port) {}
+    : m_ep(ip, port) {}
 
 bool TcpListener::Bind(int* err) {
   if (!m_ep.IsValid()) {
-
     if (err) {
       *err = EINVAL;
     }

@@ -25,37 +25,37 @@ void PluginLoader::LoadAll(const Path::StringType& pluginsFolder) {
 
   std::vector<Folder> subfolders;
   Folder(Path(pluginsFolder)).GetAllSubfolders(&subfolders);
-  
+
   for (std::vector<Folder>::const_iterator it = subfolders.cbegin();
        it != subfolders.cend(); ++it) {
     Logger::Log(Logger::INFO, "Searching in subfolder %s",
                 it->path().ToString());
-    
+
     std::vector<File> files;
-    
+
     Path::StringType wildcard = Path::StringType(PATH_LITERAL("*_plugin")) +
                                 kDllExt;
-    
+
     it->GetFilesWildcard(wildcard, &files);
     for (std::vector<File>::const_iterator fileIt = files.cbegin();
          fileIt != files.cend(); ++fileIt) {
       Logger::Log(Logger::INFO, "Trying file %s", fileIt->path().ToString());
-      
+
       int err = 0;
       std::shared_ptr<DynamicLib> pluginDll(
         DynamicLib::Load(fileIt->path().ToString(), &err));
-        
+
       if (!pluginDll) {
         Logger::Log(Logger::WARN, "Can't load shared library, err: %d", err);
         continue;
       }
-      
+
       std::unique_ptr<DynamicPlugin> plugin(new DynamicPlugin(pluginDll));
       if (!plugin->IsValid()) {
         Logger::Log(Logger::WARN, "Not a valid plugin");
         continue;
       }
-      
+
       AddPlugin(plugin.release());
     }
   }

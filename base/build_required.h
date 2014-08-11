@@ -25,4 +25,4 @@ unsigned int (&arrSizeHelper(Type (&arr)[ArrSize]))[ArrSize];
 #define NULL 0
 #endif
 
-#endif // BASE_BUILD_REQUIRED_H_
+#endif  // BASE_BUILD_REQUIRED_H_

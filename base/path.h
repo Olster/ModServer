@@ -1,5 +1,5 @@
-#ifndef PATH_H_
-#define PATH_H_
+#ifndef BASE_PATH_H_
+#define BASE_PATH_H_
 
 #if defined(WIN32)
 #define PATH_LITERAL(x) L ## x
@@ -8,6 +8,7 @@
 #endif
 
 #include <vector>
+#include <string>
 
 class Path {
  public:
@@ -18,7 +19,7 @@ class Path {
 #endif
 
   explicit Path(const StringType& path)
-   : m_path(path) {}
+      : m_path(path) {}
 
   Path() {}
   ~Path() {}
@@ -36,8 +37,8 @@ class Path {
 
 class FileSysObject {
  public:
-  FileSysObject(const Path& path)
-   : m_path(path) {}
+  explicit FileSysObject(const Path& path)
+      : m_path(path) {}
 
   virtual ~FileSysObject() {}
 
@@ -49,17 +50,19 @@ class FileSysObject {
 class File : public FileSysObject {
  public:
   explicit File(const Path& path)
-   : FileSysObject(path) {}
+      : FileSysObject(path) {}
 };
 
 class Folder : public FileSysObject {
  public:
   explicit Folder(const Path& path)
-   : FileSysObject(path) {}
+      : FileSysObject(path) {}
 
-  void GetAllSubfolders(std::vector<Folder>* subfolders, bool recursive = false) const;
+  void GetAllSubfolders(std::vector<Folder>* subfolders,
+                        bool recursive = false) const;
 
-  void GetFilesWildcard(const Path::StringType& wildcard, std::vector<File>* files) const;
+  void GetFilesWildcard(const Path::StringType& wildcard,
+                        std::vector<File>* files) const;
 };
 
-#endif // PATH_H_
+#endif  // BASE_PATH_H_

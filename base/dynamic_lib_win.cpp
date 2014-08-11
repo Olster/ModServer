@@ -1,6 +1,7 @@
 #include "base/dynamic_lib.h"
 
 #include <windows.h>
+#include <string>
 
 DynamicLib::~DynamicLib() {
   ::FreeLibrary(reinterpret_cast<HMODULE>(m_handle));
@@ -17,7 +18,7 @@ DynamicLib* DynamicLib::Load(const Path::StringType& path, int* err) {
   if (err) {
     *err = ::GetLastError();
   }
-  
+
   if (!handle) {
     return NULL;
   }

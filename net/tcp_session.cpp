@@ -26,11 +26,13 @@ int ConnectionSession::OnWrite(int* err) {
   return sent;
 }
 
+namespace {
+const int kRequestBufSize = 512;
+}  // namespace
+
 int ConnectionSession::OnRead(int* err) {
   // TODO(Olster): Avoid copying.
-
-  const int requestBufSize = 512;
-  char buf[requestBufSize + 1];
+  char buf[kRequestBufSize + 1];
 
   // TODO(Olster): Provide abstraction without casting to specific type.
   int bytesRead = reinterpret_cast<TcpSocket*>(m_sock.get())->Receive(
@@ -46,7 +48,9 @@ int ConnectionSession::OnRead(int* err) {
 }
 
 int AcceptorSession::OnRead(int* err) {
-  Socket::SOCK_TYPE sock = reinterpret_cast<TcpListener*>(m_sock.get())->Accept(err);
+  Socket::SOCK_TYPE sock = reinterpret_cast<TcpListener*>(
+       m_sock.get())->Accept(err);
+
   ConnectionSession* acceptedSession = new ConnectionSession(
         std::shared_ptr<Socket>(new TcpSocket(sock)),
         m_plugin->NewProtocolHandler());

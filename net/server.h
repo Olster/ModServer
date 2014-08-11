@@ -22,6 +22,7 @@ class Server {
 
   void RegisterSession(Session* s);
   void UnloadAllPlugins();
+
  private:
   void InitPlugins();
 
@@ -34,7 +35,7 @@ class Server {
   void ReadData(const fd_set& readSet);
   void SendData(const fd_set& writeSet);
   void ErrorSessions(const fd_set& errorSet);
-  
+
   PluginLoader m_pluginLoader;
 
   std::vector<Session*> m_sessions;
@@ -51,4 +52,4 @@ class Server {
   DISALLOW_MOVE(Server);
 };
 
-#endif // NET_HTTP_SERVER_H_
+#endif  // NET_SERVER_H_

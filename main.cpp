@@ -16,7 +16,7 @@ int main(int argc, Path::StringType::value_type** argv) {
   if (pluginsPath[pluginsPath.length() - 1] != '/') {
     pluginsPath += '/';
   }
-  
+
   pluginsPath += PATH_LITERAL("plugins/");
 
   Server server;
@@ -25,7 +25,7 @@ int main(int argc, Path::StringType::value_type** argv) {
   } else {
     Logger::Log(Logger::ERR, "No plugins were loaded, exiting.");
   }
-  
+
   Logger::UninitLog();
   return 0;
 }

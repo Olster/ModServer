@@ -21,7 +21,7 @@ class Socket {
 #endif
 
   Socket()
-   : m_socket(kInvalidSocket) {}
+      : m_socket(kInvalidSocket) {}
 
   virtual ~Socket();
 
@@ -50,6 +50,7 @@ class Socket {
   bool ShutDown(ShutDownCode code = BOTH, int* err = NULL);
 
   SOCK_TYPE handle() const { return m_socket; }
+
  protected:
   bool OpenHelper(int domain, int type, int protocol, int* err = NULL);
 
@@ -67,4 +68,4 @@ class Socket {
   DISALLOW_COPY_AND_ASSIGN(Socket);
   DISALLOW_MOVE(Socket);
 };
-#endif // NET_SOCKET_SOCKET_H_
+#endif  // NET_SOCKET_SOCKET_H_

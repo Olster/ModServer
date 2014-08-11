@@ -15,8 +15,8 @@ class TcpSocket : public Socket {
   // Send |sizeBytes| bytes of |data| and return bytes sent.
   int Send(const char* data, int sizeBytes, int* err = NULL);
 
-  // Try to read |sizeBytes| bytes into |data| and return 
+  // Try to read |sizeBytes| bytes into |data| and return
   // bytes actually read.
   int Receive(char* data, int maxSize, int* err = NULL);
 };
-#endif // NET_SOCKET_TCP_SOCKET_H_
+#endif  // NET_SOCKET_TCP_SOCKET_H_

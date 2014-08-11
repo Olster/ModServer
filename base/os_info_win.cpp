@@ -1,5 +1,7 @@
 #include "base/os_info.h"
 
+#include <string>
+
 #include "base/logger.h"
 
 // static
@@ -23,7 +25,7 @@ long long SystemInfo::RAMInstalledMB() {
   return 1;
 }
 
-//static
+// static
 long long SystemInfo::RAMAvailableMB() {
   return 1;
 }
