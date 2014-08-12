@@ -6,7 +6,7 @@
 
 namespace {
 #if defined(WIN32)
-const char* kLibName = "kernel32.dll";
+const wchar_t* kLibName = L"kernel32.dll";
 #else
 const char* kLibName = "libm.so";
 #endif
@@ -19,7 +19,7 @@ TEST(LoadLibraryTest, LoadSystemExisting) {
 
 TEST(LoadLibraryTest, LoadNonExistent) {
 #if defined(WIN32)
-  const char* libName = "NonExistentLibraryname.dll";
+  const wchar_t* libName = L"NonExistentLibraryname.dll";
 #else
   const char* libName = "NonExistentLibraryname.so";
 #endif

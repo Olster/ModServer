@@ -12,6 +12,10 @@
 
 #include <string>
 
+#if defined(WIN32)
+#define snprintf _snprintf
+#endif
+
 IPEndPoint::IPEndPoint() {
   memset(m_ip, 0, sizeof(m_ip));
   m_port = 0;
@@ -26,7 +30,7 @@ IPEndPoint::IPEndPoint(const char* ip, unsigned short port)
 IPEndPoint::IPEndPoint(const std::string& ip, unsigned short port)
     : m_port(port) {
   assert((ip.length() > 0) && (ip.length() < ARR_SIZE(m_ip) - 1));
-  snprontf(m_ip, ARR_SIZE(m_ip), ip.c_str());
+  snprintf(m_ip, ARR_SIZE(m_ip), ip.c_str());
 }
 
 void IPEndPoint::set_ip(const std::string& ip) {

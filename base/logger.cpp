@@ -11,6 +11,10 @@
 
 #include "base/os_info.h"
 
+#if defined(WIN32)
+#define snprintf _snprintf
+#endif
+
 namespace {
 inline tm* GetTimeInfo() {
   time_t t;

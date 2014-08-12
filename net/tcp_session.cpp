@@ -36,7 +36,7 @@ int ConnectionSession::OnRead(int* err) {
 
   // TODO(Olster): Provide abstraction without casting to specific type.
   int bytesRead = reinterpret_cast<TcpSocket*>(m_sock.get())->Receive(
-        buf, requestBufSize, err);
+        buf, kRequestBufSize, err);
   if (bytesRead < 1) {
     return bytesRead;
   }
