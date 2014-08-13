@@ -16,7 +16,8 @@ responsible for parsing the request and provide the response.
 - [ ] Add HTTP plugin.
 - [ ] Plugin verification.
 - [ ] Read settings from file.
-- [ ] Makefile for UNIX.
+- [ ] Makefile for UNIX. Consider CMake.
+- [ ] Update gyp files.
 - [ ] Add unit tests!
 - [ ] Check for memory leaks. Check pointers in general.
 - [ ] Use smart pointers to minimize leak probability.
