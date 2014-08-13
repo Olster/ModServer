@@ -180,7 +180,6 @@
       'target_name': 'gtest',
       'type': 'static_library',
       'sources': [
-        'gtest/src/gtest-all.cc',
         'gtest/src/gtest-death-test.cc',
         'gtest/src/gtest-internal-inl.h',
         'gtest/src/gtest-filepath.cc',
