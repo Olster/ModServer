@@ -1,4 +1,39 @@
 {
+  'target_defaults': {
+    'include_dirs': ['.'],
+    'conditions': [
+      ['OS == "win"', {
+        'defines': [
+          'WIN32'
+        ]
+      }],
+      ['OS == "linux"', {
+        'defines': [
+          'UNIX'
+        ],
+        'cflags': [
+          '-Wall',
+          '-Wextra',
+          '-Weffc++',
+          '-std=c++11'
+        ],
+      }],
+    ],
+    'msvs_settings': {
+      'VCCLCompilerTool': {
+        'WarningLevel': '4',
+        'WarnAsError': 'true',
+        'ExceptionHandling': '1'
+      },
+    },
+    'msvs_disabled_warnings': [
+      # Unsafe function snprintf().
+      4996,
+
+      # Conditional expression is constant.
+      4127
+    ],
+  },
   'targets': [
     {
       'target_name': 'mod_server',
@@ -46,32 +81,12 @@
       },
       'conditions': [
         ['OS == "linux"', {
-          'cflags': [
-            #'-Wall',
-            #'-Wextra',
-            #'-Weffc++',
-            # Use C++11
-            '-std=c++11',
-            '-g'
-          ],
-          'link_settings': {
-            'libraries': [
-              # Provides .so functions (dlopen, etc).
-              '-ldl'            
-            ]
-          },
-          'defines': [
-            'UNIX'
-          ],
           'sources': [
             'base/dynamic_lib_unix.cpp',
             'base/os_info_unix.cpp'
           ],
         }],
         ['OS == "win"', {
-          'defines': [
-            'WIN32'
-          ],
           'sources': [
             # gyp didn't parse OS properly.
             'base/dynamic_lib_win.cpp',
@@ -100,25 +115,6 @@
         'CLANG_CXX_LANGUAGE_STANDARD': 'c++11',
         'OTHER_CPLUSPLUSFLAGS': [ '-stdlib=libc++' ]
       },
-      'conditions': [
-        ['OS == "linux"', {
-          'defines': [
-            'UNIX'
-          ],
-          'cflags': [
-            #'-Wall',
-            #'-Wextra',
-            #'-Weffc++',
-            # Use C++11
-            '-std=c++11'
-          ],
-        }],
-        ['OS == "win"', {
-          'defines': [
-            'WIN32'
-          ],
-        }],
-      ],
     },
     {
       'target_name': 'run_tests',

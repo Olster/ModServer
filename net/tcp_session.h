@@ -16,7 +16,7 @@ class ConnectionSession : public Session {
 
   int OnRead(int* err = NULL) override;
   int OnWrite(int* err = NULL) override;
-  int OnError(int* err = NULL) override { return 0; }
+  int OnError(int* /*err*/ = NULL) override { return 0; }
 };
 
 class AcceptorSession : public Session {

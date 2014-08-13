@@ -21,7 +21,7 @@ void HttpHandler::DidReceive(char* data, int size) {
 
 void HttpHandler::DidSend(int size) {
   assert(size > 0);
-  if (size == m_response.length()) {
+  if (static_cast<size_t>(size) == m_response.length()) {
     m_response.clear();
   } else {
     m_response = m_response.substr(size);

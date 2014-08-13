@@ -5,8 +5,11 @@
 
 #include "server_plugin/http/http_handler.h"
 
-void GetPluginName(char* buf, int /*size*/) {
-  sprintf(buf, "%s", "HTTP");
+void GetPluginName(char* buf, int size) {
+#if defined(WIN32)
+#define snprintf _snprintf
+#endif
+  snprintf(buf, size, "%s", "HTTP");
 }
 
 SockType SocketType() {
