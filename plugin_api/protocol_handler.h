@@ -3,8 +3,6 @@
 
 #include <string>
 
-#include "base/build_required.h"
-
 class ProtocolHandler {
  public:
   typedef void (*FreeFunc)(ProtocolHandler* handler);
@@ -38,8 +36,11 @@ class ProtocolHandler {
  private:
   FreeFunc m_freeFunc;
 
-  DISALLOW_COPY_AND_ASSIGN(ProtocolHandler);
-  DISALLOW_MOVE(ProtocolHandler);
+  ProtocolHandler(const ProtocolHandler&);
+  ProtocolHandler& operator=(const ProtocolHandler&);
+  
+  ProtocolHandler(ProtocolHandler&&);
+  ProtocolHandler& operator=(ProtocolHandler&&);
 };
 
 #endif  // SERVER_PLUGIN_PROTOCOL_HANDLER_H_

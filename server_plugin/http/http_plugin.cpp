@@ -1,6 +1,6 @@
 #include <cstring>
 
-#include "server_plugin/plugin.h"
+#include "plugin_api/plugin.h"
 #include "net/ip_endpoint.h"
 
 #include "server_plugin/http/http_handler.h"

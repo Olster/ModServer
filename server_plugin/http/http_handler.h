@@ -1,7 +1,7 @@
 #ifndef HTTP_PROTOCOL_HANDLER_H_
 #define HTTP_PROTOCOL_HANDLER_H_
 
-#include "server_plugin/protocol_handler.h"
+#include "plugin_api/protocol_handler.h"
 
 class HttpHandler : public ProtocolHandler {
  public:
@@ -19,8 +19,11 @@ class HttpHandler : public ProtocolHandler {
   std::string m_request;
   std::string m_response;
 
-  DISALLOW_COPY_AND_ASSIGN(HttpHandler);
-  DISALLOW_MOVE(HttpHandler);
+  HttpHandler(const HttpHandler&);
+  HttpHandler& operator=(const HttpHandler&);
+
+  HttpHandler(HttpHandler&&);
+  HttpHandler& operator=(HttpHandler&&);
 };
 
 #endif // HTTP_PROTOCOL_HANDLER_H_

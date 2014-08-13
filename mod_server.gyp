@@ -147,9 +147,9 @@
             'UNIX'
           ],
           'cflags': [
-            #'-Wall',
-            #'-Wextra',
-            #'-Weffc++',
+            '-Wall',
+            '-Wextra',
+            '-Weffc++',
             # Use C++11
             '-std=c++11',
             '-g'
@@ -161,7 +161,6 @@
               '-pthread'
             ]
           },
-          ''
           'sources': [
             'base/dynamic_lib_unix.cpp',
           ],

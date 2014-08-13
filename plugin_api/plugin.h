@@ -1,7 +1,7 @@
-#ifndef SERVER_PLUGIN_PLUGIN_H_
-#define SERVER_PLUGIN_PLUGIN_H_
+#ifndef PLUGIN_API_PLUGIN_H_
+#define PLUGIN_API_PLUGIN_H_
 
-#include "server_plugin/plugin_export.h"
+#include "plugin_api/plugin_export.h"
 
 class ProtocolHandler;
 
@@ -25,4 +25,4 @@ PLUGIN_EXPORT ProtocolHandler* NewHandler();
 }
 #endif
 
-#endif  // SERVER_PLUGIN_PLUGIN_H_
+#endif  // PLUGIN_API_PLUGIN_H_

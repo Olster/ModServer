@@ -5,7 +5,7 @@
 #include <string>
 
 #include "base/build_required.h"
-#include "server_plugin/plugin.h"
+#include "plugin_api/plugin.h"
 
 class ProtocolHandler;
 class DynamicLib;
