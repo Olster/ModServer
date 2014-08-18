@@ -51,7 +51,7 @@
       ],
       'sources': [
         # Adding headers here as well make them visiable in Visual Studio.
-	'base/build_required.h',
+        'base/build_required.h',
         'base/dynamic_lib.h',
         'base/logger.cpp',
         'base/logger.h',
@@ -85,6 +85,12 @@
             'base/dynamic_lib_unix.cpp',
             'base/os_info_unix.cpp'
           ],
+          'link_settings': {
+            'libraries': [
+              # Provides .so functions (dlopen, etc).
+              '-ldl'
+            ]
+          },
         }],
         ['OS == "win"', {
           'sources': [

@@ -24,18 +24,18 @@ IPEndPoint::IPEndPoint() {
 IPEndPoint::IPEndPoint(const char* ip, unsigned short port)
     : m_port(port) {
   assert(ip);
-  snprintf(m_ip, ARR_SIZE(m_ip), ip);
+  snprintf(m_ip, ARR_SIZE(m_ip), "%s", ip);
 }
 
 IPEndPoint::IPEndPoint(const std::string& ip, unsigned short port)
     : m_port(port) {
   assert((ip.length() > 0) && (ip.length() < ARR_SIZE(m_ip) - 1));
-  snprintf(m_ip, ARR_SIZE(m_ip), ip.c_str());
+  snprintf(m_ip, ARR_SIZE(m_ip), "%s", ip.c_str());
 }
 
 void IPEndPoint::set_ip(const std::string& ip) {
   assert((ip.length() > 0) && (ip.length() < ARR_SIZE(m_ip) - 1));
-  snprintf(m_ip, ARR_SIZE(m_ip), ip.c_str());
+  snprintf(m_ip, ARR_SIZE(m_ip), "%s", ip.c_str());
 }
 
 void IPEndPoint::set_port(unsigned short port) {

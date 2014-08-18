@@ -29,7 +29,7 @@ void PluginLoader::LoadAll(const Path::StringType& pluginsFolder) {
   for (std::vector<Folder>::const_iterator it = subfolders.cbegin();
        it != subfolders.cend(); ++it) {
     Logger::Log(Logger::INFO, "Searching in subfolder %s",
-                it->path().ToString());
+                it->path().ToString().c_str());
 
     std::vector<File> files;
 
@@ -39,7 +39,8 @@ void PluginLoader::LoadAll(const Path::StringType& pluginsFolder) {
     it->GetFilesWildcard(wildcard, &files);
     for (std::vector<File>::const_iterator fileIt = files.cbegin();
          fileIt != files.cend(); ++fileIt) {
-      Logger::Log(Logger::INFO, "Trying file %s", fileIt->path().ToString());
+      Logger::Log(Logger::INFO, "Trying file %s",
+                  fileIt->path().ToString().c_str());
 
       int err = 0;
       std::shared_ptr<DynamicLib> pluginDll(

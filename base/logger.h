@@ -31,6 +31,9 @@ class Logger {
   static std::string FormFileName();
 
   FILE* m_file;
+
+  DISALLOW_COPY_AND_ASSIGN(Logger);
+  DISALLOW_MOVE(Logger);
 };
 
 #endif  // BASE_LOGGER_H_
