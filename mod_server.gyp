@@ -37,6 +37,11 @@
       4127
     ],
   },
+# Uncomment to use clang++.  
+#  'make_global_settings': [
+#    ['CXX','/usr/bin/clang++'],
+#    ['LINK','/usr/bin/clang++'],
+#  ],
   'targets': [
     {
       'target_name': 'mod_server',
