@@ -59,10 +59,12 @@ class Folder : public FileSysObject {
       : FileSysObject(path) {}
 
   void GetAllSubfolders(std::vector<Folder>* subfolders,
-                        bool recursive = false) const;
+                        bool recursive = false,
+                        int* err = NULL) const;
 
   void GetFilesWildcard(const Path::StringType& wildcard,
-                        std::vector<File>* files) const;
+                        std::vector<File>* files,
+                        int* err = NULL) const;
 };
 
 #endif  // BASE_PATH_H_

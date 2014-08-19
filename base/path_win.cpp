@@ -15,12 +15,16 @@ Path::StringType Path::Absolute() const {
 }
 
 void Folder::GetAllSubfolders(std::vector<Folder>* subfolders,
-                              bool recursive) const {
+                              bool recursive, int* err) const {
   WIN32_FIND_DATAW findData = {0};
   HANDLE fileFound = ::FindFirstFileW((path().ToString() +
                                        PATH_LITERAL("/*")).c_str(), &findData);
 
   if (fileFound == INVALID_HANDLE_VALUE) {
+    if (err) {
+      *err = ::GetLastError();
+    }
+
     return;
   }
 
@@ -42,7 +46,8 @@ void Folder::GetAllSubfolders(std::vector<Folder>* subfolders,
 }
 
 void Folder::GetFilesWildcard(const Path::StringType& wildcard,
-                              std::vector<File>* files) const {
+                              std::vector<File>* files,
+                              int* err) const {
   files->clear();
 
   WIN32_FIND_DATAW findData = {0};
@@ -50,6 +55,10 @@ void Folder::GetFilesWildcard(const Path::StringType& wildcard,
                                        wildcard).c_str(), &findData);
 
   if (fileFound == INVALID_HANDLE_VALUE) {
+    if (err) {
+      *err = ::GetLastError();
+    }
+
     return;
   }
 

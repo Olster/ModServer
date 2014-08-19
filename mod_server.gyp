@@ -15,7 +15,10 @@
           '-Wall',
           '-Wextra',
           '-Weffc++',
-          '-std=c++11'
+          '-std=c++11',
+          # Remove debug flags in release build.
+          '-g',
+          '-O0'
         ],
       }],
     ],
@@ -83,6 +86,7 @@
         ['OS == "linux"', {
           'sources': [
             'base/dynamic_lib_unix.cpp',
+            'base/path_unix.cpp',
             'base/os_info_unix.cpp'
           ],
           'link_settings': {
