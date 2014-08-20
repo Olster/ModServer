@@ -26,7 +26,12 @@
       'VCCLCompilerTool': {
         'WarningLevel': '4',
         'WarnAsError': 'true',
-        'ExceptionHandling': '1'
+        'ExceptionHandling': '1',
+        'DebugInformationFormat': '3'
+      },                           
+      'VCLinkerTool': {
+        # Generate .pdb
+        'GenerateDebugInformation': 'true',
       },
     },
     'msvs_disabled_warnings': [
