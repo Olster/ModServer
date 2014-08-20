@@ -28,19 +28,22 @@ void Folder::GetAllSubfolders(std::vector<Folder>* subfolders,
     return;
   }
 
-  while (::FindNextFileW(fileFound, &findData)) {
+  do {
     if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-      if (wcscmp(findData.cFileName, L"..") != 0) {
-        Folder subfolder(Path(path().ToString() + PATH_LITERAL('/') +
-                              findData.cFileName));
-        subfolders->push_back(subfolder);
+      if (wcscmp(findData.cFileName, L"..") == 0 ||
+          wcscmp(findData.cFileName, L".") == 0) {
+        continue;
+      }
+      
+      Folder subfolder(Path(path().ToString() + PATH_LITERAL('/') +
+        findData.cFileName));
+      subfolders->push_back(subfolder);
 
-        if (recursive) {
-          subfolder.GetAllSubfolders(subfolders, recursive);
-        }
+      if (recursive) {
+        subfolder.GetAllSubfolders(subfolders, recursive);
       }
     }
-  }
+  } while (::FindNextFileW(fileFound, &findData));
 
   ::FindClose(fileFound);
 }
@@ -62,12 +65,12 @@ void Folder::GetFilesWildcard(const Path::StringType& wildcard,
     return;
   }
 
-  while (::FindNextFileW(fileFound, &findData)) {
+  do {
     if ((findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0) {
       files->push_back(File(Path(path().ToString() + PATH_LITERAL('/') +
-                                 findData.cFileName)));
+        findData.cFileName)));
     }
-  }
+  } while (::FindNextFileW(fileFound, &findData));
 
   ::FindClose(fileFound);
 }

@@ -24,6 +24,7 @@
     ],
     'msvs_settings': {
       'VCCLCompilerTool': {
+        'Optimization': '0',
         'WarningLevel': '4',
         'WarnAsError': 'true',
         'ExceptionHandling': '1',
@@ -65,6 +66,8 @@
       'sources': [
         # Adding headers here as well make them visiable in Visual Studio.
         'base/build_required.h',
+        'base/command_line.cpp',
+        'base/command_line.h',
         'base/dynamic_lib.h',
         'base/logger.cpp',
         'base/logger.h',
@@ -118,7 +121,7 @@
       ],
     },
     {
-      'target_name': 'http',
+      'target_name': 'http_plugin',
       # Can set to |<(library)|
       'type': 'shared_library',
       'defines': [
@@ -143,6 +146,7 @@
         'gtest'
       ],
       'sources': [
+        'base/command_line_unittest.cpp',
         'base/dynamic_lib_unittest.cpp',
         'net/socket/socket.cpp',
         'net/socket/socket_unittest.cpp',
