@@ -33,7 +33,7 @@ int main(int argc, const char** argv) {
   if (server.LoadPlugins(pluginsPath)) {
     server.Run();
   } else {
-    Logger::Log(Logger::ERR, "No plugins were loaded, exiting.");
+    Log(ERR) << "No plugins were loaded, exiting.";
   }
 
   Logger::UninitLog();

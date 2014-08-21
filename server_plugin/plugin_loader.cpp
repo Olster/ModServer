@@ -20,16 +20,14 @@ PluginLoader::~PluginLoader() {
 }
 
 void PluginLoader::LoadAll(const Path::StringType& pluginsFolder) {
-  Logger::Log(Logger::INFO, "Searching for plugins in %s",
-              pluginsFolder.c_str());
+  Log(INFO) << "Searching for plugins in " << pluginsFolder;
 
   std::vector<Folder> subfolders;
   Folder(Path(pluginsFolder)).GetAllSubfolders(&subfolders);
 
   for (std::vector<Folder>::const_iterator it = subfolders.cbegin();
        it != subfolders.cend(); ++it) {
-    Logger::Log(Logger::INFO, "Searching in subfolder %s",
-                it->path().ToString().c_str());
+    Log(INFO) << "\tSearching in subfolder " << it->path().ToString();
 
     std::vector<File> files;
 
@@ -39,21 +37,20 @@ void PluginLoader::LoadAll(const Path::StringType& pluginsFolder) {
     it->GetFilesWildcard(wildcard, &files);
     for (std::vector<File>::const_iterator fileIt = files.cbegin();
          fileIt != files.cend(); ++fileIt) {
-      Logger::Log(Logger::INFO, "Trying file %s",
-                  fileIt->path().ToString().c_str());
+      Log(INFO) << "Trying file " << fileIt->path().ToString();
 
       int err = 0;
       std::shared_ptr<DynamicLib> pluginDll(
         DynamicLib::Load(fileIt->path().ToString(), &err));
 
       if (!pluginDll) {
-        Logger::Log(Logger::WARN, "Can't load shared library, err: %d", err);
+        Log(WARN) << "Can't load shared library, err: " << err;
         continue;
       }
 
       std::unique_ptr<DynamicPlugin> plugin(new DynamicPlugin(pluginDll));
       if (!plugin->IsValid()) {
-        Logger::Log(Logger::WARN, "Not a valid plugin");
+        Log(WARN) << "Not a valid plugin";
         continue;
       }
 
