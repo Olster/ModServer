@@ -15,7 +15,7 @@ std::string SystemInfo::OSName() {
     return std::string(name.sysname);
   }
 
-  Log(WARN) << "Didn't query OS name: " << errno;
+  Logger::Log(Logger::WARN, "Didn't query OS name: %d", errno);
   return std::string();
 }
 
@@ -40,7 +40,7 @@ long long QueryMemory(int settingName) {
   long long pageSize = sysconf(_SC_PAGESIZE);
 
   if ((page < 0) || (pageSize < 0)) {
-    Log(WARN) << "Didn't query RAM " << __FUNCTION__ << ", error: " << errno;
+    Logger::Log(Logger::WARN, "Didn't query RAM %s, %d", __FUNCTION__, errno);
     return 0;
   }
 
@@ -65,6 +65,6 @@ std::string SystemInfo::OSArch() {
     return name.machine;
   }
 
-  Log(WARN) << "Didn't get proc arch " << errno);
+  Logger::Log(Logger::WARN, "Didn't get proc arch %d", errno);
   return std::string();
 }

@@ -7,7 +7,6 @@
 #include <cstring>
 #include <ctime>
 
-#include <iomanip>
 #include <string>
 
 #include "base/os_info.h"
@@ -24,102 +23,70 @@ inline tm* GetTimeInfo() {
   return std::localtime(&t);
 }
 
-void LogProgramInfo() {
-  // TODO(Olster): Read exe name and version from file.
-  Log(INFO) << "Basic info:\n"
-               "Executable: mod_server\n"
-               "Version: 0.0.1\n"
-               "OS: " << SystemInfo::OSName() << std::endl <<
-               "OS Version: " << SystemInfo::OSVersion() << std::endl <<
-               "Arch: " << SystemInfo::OSArch() << std::endl <<
-               "Memory: " << SystemInfo::RAMInstalledMB() << "MB,"
-               "(avail: " << SystemInfo::RAMAvailableMB() << ')';
-}
-}  // namespace
-
-std::ostream& Log(LogSeverity sev) {
-  const char* level = "UNKNOWN";
+const char* SeverityString(Logger::Severity sev) {
+  const char* out = "UNKNOWN";
 
   switch (sev) {
-    case VERBOSE:
-      level = "VERBOSE";
+    case Logger::VERBOSE:
+      out = "VERBOSE";
     break;
 
-    case INFO:
-      level = "INFO";
+    case Logger::INFO:
+      out = "INFO";
     break;
 
-    case WARN:
-      level = "WARN";
+    case Logger::WARN:
+      out = "WARNING";
     break;
 
-    case ERR:
-      level = "ERROR";
+    case Logger::ERR:
+      out = "ERROR";
     break;
 
     default:
-      level = "UNKNOWN";
     break;
-  }
-
-  // 7 is the length of the longest level.
-  return Logger::GetLogger().Stream() << std::endl <<
-    std::setw(7) << level << ": ";
-}
-
-namespace std {
-const int kStackBufSize = 2048;
-
-std::ostream& operator<<(std::ostream& out, const wchar_t* const wideStr) {
-  assert(wideStr);
-  size_t neededLength = wcstombs(NULL, wideStr, 0);
-
-  if (neededLength == 0 || neededLength == static_cast<size_t>(-1)) {
-    return out;
-  }
-
-  char stackBuf[kStackBufSize];
-
-  bool freeMem = false;
-  char* buf = stackBuf;
-
-  if (neededLength >= stackBufSize) {
-    buf = new char[neededLength + 1];
-    freeMem = true;
-  }
-
-  wcstombs(buf, wideStr, neededLength);
-  buf[neededLength] = '\0';
-
-  out << buf;
-
-  if (freeMem) {
-    delete[] buf;
   }
 
   return out;
 }
-}  // namespace std
+
+void LogProgramInfo() {
+  // TODO(Olster): Read exe name and version from file.
+  Logger::Log(Logger::INFO,
+              "Basic info:\nExecutable: %s\n"
+              "Version: %s\n"
+              "OS: %s\n"
+              "OS Version: %s\n"
+              "Arch %s\n"
+              "Memory %lld (avail %lld)",
+              "mod_server", "0.0.1",
+              SystemInfo::OSName().c_str(),
+              SystemInfo::OSVersion().c_str(),
+              SystemInfo::OSArch().c_str(),
+              SystemInfo::RAMInstalledMB(),
+              SystemInfo::RAMAvailableMB());
+}
+}  // namespace
 
 // static
 bool Logger::InitLog() {
   // If file is open, we've already initialized logging.
   Logger& logger = GetLogger();
-  if (logger.m_file.is_open()) {
+  if (logger.m_file) {
     return true;
   }
 
   std::string fileName = FormFileName();
-  logger.m_file.open(fileName);
+  logger.m_file = std::fopen(fileName.c_str(), "w");
 
-  if (logger.m_file.is_open()) {
-    logger.m_file << "Log file created " << fileName;
+  if (logger.m_file != nullptr) {
+      printf("Log file created: %s\n", fileName.c_str());
 
-    LogProgramInfo();
-    return true;
+      LogProgramInfo();
+      return true;
   } else {
-    fprintf(stderr, "Log file '%s' wasn't created: %d\n",
-            fileName.c_str(), errno);
+      fprintf(stderr, "Log file '%s' wasn't created: %d\n",
+              fileName.c_str(), errno);
   }
 
   return false;
@@ -127,7 +94,40 @@ bool Logger::InitLog() {
 
 // static
 void Logger::UninitLog() {
-  GetLogger().m_file.close();
+  FILE* file = GetLogger().m_file;
+  if (file) {
+    std::fclose(file);
+    GetLogger().m_file = nullptr;
+  }
+}
+
+// static
+void Logger::Log(Severity sev, const char* messageFormat, ...) {
+  assert(messageFormat);
+
+  FILE* logFile = GetLogger().m_file;
+
+  assert(logFile);
+  if (logFile) {
+    char message[1024];
+    assert(strlen(messageFormat) < sizeof(message));
+
+    int bytesUsed = snprintf(message, ARR_SIZE(message),
+                             "%7s: ", SeverityString(sev));
+
+    va_list args;
+    va_start(args, messageFormat);
+
+    bytesUsed = vsprintf(message + bytesUsed, messageFormat, args);
+
+    // Writing outside of array might have
+    // crashed the program before this assert.
+    assert(bytesUsed < sizeof(message));
+
+    const char* const outFormat = "%s\n";
+    fprintf(logFile, outFormat, message);
+    printf(outFormat, message);
+  }
 }
 
 // static

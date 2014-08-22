@@ -55,8 +55,8 @@ int AcceptorSession::OnRead(int* err) {
         std::shared_ptr<Socket>(new TcpSocket(sock)),
         m_plugin->NewProtocolHandler());
 
-  Log(INFO) << "Socket connected: " << sock << ". Handled by plugin : \"" <<
-    m_plugin->name() << '\"';;
+  Logger::Log(Logger::INFO, "Socket connected: %d. Handled by plugin: \"%s\"",
+              sock, m_plugin->name().c_str());
 
   m_server->RegisterSession(acceptedSession);
 
