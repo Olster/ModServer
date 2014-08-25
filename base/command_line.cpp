@@ -103,14 +103,16 @@ bool ParseSwitch(const CommandLine::StringType& command,
   }
 
   CommandLine::StringType::size_type separatorPos = command.find(kValueSeparator);
-  if (separatorPos == CommandLine::StringType::npos) {
-    return false;
-  }
-
   // Starting from 1 to skip the separator.
-  CommandLine::StringType switchNonASCII = command.substr(1, separatorPos - 1);
-  *switchStr = std::string(switchNonASCII.begin(), switchNonASCII.end());
-  *value = command.substr(separatorPos + 1);
+
+  if (separatorPos == CommandLine::StringType::npos) {
+    *switchStr = std::string(command.begin() + 1, command.end());
+    value->empty();
+  } else {  
+    CommandLine::StringType switchNonASCII = command.substr(1, separatorPos - 1);
+    *switchStr = std::string(switchNonASCII.begin(), switchNonASCII.end());
+    *value = command.substr(separatorPos + 1);
+  }
 
   return true;
 }

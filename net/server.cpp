@@ -22,20 +22,12 @@ Server::~Server() {
 
 bool Server::LoadPlugins(const Path::StringType& pluginsFolder) {
   if (m_pluginLoader.HasLoadedPlugins()) {
-    Logger::Log(Logger::INFO, "Plugins were already loaded, don't load again");
+    Log(INFO) << "Plugins were already loaded, don't load again";
     return false;
   }
 
-  Logger::Log(Logger::INFO, "Loading plugins from %s", pluginsFolder.c_str());
+  Log(INFO) << "Loading plugins from " << pluginsFolder;
   m_pluginLoader.LoadAll(pluginsFolder);
-
-  // Controller plugin controls the server.
-
-  //PluginData* pluginData = new PluginData;
-  //pluginData->plugin = new Controller(this);
-  //pluginData->freeFn = FreeController;
-  //
-  //m_pluginLoader.AddPlugin(pluginData);
 
   return m_pluginLoader.HasLoadedPlugins();
 }
@@ -44,7 +36,7 @@ void Server::Run() {
   InitPlugins();
 
   if (m_sessions.empty()) {
-    Logger::Log(Logger::WARN, "No sessions were registered.");
+    Log(WARN) << "No sessions were registered.";
     return;
   }
 
@@ -71,12 +63,11 @@ void Server::Run() {
 
     switch (res) {
       case 0:
-        Logger::Log(Logger::INFO, "Select timed out");
+        Log(INFO) << "Select timed out";
       break;
 
       case -1:
-        // TODO(Olster): Report actual error.
-        Logger::Log(Logger::ERR, "Select error %d", errno);
+        Log(ERR) << "Select error " << errno;
         return;
       break;
 
@@ -109,22 +100,21 @@ void Server::InitPlugins() {
   const std::list<ServerPlugin*>& plugins = m_pluginLoader.GetPlugins();
 
   for (ServerPlugin* plugin : plugins) {
-    Logger::Log(Logger::INFO, "Initializing plugin: %s",
-                plugin->name().c_str());
+    Log(INFO) << "Initializing plugin: " << plugin->name();
 
     // TODO(Olster): Read IP from settings or command line.
     IPEndPoint ep("127.0.0.1", 0);
     ep.set_port(plugin->port());
 
     if (!ep.IsValid()) {
-      Logger::Log(Logger::WARN, "Plugin %s returned invalid IPEndPoint: %s:%d",
-                  plugin->name().c_str(), ep.ip(), ep.port());
+      Log(WARN) << "Plugin " << plugin->name() <<
+        " returned invalid IPEndPoint: " << ep.ip() << ": " << ep.port();
 
       continue;
     }
 
-    Logger::Log(Logger::INFO, "Plugin %s will serve connections on %s:%d",
-                plugin->name().c_str(), ep.ip(), ep.port());
+    Log(INFO) << "Plugin " << plugin->name() << " will serve"
+      " connections on " << ep.ip() << ": " << ep.port();
 
     SockType type = plugin->sock_type();
     switch (type) {
@@ -134,32 +124,31 @@ void Server::InitPlugins() {
         int err = 0;
 
         if (!newSock->Open(&err)) {
-          Logger::Log(Logger::ERR, "Socket wasn't opened %s, %d",
-                      plugin->name().c_str(), err);
+          Log(ERR) << "Socket wasn't opened " << plugin->name() << ": " << err;
           continue;
         }
 
         if (!newSock->Bind(&err)) {
-          Logger::Log(Logger::ERR, "Socket wasn't bound %s, %d",
-                      plugin->name().c_str(), err);
+          Log(ERR) << "Socket wasn't bound " <<
+            plugin->name() << ": " << err;
           continue;
         }
 
         if (!newSock->Listen(m_maxListen, &err)) {
-          Logger::Log(Logger::ERR, "Socket isn't listening %s, %d",
-                      plugin->name().c_str(), err);
+          Log(ERR) << "Socket isn't listening " <<
+            plugin->name() << ": " << err;
           continue;
         }
 
         AcceptorSession* acceptorSession = new AcceptorSession(newSock, NULL,
-                                                               this, plugin);
+          this, plugin);
         RegisterSession(acceptorSession);
       }
       break;
 
       // TODO(Olster): Add UDP support.
       default:
-        Logger::Log(Logger::WARN, "Unsupported socket type");
+        Log(WARN) << "Unsupported socket type";
       break;
     }
   }
@@ -209,18 +198,18 @@ void Server::ReadData(const fd_set& readSet) {
     if (read < 1) {
       switch (read) {
         case 0:
-          Logger::Log(Logger::INFO, "Socket closed %d: %d",
-                      session->socket()->handle(), err);
+          Log(INFO) << "Socket closed " << session->socket()->handle() <<
+            ": " << err;
         break;
 
         case -1:
-          Logger::Log(Logger::INFO, "Socket error %d: %d",
-                      session->socket()->handle(), err);
+          Log(ERR) << "Socket error " << session->socket()->handle() <<
+            ": " << err;
         break;
 
         default:
-          Logger::Log(Logger::INFO, "Socket error < -1 %d: %d",
-                      session->socket()->handle(), err);
+          Log(ERR) << "Socket error < -1 " << session->socket()->handle() <<
+            ": " << err;
         break;
       }
 
@@ -245,18 +234,18 @@ void Server::SendData(const fd_set& writeSet) {
     if (wrote < 1) {
       switch (wrote) {
         case 0:
-          Logger::Log(Logger::INFO, "Socket sent 0b on write %d: %d",
-                      session->socket()->handle(), err);
+          Log(INFO) << "Socket sent 0 on write " <<
+            session->socket()->handle() << ": " << err;
         break;
 
         case -1:
-          Logger::Log(Logger::INFO, "Socket error on write %d:%d",
-                      session->socket()->handle(), err);
+          Log(ERR) << "Socket error on write " <<
+            session->socket()->handle() << ": " << err;
         break;
 
         default:
-          Logger::Log(Logger::INFO, "Socket error < -1 on write %d: %d",
-                      session->socket()->handle(), err);
+          Log(ERR) << "Socket error < -1 on write " <<
+            session->socket()->handle() << ": " << err;
         break;
       }
 

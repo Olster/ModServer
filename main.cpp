@@ -4,6 +4,7 @@
 
 int main(int argc, const char** argv) {
   if (argc <= 1) {
+    // TODO(Olster): Print usage.
     printf("Please specify path to plugins folder");
     return 1;
   }
@@ -13,14 +14,13 @@ int main(int argc, const char** argv) {
     return 1;
   }
 
-  if (!Logger::InitLog()) {
+  CommandLine& cl = *CommandLine::ForCurrentProcess();
+  if (!Logger::InitLog(cl.HasSwitch("logToFile"))) {
     perror("Log file wasn't opened");
     return 1;
   }
 
   Path::StringType pluginsPath = PATH_LITERAL(".");
-
-  CommandLine& cl = *CommandLine::ForCurrentProcess();
   if (cl.HasSwitch("pluginsFolder")) {
     pluginsPath = cl.SwitchValue("pluginsFolder");
   }
@@ -33,7 +33,7 @@ int main(int argc, const char** argv) {
   if (server.LoadPlugins(pluginsPath)) {
     server.Run();
   } else {
-    Logger::Log(Logger::ERR, "No plugins were loaded, exiting.");
+    Log(ERR) << "No plugins were loaded, exiting.";
   }
 
   Logger::UninitLog();

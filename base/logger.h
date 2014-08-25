@@ -1,36 +1,54 @@
 #ifndef BASE_LOGGER_H_
 #define BASE_LOGGER_H_
 
+#include <assert.h>
+
+#include <fstream>
 #include <string>
 
 #include "base/build_required.h"
 
+enum LogSeverity {
+  VERBOSE = 0,
+  INFO,
+  WARN,
+  ERR
+};
+
+std::ostream& Log(LogSeverity sev);
+
+namespace std {
+std::ostream& operator<<(std::ostream& out, const wchar_t* const wideStr);
+inline std::ostream& operator<<(std::ostream& out, const std::wstring& wideStr) {
+  return out << wideStr.c_str();
+}
+}  // namespace std
+
 class Logger {
  public:
-  static bool InitLog();
+  static bool InitLog(bool logToFile);
   static void UninitLog();
 
-  enum Severity {
-    VERBOSE = 0,
-    INFO,
-    WARN,
-    ERR
-  };
+  static Logger* GetLogger();
 
-  static void Log(Severity sev, const char* messageFormat, ...);
-
+  std::ostream& Stream() {
+    assert(m_out);
+    return *m_out;
+  }
  private:
-  Logger()
-      : m_file(NULL) {}
-  ~Logger() {}
+   Logger(std::ostream* out, bool deleteOut)
+     : m_out(out), m_deleteOut(deleteOut) {}
 
-  static Logger& GetLogger();
+  ~Logger() {
+    if (m_deleteOut) {
+      delete m_out;
+    }
+  }
 
-  // Creates unique file name based on time.
-  // Move constructor applied.
-  static std::string FormFileName();
+  static Logger* m_logger;
 
-  FILE* m_file;
+  std::ostream* m_out;
+  bool m_deleteOut;
 
   DISALLOW_COPY_AND_ASSIGN(Logger);
   DISALLOW_MOVE(Logger);
