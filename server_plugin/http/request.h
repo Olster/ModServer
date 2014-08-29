@@ -8,21 +8,21 @@
 
 enum RequestMethod {
   GET = 0,
-  INVALID
+  INVALID_METHOD
 };
 
 enum HttpVersion {
   HTTP_1_0 = 0,
   HTTP_1_1,
-  INVALID
+  INVALID_VERSION
 };
 
 class HttpRequest {
  public:
   HttpRequest()
       : m_parsed(false),
-        m_method(RequestMethod::INVALID),
-        m_httpVer(HttpVersion::INVALID) {}
+        m_method(INVALID_METHOD),
+        m_httpVer(INVALID_VERSION) {}
 
   bool Empty() const { return m_request.empty(); }
   void Clear();
@@ -30,10 +30,7 @@ class HttpRequest {
   void Append(const std::string& data) { m_request.append(data); }
   void Append(const char* data, int size);
 
-  char* buffer() { return const_cast<char*>(m_request.c_str()); }
-  size_t buffer_size() const { return m_request.size(); }
-
-  const std::string& request() const { return m_request; }
+  const std::string& data() const { return m_request; }
 
   const std::string& resource_path() const { return m_resPath; }
   RequestMethod method() const { return m_method; }

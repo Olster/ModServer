@@ -22,7 +22,15 @@ class HttpResponse {
 
   // Shifts data left by |bytes| bytes.
   // This is done when only the part of the message was sent.
-  bool ShiftLeftBy(size_t bytes);
+  // TODO(Olster): Update this to move just the pointer.
+  bool ShiftLeftBy(size_t bytes) {
+    if (bytes < m_data.length()) {
+      m_data = m_data.substr(bytes);
+      return true;
+    }
+
+    return false;
+  }
 
   void Clear() { m_data.clear(); }
 

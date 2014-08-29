@@ -9,7 +9,7 @@ bool HttpHandler::HasDataToSend() const {
 void HttpHandler::DidReceive(char* data, int size) {
   m_request.Append(data, size);
 
-  if (!HttpRequestParser::Parse(m_request) == HttpRequestParser::OK) {
+  if (HttpRequestParser::Parse(m_request) == HttpRequestParser::OK) {
     std::string dataToSend = "<html><head><title>Hello</title></head><body><h1>Hello!</h1></body></html>";
 
     m_response.set_data("HTTP/1.1 200 OK\r\n"
