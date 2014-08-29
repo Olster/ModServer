@@ -8,18 +8,25 @@
 
 class HttpResponse {
  public:
-  HttpResponse() = default;
-
-  DISALLOW_COPY_AND_ASSIGN(HttpResponse);
-  DISALLOW_MOVE(HttpResponse);
+  HttpResponse() {}
 
   // Formats full message with data and headers.
   const std::string& data() const { return m_data; }
 
+  // TODO(Olster): Critical. Update this function along with ShiftLeftBy().
+  // Returns the amount of bytes that need to be sent.
+  const size_t length() const { return m_data.length(); }
+
   void set_data(std::string&& data) { m_data = std::move(data); }
   void set_data(const std::string& data) { m_data = data; }
 
+  // Shifts data left by |bytes| bytes.
+  // This is done when only the part of the message was sent.
+  bool ShiftLeftBy(size_t bytes);
+
   void Clear() { m_data.clear(); }
+
+  bool Empty() const { return m_data.empty(); }
 
   // TODO(Olster): Set custom error messages.
   void NotImplemented501() {
@@ -40,6 +47,9 @@ class HttpResponse {
  private:
   // Data along with headers.
   std::string m_data;
+
+  DISALLOW_COPY_AND_ASSIGN(HttpResponse);
+  DISALLOW_MOVE(HttpResponse);
 };
 
 #endif // NET_HTTP_RESPONSE_H_

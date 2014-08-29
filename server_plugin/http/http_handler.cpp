@@ -3,34 +3,37 @@
 #include <cassert>
 
 bool HttpHandler::HasDataToSend() const {
-  return !m_response.empty();
+  return !m_response.Empty();
 }
 
 void HttpHandler::DidReceive(char* data, int size) {
-  std::string received(data, size);
-  m_request += received;
+  m_request.Append(data, size);
 
-  if (m_request.substr(m_request.length() - 4) == "\r\n\r\n") {
+  if (!HttpRequestParser::Parse(m_request) == HttpRequestParser::OK) {
     std::string dataToSend = "<html><head><title>Hello</title></head><body><h1>Hello!</h1></body></html>";
 
-    m_response = "HTTP/1.1 200 OK\r\n"
+    m_response.set_data("HTTP/1.1 200 OK\r\n"
       "Content-length: " + std::to_string(dataToSend.length()) + "\r\n\r\n" +
-      dataToSend;
+      dataToSend);
   }
 }
 
 void HttpHandler::DidSend(int size) {
   assert(size > 0);
-  if (static_cast<size_t>(size) == m_response.length()) {
-    m_response.clear();
+  if (size <= 0) {
+    return;
+  }
+
+  if (static_cast<size_t>(size) >= m_response.length()) {
+    m_response.Clear();
   } else {
-    m_response = m_response.substr(size);
+    m_response.ShiftLeftBy(size);
   }
 }
 
 const char* HttpHandler::data_to_send() {
-  if (!m_response.empty()) {
-    return m_response.c_str();
+  if (!m_response.Empty()) {
+    return m_response.data().c_str();
   }
   
   return NULL;

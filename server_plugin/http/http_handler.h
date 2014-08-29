@@ -3,10 +3,13 @@
 
 #include "plugin_api/protocol_handler.h"
 
+#include "server_plugin/http/request.h"
+#include "server_plugin/http/response.h"
+
 class HttpHandler : public ProtocolHandler {
  public:
   HttpHandler(ProtocolHandler::FreeFunc freeFn)
-   : ProtocolHandler(freeFn) {}
+      : ProtocolHandler(freeFn) {}
 
   bool HasDataToSend() const override;
 
@@ -16,8 +19,8 @@ class HttpHandler : public ProtocolHandler {
   const char* data_to_send() override;
   size_t data_to_send_size() override;
  private:
-  std::string m_request;
-  std::string m_response;
+  HttpRequest m_request;
+  HttpResponse m_response;
 
   HttpHandler(const HttpHandler&);
   HttpHandler& operator=(const HttpHandler&);

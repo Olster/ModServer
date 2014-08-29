@@ -132,7 +132,12 @@
       ],
       'sources': [
         'server_plugin/http/http_handler.cpp',
-        'server_plugin/http/http_plugin.cpp'
+        'server_plugin/http/http_handler.h',
+        'server_plugin/http/http_plugin.cpp',
+        'server_plugin/http/request.cpp',
+        'server_plugin/http/request.h',
+        'server_plugin/http/response.cpp',
+        'server_plugin/http/response.h'
       ],
       'xcode_settings': {
         'CLANG_CXX_LANGUAGE_STANDARD': 'c++11',

@@ -6,23 +6,29 @@
 
 #include "base/build_required.h"
 
-#include "http.h"
+enum RequestMethod {
+  GET = 0,
+  INVALID
+};
+
+enum HttpVersion {
+  HTTP_1_0 = 0,
+  HTTP_1_1,
+  INVALID
+};
 
 class HttpRequest {
  public:
-  HttpRequest() {
-    m_request.resize(m_maxBytesRead + 1);
-  }
+  HttpRequest()
+      : m_parsed(false),
+        m_method(RequestMethod::INVALID),
+        m_httpVer(HttpVersion::INVALID) {}
 
-  DISALLOW_COPY_AND_ASSIGN(HttpRequest);
-  DISALLOW_MOVE(HttpRequest);
-
-  bool Empty() const { return m_request[0] == '\0'; }
-
-  // Clears an internal buffer, retains buffer size.
+  bool Empty() const { return m_request.empty(); }
   void Clear();
 
-  size_t CanReadBytes() const { return m_maxBytesRead; }
+  void Append(const std::string& data) { m_request.append(data); }
+  void Append(const char* data, int size);
 
   char* buffer() { return const_cast<char*>(m_request.c_str()); }
   size_t buffer_size() const { return m_request.size(); }
@@ -38,14 +44,14 @@ class HttpRequest {
   void set_http_ver(const HttpVersion ver) { m_httpVer = ver; }
  private:
   std::string m_request;
-  bool m_parsed = false;
+  bool m_parsed;
 
   std::string m_resPath;
-  RequestMethod m_method = RequestMethod::INVALID_METHOD;
-  HttpVersion m_httpVer = HttpVersion::HTTP_ERROR;
+  RequestMethod m_method;
+  HttpVersion m_httpVer;
 
-  // |4096| would be the default max block we can read in one go.
-  static const size_t m_maxBytesRead = 4096;
+  DISALLOW_COPY_AND_ASSIGN(HttpRequest);
+  DISALLOW_MOVE(HttpRequest);
 };
 
 class HttpRequestParser {
@@ -54,7 +60,8 @@ class HttpRequestParser {
     OK = 0,
     INVALID_REQUEST,
     NOT_IMPLEMENTED,
-    VERSION_NOT_SUPPORTED
+    VERSION_NOT_SUPPORTED,
+    MORE_DATA
   };
 
   static ParseRes Parse(HttpRequest& request);
