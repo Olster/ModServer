@@ -4,6 +4,7 @@
 #include <string>
 
 #include "base/dynamic_lib.h"
+#include "base/logger.h"
 #include "net/ip_endpoint.h"
 
 ServerPlugin::ServerPlugin() {}
@@ -13,6 +14,13 @@ DynamicPlugin::DynamicPlugin(std::shared_ptr<DynamicLib> lib)
     : m_lib(lib) {}
 
 DynamicPlugin::~DynamicPlugin() {}
+
+void DynamicPlugin::Initialize() {
+  typedef void (*RegisterLogFn)(LogFnType);
+  RegisterLogFn RegisterLog = (RegisterLogFn)m_lib->GetProc("RegisterLogFn");
+
+  RegisterLog(Log);
+}
 
 // Checks if the dynamic lib is a suitable plugin.
 bool DynamicPlugin::IsValid() {
@@ -24,7 +32,8 @@ bool DynamicPlugin::IsValid() {
     "GetPluginName",
     "SocketType",
     "DefaultPort",
-    "NewHandler"
+    "NewHandler",
+    "RegisterLogFn"
   };
 
   // NOTE(Olster): Have to use unsafe array size method here. ARR_SIZE fails.

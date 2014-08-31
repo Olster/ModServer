@@ -15,6 +15,8 @@ class ServerPlugin {
   ServerPlugin();
   virtual ~ServerPlugin();
 
+  virtual void Initialize() {}
+
   // Return true if plugin is valid.
   virtual bool IsValid() = 0;
 
@@ -34,6 +36,8 @@ class DynamicPlugin : public ServerPlugin {
  public:
   explicit DynamicPlugin(std::shared_ptr<DynamicLib> lib);
   virtual ~DynamicPlugin();
+
+  virtual void Initialize() override;
 
   // Checks if the dynamic lib is a suitable plugin.
   virtual bool IsValid() override;

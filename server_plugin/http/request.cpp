@@ -3,7 +3,7 @@
 #include <cassert>
 #include <regex>
 
-//#include "base/logger.h"
+#include "plugin_api/plugin_log.h"
 
 void HttpRequest::Clear() {
    m_request.clear();
@@ -67,6 +67,8 @@ void HttpRequest::Append(const char* data, int size) {
 
 // static
 HttpRequestParser::ParseRes HttpRequestParser::Parse(HttpRequest& request) {
+  PluginLog(INFO) << "Parsing: " << request.data() << "END";
+
   size_t dataSize = request.data().size();
   if (dataSize > 0) {
     if (request.data().find("\r\n\r\n") != std::string::npos) {
