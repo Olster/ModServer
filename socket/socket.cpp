@@ -1,4 +1,4 @@
-#include "net/socket/socket.h"
+#include "socket/socket.h"
 
 #if defined(UNIX)
 #include <unistd.h>
@@ -8,6 +8,14 @@
 const Socket::SOCK_TYPE Socket::kInvalidSocket = -1;
 #elif defined(WIN32)
 const Socket::SOCK_TYPE Socket::kInvalidSocket = INVALID_SOCKET;
+#endif
+
+#if defined(UNIX)
+// static
+int Socket::InitSockets() { return 0; }
+
+// static
+int Socket::UninitSockets() { return 0; }
 #endif
 
 Socket::~Socket() {

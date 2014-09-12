@@ -1,4 +1,4 @@
-#include "net/ip_endpoint.h"
+#include "server_core/ip_endpoint.h"
 
 #include "gtest/gtest.h"
 

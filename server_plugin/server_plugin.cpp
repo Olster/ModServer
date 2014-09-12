@@ -4,7 +4,7 @@
 #include <string>
 
 #include "base/dynamic_lib.h"
-#include "net/ip_endpoint.h"
+#include "server_core/ip_endpoint.h"
 
 ServerPlugin::ServerPlugin() {}
 ServerPlugin::~ServerPlugin() {}

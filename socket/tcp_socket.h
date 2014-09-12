@@ -1,7 +1,7 @@
 #ifndef NET_SOCKET_TCP_SOCKET_H_
 #define NET_SOCKET_TCP_SOCKET_H_
 
-#include "net/socket/socket.h"
+#include "socket/socket.h"
 
 class TcpSocket : public Socket {
  public:

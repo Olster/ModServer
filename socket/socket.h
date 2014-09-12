@@ -20,6 +20,9 @@ class Socket {
   static const SOCK_TYPE kInvalidSocket;
 #endif
 
+  static int InitSockets();
+  static int UninitSockets();
+
   Socket()
       : m_socket(kInvalidSocket) {}
 

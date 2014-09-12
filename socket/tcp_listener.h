@@ -1,8 +1,8 @@
 #ifndef NET_SOCKET_TCP_LISTENER_H_
 #define NET_SOCKET_TCP_LISTENER_H_
 
-#include "net/ip_endpoint.h"
-#include "net/socket/tcp_socket.h"
+#include "server_core/ip_endpoint.h"
+#include "socket/tcp_socket.h"
 
 class TcpListener : public TcpSocket {
  public:

@@ -3,7 +3,7 @@
 
 #include "base/build_required.h"
 
-#include "net/session.h"
+#include "server_core/session.h"
 
 class Server;
 class ServerPlugin;

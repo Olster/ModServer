@@ -1,6 +1,6 @@
 #include "base/command_line.h"
 #include "base/logger.h"
-#include "net/server.h"
+#include "server_core/server.h"
 
 int main(int argc, const char** argv) {
   if (argc <= 1) {
@@ -29,13 +29,19 @@ int main(int argc, const char** argv) {
     pluginsPath += '/';
   }
 
-  Server server;
-  if (server.LoadPlugins(pluginsPath)) {
-    server.Run();
+  int sockInit = Socket::InitSockets();
+  if (sockInit == 0) {
+    Server server;
+    if (server.LoadPlugins(pluginsPath)) {
+      server.Run();
+    } else {
+      Log(ERR) << "No plugins were loaded, exiting.";
+    }
   } else {
-    Log(ERR) << "No plugins were loaded, exiting.";
+    Log(ERR) << "Sockets were not initialized.";
   }
 
+  Socket::UninitSockets();
   Logger::UninitLog();
   return 0;
 }
