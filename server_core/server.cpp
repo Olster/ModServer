@@ -102,6 +102,8 @@ void Server::InitPlugins() {
   for (ServerPlugin* plugin : plugins) {
     Log(INFO) << "Initializing plugin: " << plugin->name();
 
+    plugin->Initialize();
+
     // TODO(Olster): Read IP from settings or command line.
     IPEndPoint ep("127.0.0.1", 0);
     ep.set_port(plugin->port());

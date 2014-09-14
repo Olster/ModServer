@@ -3,17 +3,11 @@
 
 #include <assert.h>
 
-#include <fstream>
 #include <string>
 
 #include "base/build_required.h"
 
-enum LogSeverity {
-  VERBOSE = 0,
-  INFO,
-  WARN,
-  ERR
-};
+#include "plugin_api/plugin_log.h"
 
 std::ostream& Log(LogSeverity sev);
 

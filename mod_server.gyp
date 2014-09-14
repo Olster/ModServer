@@ -85,6 +85,11 @@
         'net/session.h',
         'net/tcp_session.cpp',
         'net/tcp_session.h',
+        'plugin_api/plugin.h',
+        'plugin_api/plugin_export.h',
+        'plugin_api/plugin_log.cpp',
+        'plugin_api/plugin_log.h',
+        'plugin_api/protocol_handler.h',
         'server_plugin/plugin_loader.cpp',
         'server_plugin/plugin_loader.h',
         'server_plugin/server_plugin.cpp',
@@ -131,6 +136,7 @@
         '.'
       ],
       'sources': [
+        'plugin_api/plugin_log.cpp',
         'server_plugin/http/http_handler.cpp',
         'server_plugin/http/http_handler.h',
         'server_plugin/http/http_plugin.cpp',
