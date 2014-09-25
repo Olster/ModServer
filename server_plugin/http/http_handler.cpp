@@ -15,6 +15,8 @@ void HttpHandler::DidReceive(char* data, int size) {
     m_response.set_data("HTTP/1.1 200 OK\r\n"
       "Content-length: " + std::to_string(dataToSend.length()) + "\r\n\r\n" +
       dataToSend);
+
+    m_request.Clear();
   }
 }
 

@@ -1,7 +1,6 @@
 #include "server_plugin/http/request.h"
 
 #include <cassert>
-#include <regex>
 
 #include "plugin_api/plugin_log.h"
 
@@ -79,14 +78,12 @@ HttpRequestParser::ParseRes HttpRequestParser::Parse(HttpRequest& request) {
   return HttpRequestParser::MORE_DATA;
 }
 
+// NOTE(Olster): |method| must be uppercase string, otherwise INVALID_METHOD
+// is returned.
 RequestMethod HttpRequestParser::MethodFromString(const std::string& method) {
-  static std::map<const std::string, RequestMethod> stringToMethodMap = {
-    {"GET", RequestMethod::GET}
-  };
-
-  auto foundElem = stringToMethodMap.find(method);
-  if (foundElem != stringToMethodMap.end()) {
-    return foundElem->second;
+  // TODO(Olster): Use gperf (perfect hash) for lookup.
+  if (method == "GET") {
+    return GET;
   }
 
   // Error, no such method.

@@ -35,8 +35,8 @@ void LogProgramInfo() {
                "OS: " << SystemInfo::OSName() << std::endl <<
                "OS Version: " << SystemInfo::OSVersion() << std::endl <<
                "Arch: " << SystemInfo::OSArch() << std::endl <<
-               "Memory: " << SystemInfo::RAMInstalledMB() << "MB,"
-               "(avail: " << SystemInfo::RAMAvailableMB() << ')';
+               "Memory: " << SystemInfo::RAMInstalledMB() << "MB, "
+               "(avail: " << SystemInfo::RAMAvailableMB() << " MB)";
 }
 
 std::string FormFileName() {

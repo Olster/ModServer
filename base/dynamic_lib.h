@@ -22,7 +22,7 @@ class DynamicLib {
   // Returns NULL if library wasn't found.
   static DynamicLib* Load(const Path::StringType& path, int* err = NULL);
  private:
-  DllHandle m_handle = NULL;
+  DllHandle m_handle;
 
   DISALLOW_COPY_AND_ASSIGN(DynamicLib);
   DISALLOW_MOVE(DynamicLib);
