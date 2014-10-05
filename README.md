@@ -24,3 +24,4 @@ responsible for parsing the request and provide the response.
 - [ ] Make a branch for older compilers that don't support C++11.
 - [ ] Add Debug and Release configs for gyp.
 - [ ] "snprintf" is not defined on Windows.
+- [ ] Read maximum receive buffer size from command line.

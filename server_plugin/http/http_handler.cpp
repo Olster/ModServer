@@ -2,12 +2,16 @@
 
 #include <cassert>
 
+#include "plugin_api/data_chunk.h"
+
 bool HttpHandler::HasDataToSend() const {
   return !m_response.Empty();
 }
 
-void HttpHandler::DidReceive(char* data, int size) {
-  m_request.Append(data, size);
+void HttpHandler::DidReceive(DataChunk* data, int size) {
+  // TODO(Olster): Make a list of data chunks rather than copying to a string.
+  m_request.Append(data->buf_writable(), size);
+  delete data;
 
   if (HttpRequestParser::Parse(m_request) == HttpRequestParser::OK) {
     std::string dataToSend = "<html><head><title>Hello</title></head><body><h1>Hello!</h1></body></html>";
@@ -43,4 +47,12 @@ const char* HttpHandler::data_to_send() {
 
 size_t HttpHandler::data_to_send_size() {
   return m_response.length();
+}
+
+DataChunk* HttpHandler::AllocateChunk()  {
+  return new DataChunk();
+}
+
+void HttpHandler::DiscardChunk(DataChunk* chunk) {
+  delete chunk;
 }

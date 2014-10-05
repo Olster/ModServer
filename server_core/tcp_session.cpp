@@ -5,6 +5,7 @@
 #include "server_plugin/server_plugin.h"
 #include "socket/tcp_listener.h"
 #include "plugin_api/protocol_handler.h"
+#include "plugin_api/data_chunk.h"
 
 bool ConnectionSession::CanRead() {
   return !m_protoHandler->HasDataToSend();
@@ -26,24 +27,22 @@ int ConnectionSession::OnWrite(int* err) {
   return sent;
 }
 
-namespace {
-const int kRequestBufSize = 512;
-}  // namespace
-
 int ConnectionSession::OnRead(int* err) {
-  // TODO(Olster): Avoid copying.
-  char buf[kRequestBufSize + 1];
+  DataChunk* chunk = m_protoHandler->AllocateChunk();
+  char* buf = chunk->buf_writable();
+  int bufSize = chunk->buf_size();
 
   // TODO(Olster): Provide abstraction without casting to specific type.
   int bytesRead = reinterpret_cast<TcpSocket*>(m_sock.get())->Receive(
-        buf, kRequestBufSize, err);
+        buf, bufSize, err);
   if (bytesRead < 1) {
+    m_protoHandler->DiscardChunk(chunk);
     return bytesRead;
   }
 
   buf[bytesRead] = '\0';
 
-  m_protoHandler->DidReceive(buf, bytesRead);
+  m_protoHandler->DidReceive(chunk, bytesRead);
   return bytesRead;
 }
 

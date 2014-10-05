@@ -13,11 +13,15 @@ class HttpHandler : public ProtocolHandler {
 
   bool HasDataToSend() const override;
 
-  void DidReceive(char* data, int size) override;
+  void DidReceive(DataChunk* data, int size) override;
   void DidSend(int size) override;
 
   const char* data_to_send() override;
   size_t data_to_send_size() override;
+
+  DataChunk* AllocateChunk() override;
+  void DiscardChunk(DataChunk* chunk) override;
+
  private:
   HttpRequest m_request;
   HttpResponse m_response;

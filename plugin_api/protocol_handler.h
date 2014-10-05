@@ -3,6 +3,8 @@
 
 #include <string>
 
+class DataChunk;
+
 class ProtocolHandler {
  public:
   typedef void (*FreeFunc)(ProtocolHandler* handler);
@@ -14,13 +16,20 @@ class ProtocolHandler {
   virtual bool HasDataToSend() const = 0;
 
   // Appends to the data received from server.
-  virtual void DidReceive(char* data, int size) = 0;
+  virtual void DidReceive(DataChunk* data, int size) = 0;
 
   // Notifies handler how much data was sent.
   virtual void DidSend(int size) = 0;
 
   virtual const char* data_to_send() = 0;
   virtual size_t data_to_send_size() = 0;
+
+  // Allocate new chunk that will be filled with received data.
+  virtual DataChunk* AllocateChunk() = 0;
+
+  // No data was read into chunk or an error occured.
+  // Clear or delete the chunk.
+  virtual void DiscardChunk(DataChunk* chunk) = 0;
 
   // Since protocol handler are exported from DLLs,
   // they can't be just deleted. DLL passes deleter function when
