@@ -2,6 +2,8 @@
 
 #include <cassert>
 
+#include <fstream>
+
 #include "plugin_api/data_chunk.h"
 
 bool HttpHandler::HasDataToSend() const {
@@ -15,6 +17,12 @@ void HttpHandler::DidReceive(DataChunk* data, int size) {
 
   if (HttpRequestParser::Parse(m_request) == HttpRequestParser::OK) {
     std::string dataToSend = "<html><head><title>Hello</title></head><body><h1>Hello!</h1></body></html>";
+    std::ifstream indexHtml;
+    indexHtml.open("index.html");
+
+    if (indexHtml.is_open()) {
+      dataToSend = std::string(std::istreambuf_iterator<char>(indexHtml), std::istreambuf_iterator<char>());
+    }
 
     m_response.set_data("HTTP/1.1 200 OK\r\n"
       "Content-length: " + std::to_string(dataToSend.length()) + "\r\n\r\n" +

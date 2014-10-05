@@ -11,7 +11,7 @@ class DataChunk {
   int buf_size() { return m_bufSize; }
  private:
   DataChunk* Next;
-  static const int m_bufSize = 512;
+  static const int m_bufSize = 2048;
   char m_buffer[m_bufSize];
 };
 
