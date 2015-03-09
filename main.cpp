@@ -5,7 +5,7 @@
 int main(int argc, const char** argv) {
   if (argc <= 1) {
     // TODO(Olster): Print usage.
-    printf("Please specify path to plugins folder");
+    printf("Please specify path to plugins folder\n");
     return 1;
   }
 
@@ -25,8 +25,8 @@ int main(int argc, const char** argv) {
     pluginsPath = cl.SwitchValue("pluginsFolder");
   }
 
-  if (pluginsPath[pluginsPath.length() - 1] != '/') {
-    pluginsPath += '/';
+  if (!cl.HasSwitch("serverIp")) {
+    printf("Please specify server IP\n");
   }
 
   int sockInit = Socket::InitSockets();

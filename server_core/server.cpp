@@ -4,6 +4,7 @@
 #include <cassert>
 #include <memory>
 
+#include "base/command_line.h"
 #include "base/logger.h"
 #include "server_core/tcp_session.h"
 //#include "server_plugin/controller.h"
@@ -104,8 +105,9 @@ void Server::InitPlugins() {
 
     plugin->Initialize();
 
-    // TODO(Olster): Read IP from settings or command line.
-    IPEndPoint ep("127.0.0.1", 0);
+    CommandLine::StringType ip = CommandLine::ForCurrentProcess()->SwitchValue("serverIp");
+
+    IPEndPoint ep(ip, 0);
     ep.set_port(plugin->port());
 
     if (!ep.IsValid()) {
@@ -181,6 +183,22 @@ template <class T>
 void RemoveFromVector(std::vector<T>& v, T elem) {
   v.erase(std::find(v.begin(), v.end(), elem));
 }
+
+void ReportSocketIOError(std::shared_ptr<Socket> socket, int bytes, int err) {
+  switch (bytes) {
+    case 0:
+      Log(INFO) << "Socket closed " << socket->handle() << ": " << err;
+    break;
+
+    case -1:
+      Log(ERR) << "Socket error " << socket->handle() << ": " << err;
+    break;
+
+    default:
+      Log(ERR) << "Socket error < -1 " << socket->handle() << ": " << err;
+    break;
+  }
+}
 }
 
 void Server::ReadData(const fd_set& readSet) {
@@ -198,22 +216,7 @@ void Server::ReadData(const fd_set& readSet) {
     int read = session->OnRead(&err);
 
     if (read < 1) {
-      switch (read) {
-        case 0:
-          Log(INFO) << "Socket closed " << session->socket()->handle() <<
-            ": " << err;
-        break;
-
-        case -1:
-          Log(ERR) << "Socket error " << session->socket()->handle() <<
-            ": " << err;
-        break;
-
-        default:
-          Log(ERR) << "Socket error < -1 " << session->socket()->handle() <<
-            ": " << err;
-        break;
-      }
+      ReportSocketIOError(session->socket(), read, err);
 
       RemoveFromVector(m_sessions, session);
       delete session;
@@ -234,22 +237,7 @@ void Server::SendData(const fd_set& writeSet) {
     int err = 0;
     int wrote = session->OnWrite(&err);
     if (wrote < 1) {
-      switch (wrote) {
-        case 0:
-          Log(INFO) << "Socket sent 0 on write " <<
-            session->socket()->handle() << ": " << err;
-        break;
-
-        case -1:
-          Log(ERR) << "Socket error on write " <<
-            session->socket()->handle() << ": " << err;
-        break;
-
-        default:
-          Log(ERR) << "Socket error < -1 on write " <<
-            session->socket()->handle() << ": " << err;
-        break;
-      }
+      ReportSocketIOError(session->socket(), wrote, err);
 
       RemoveFromVector(m_sessions, session);
       delete session;

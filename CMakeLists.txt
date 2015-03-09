@@ -12,7 +12,8 @@ if(WIN32)
   set(CMAKE_CXX_FLAGS "-W4 -WX -EHsc -wd4127")
 else()
   add_definitions(-DUNIX)
-  set(CMAKE_CXX_FLAGS "-Wall -Wextra -Weff++ -std=c++11 -g -O0")
+  set(CMAKE_CXX_FLAGS "-Wall -Wextra -Weffc++ -std=c++11 -g -O0")
+  set(UNIX_SPECIFIC_LIBS dl)
 endif()
 
 if (VERBOSE)
@@ -43,7 +44,7 @@ set(SERVER_PLUGIN_SRC "server_plugin/plugin_loader.cpp"
                       "server_plugin/server_plugin.h")
 
 add_executable(${OUT_NAME} main.cpp ${SERVER_CORE_SRC} ${SERVER_PLUGIN_SRC})
-target_link_libraries(${OUT_NAME} base socket)
+target_link_libraries(${OUT_NAME} base socket ${UNIX_SPECIFIC_LIBS})
 
 # Build plugins.
 add_subdirectory(server_plugin)
