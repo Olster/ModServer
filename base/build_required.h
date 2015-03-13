@@ -17,7 +17,7 @@
 
 // Safely determine the size of the array.
 template <class Type, unsigned int ArrSize>
-unsigned int (&arrSizeHelper(Type (&arr)[ArrSize]))[ArrSize];
+char (&arrSizeHelper(Type (&arr)[ArrSize]))[ArrSize];
 
 #define ARR_SIZE(arr) (sizeof(arrSizeHelper(arr)))
 
