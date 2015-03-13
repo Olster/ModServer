@@ -37,7 +37,7 @@ bool DynamicPlugin::IsValid() {
   };
 
   // NOTE(Olster): Have to use unsafe array size method here. ARR_SIZE fails.
-  for (int i = 0; i < sizeof(exportedNames)/sizeof(exportedNames[0]); i++) {
+  for (size_t i = 0; i < ARR_SIZE(exportedNames); i++) {
     if (!m_lib->GetProc(exportedNames[i])) {
       return false;
     }

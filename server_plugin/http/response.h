@@ -15,7 +15,7 @@ class HttpResponse {
 
   // TODO(Olster): Critical. Update this function along with ShiftLeftBy().
   // Returns the amount of bytes that need to be sent.
-  const size_t length() const { return m_data.length(); }
+  size_t length() const { return m_data.length(); }
 
   void set_data(std::string&& data) { m_data = std::move(data); }
   void set_data(const std::string& data) { m_data = data; }
