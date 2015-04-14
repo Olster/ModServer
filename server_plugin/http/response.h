@@ -6,54 +6,36 @@
 
 #include "base/build_required.h"
 
+class Header;
+
 class HttpResponse {
  public:
+  enum Status {
+    OK,
+    NOT_FOUND
+  };
+
   HttpResponse() {}
+  ~HttpResponse() {}
 
-  // Formats full message with data and headers.
   const std::string& data() const { return m_data; }
-
-  // TODO(Olster): Critical. Update this function along with ShiftLeftBy().
-  // Returns the amount of bytes that need to be sent.
-  size_t length() const { return m_data.length(); }
-
-  void set_data(std::string&& data) { m_data = std::move(data); }
-  void set_data(const std::string& data) { m_data = data; }
+  size_t size() const { return m_data.size(); }
 
   // Shifts data left by |bytes| bytes.
   // This is done when only the part of the message was sent.
   // TODO(Olster): Update this to move just the pointer.
-  bool ShiftLeftBy(size_t bytes) {
-    if (bytes < m_data.length()) {
-      m_data = m_data.substr(bytes);
-      return true;
-    }
+  bool ShiftLeftBy(size_t bytes);
 
-    return false;
+  void Clear() {
+    m_data.clear();
   }
 
-  void Clear() { m_data.clear(); }
+  bool HasData() const { return !m_data.empty(); }
 
-  bool Empty() const { return m_data.empty(); }
-
-  // TODO(Olster): Set custom error messages.
-  void NotImplemented501() {
-    m_data = "HTTP/1.1 501 Not Implemented\r\nContent-type: text/html\r\nContent-length: 0\r\n\r\n";
-  }
-
-  void VersionNotSupported505() {
-    m_data = "HTTP/1.1 505 HTTP Version Not Supported\r\nContent-type: text/html\r\nContent-length: 0\r\n\r\n";
-  }
-
-  void BadRequest400() {
-    m_data = "HTTP/1.1 400 Bad Request\r\nContent-type: text/html\r\nContent-length: 0\r\n\r\n";
-  }
-
-  void NotFound404() {
-    m_data = "HTTP/1.1 404 Not Found\r\nContent-type: text/html\r\nContent-length: 0\r\n\r\n";
-  }
+  void SetStatus(Status status);
+  void AddHeader(const Header& header);
+  void SetContent(const std::string& content);
  private:
-  // Data along with headers.
   std::string m_data;
 
   DISALLOW_COPY_AND_ASSIGN(HttpResponse);

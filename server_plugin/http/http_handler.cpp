@@ -5,9 +5,22 @@
 #include <fstream>
 
 #include "plugin_api/data_chunk.h"
+#include "plugin_api/plugin_log.h"
+
+namespace {
+const char* NotFoundPage() {
+  return
+    "<!doctype html>"
+    "<html>"
+    "<head>"
+      "<title>Not found</title>"
+    "</head>"
+    "</html>";
+}
+}  // namespace
 
 bool HttpHandler::HasDataToSend() const {
-  return !m_response.Empty();
+  return m_response.HasData();
 }
 
 void HttpHandler::DidReceive(DataChunk* data, int size) {
@@ -16,17 +29,25 @@ void HttpHandler::DidReceive(DataChunk* data, int size) {
   delete data;
 
   if (HttpRequestParser::Parse(m_request) == HttpRequestParser::OK) {
-    std::string dataToSend = "<html><head><title>Hello</title></head><body><h1>Hello!</h1></body></html>";
+    std::string dataToSend;
     std::ifstream indexHtml;
     indexHtml.open("index.html");
 
     if (indexHtml.is_open()) {
       dataToSend = std::string(std::istreambuf_iterator<char>(indexHtml), std::istreambuf_iterator<char>());
+    } else {
+      dataToSend = NotFoundPage();
     }
 
-    m_response.set_data("HTTP/1.1 200 OK\r\n"
-      "Content-length: " + std::to_string(dataToSend.length()) + "\r\n\r\n" +
-      dataToSend);
+    m_response.SetStatus(HttpResponse::OK);
+
+    m_response.AddHeader(Header("Content-length", std::to_string(dataToSend.length())));
+    m_response.AddHeader(Header("Connection", "keep-alive"));
+    m_response.AddHeader(Header("Server", "PD Mod Server HTTP"));
+
+    m_response.SetContent(dataToSend);
+
+    PluginLog(INFO) << "Sending\n" << m_response.data();
 
     m_request.Clear();
   }
@@ -38,7 +59,7 @@ void HttpHandler::DidSend(int size) {
     return;
   }
 
-  if (static_cast<size_t>(size) >= m_response.length()) {
+  if (static_cast<size_t>(size) >= m_response.size()) {
     m_response.Clear();
   } else {
     m_response.ShiftLeftBy(size);
@@ -46,15 +67,15 @@ void HttpHandler::DidSend(int size) {
 }
 
 const char* HttpHandler::data_to_send() {
-  if (!m_response.Empty()) {
+  if (m_response.HasData()) {
     return m_response.data().c_str();
   }
-  
+
   return NULL;
 }
 
 size_t HttpHandler::data_to_send_size() {
-  return m_response.length();
+  return m_response.size();
 }
 
 DataChunk* HttpHandler::AllocateChunk()  {

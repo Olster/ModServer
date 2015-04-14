@@ -8,7 +8,7 @@
 #include "plugin_api/data_chunk.h"
 
 bool ConnectionSession::CanRead() {
-  return !m_protoHandler->HasDataToSend();
+  return !HasDataToSend();
 }
 
 bool ConnectionSession::HasDataToSend() {

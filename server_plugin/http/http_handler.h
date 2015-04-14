@@ -3,6 +3,7 @@
 
 #include "plugin_api/protocol_handler.h"
 
+#include "server_plugin/http/header.h"
 #include "server_plugin/http/request.h"
 #include "server_plugin/http/response.h"
 

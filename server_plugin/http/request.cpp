@@ -66,7 +66,7 @@ void HttpRequest::Append(const char* data, int size) {
 
 // static
 HttpRequestParser::ParseRes HttpRequestParser::Parse(HttpRequest& request) {
-  PluginLog(INFO) << "Parsing: " << request.data() << "END";
+  PluginLog(INFO) << "Parsing\n" << request.data() << "END";
 
   size_t dataSize = request.data().size();
   if (dataSize > 0) {

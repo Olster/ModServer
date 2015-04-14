@@ -71,9 +71,7 @@ std::ostream& Log(LogSeverity sev) {
     break;
   }
 
-  // 7 is the length of the longest level.
-  return Logger::GetLogger()->Stream() << std::endl <<
-    std::setw(7) << level << ": ";
+  return Logger::GetLogger()->Stream() << std::endl << level << ": ";
 }
 
 namespace std {

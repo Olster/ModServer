@@ -4,6 +4,8 @@ project(http)
 add_definitions(-DPLUGIN_IMPLEMENTATION)
 #include_directories(../..)
 
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${EXECUTABLE_OUTPUT_PATH}/plugins)
+
 add_library(http_plugin SHARED http_handler.cpp http_handler.h
                                http_plugin.cpp
                                request.cpp request.h

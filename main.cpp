@@ -26,7 +26,8 @@ int main(int argc, const char** argv) {
   }
 
   if (!cl.HasSwitch("serverIp")) {
-    printf("Please specify server IP\n");
+    Log(ERR) << "Please specify server IP\n";
+    return 1;
   }
 
   int sockInit = Socket::InitSockets();
