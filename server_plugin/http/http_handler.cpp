@@ -14,6 +14,7 @@ const char* NotFoundPage() {
     "<html>"
     "<head>"
       "<title>Not found</title>"
+      "<body>File not found</body>"
     "</head>"
     "</html>";
 }
