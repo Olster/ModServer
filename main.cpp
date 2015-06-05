@@ -2,10 +2,15 @@
 #include "base/logger.h"
 #include "server_core/server.h"
 
+void PrintUsage() {
+  printf("-serverIp=<IP> -- IP that server will be listening on.\n");
+  printf("-pluginsFolder=<path> -- (optional) where server should look for plugins.\n");
+  printf("-logToFile -- (optional) log all output to a file.\n");
+}
+
 int main(int argc, const char** argv) {
   if (argc <= 1) {
-    // TODO(Olster): Print usage.
-    printf("Please specify path to plugins folder\n");
+    PrintUsage();
     return 1;
   }
 

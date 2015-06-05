@@ -4,13 +4,14 @@
 #include "plugin_api/protocol_handler.h"
 
 #include "server_plugin/http/header.h"
-#include "server_plugin/http/request.h"
 #include "server_plugin/http/response.h"
+
+class HttpRequest;
 
 class HttpHandler : public ProtocolHandler {
  public:
   HttpHandler(ProtocolHandler::FreeFunc freeFn)
-      : ProtocolHandler(freeFn) {}
+      : ProtocolHandler(freeFn), m_request(NULL) {}
 
   bool HasDataToSend() const override;
 
@@ -24,7 +25,7 @@ class HttpHandler : public ProtocolHandler {
   void DiscardChunk(DataChunk* chunk) override;
 
  private:
-  HttpRequest m_request;
+  HttpRequest* m_request;
   HttpResponse m_response;
 
   HttpHandler(const HttpHandler&);

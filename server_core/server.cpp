@@ -5,6 +5,7 @@
 #include <memory>
 
 #include "base/command_line.h"
+#include "base/encoding.h"
 #include "base/logger.h"
 #include "server_core/tcp_session.h"
 //#include "server_plugin/controller.h"
@@ -107,7 +108,12 @@ void Server::InitPlugins() {
 
     CommandLine::StringType ip = CommandLine::ForCurrentProcess()->SwitchValue("serverIp");
 
+    // TODO(Olster): Remove platform dependent block.
+#if defined(WIN32)
+    IPEndPoint ep(UTF16ToUTF8(ip), 0);
+#else
     IPEndPoint ep(ip, 0);
+#endif
     ep.set_port(plugin->port());
 
     if (!ep.IsValid()) {

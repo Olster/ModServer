@@ -32,6 +32,8 @@ class HttpResponse {
 
   bool HasData() const { return !m_data.empty(); }
 
+  // NOTE(Olster): These have to be called in this specific order because they
+  // modify the whole data the needs to be sent.
   void SetStatus(Status status);
   void AddHeader(const Header& header);
   void SetContent(const std::string& content);

@@ -23,7 +23,7 @@ std::string GetStatusString(HttpResponse::Status status) {
 }
 
 const char* CRLF = "\r\n";
-}
+}  // namespace
 
 bool HttpResponse::ShiftLeftBy(size_t bytes) {
   if (bytes > m_data.size()) {

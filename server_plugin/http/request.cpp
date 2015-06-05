@@ -4,88 +4,263 @@
 
 #include "plugin_api/plugin_log.h"
 
+std::string StringPiece::ToString() const {
+  if (!m_length || !m_start) {
+    return std::string();
+  }
+
+  std::string out;
+  out.resize(m_length);
+
+  for (int i = 0; i < m_length; i++) {
+    out[i] = m_start[i];
+  }
+
+  return out;
+}
+
+bool StringPiece::operator==(const StringPiece& other) const {
+  if (other.m_length != m_length) {
+    return false;
+  }
+
+  for (int i = 0; i < m_length; i++) {
+    if (other.m_start[i] != m_start[i]) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 void HttpRequest::Clear() {
-   m_request.clear();
+  m_request.clear();
 }
 
 void HttpRequest::Append(const char* data, int size) {
   Append(std::string(data, size));
 }
 
-// static
-//HttpRequestParser::ParseRes HttpRequestParser::Parse(HttpRequest& request) {
-//  // GET / HTTP/1.1\r\n...
-//  static std::regex requestLineRegex(R"(^(GET|OPTIONS)\s+(\S+)\s+HTTP/(\d)\.(\d)[[:cntrl:]]{2}.+)");
-//
-//  std::smatch matcherResult;
-//  if (!std::regex_search(request.data(), matcherResult, requestLineRegex)) {
-//    //Log(WARN) << "Invalid request";
-//    return INVALID_REQUEST;
-//  }
-//
-//  //Log(INFO) << "Option: " << matcherResult[1].str();
-//  //Log(INFO) << "Path: " << matcherResult[2].str();
-//
-//  std::string resourcePath = matcherResult[2].str();
-//  if (resourcePath == "/") {
-//    resourcePath += "index.html";
-//  }
-//
-//  // Can't go back in path.
-//  if (resourcePath.find("..") != std::string::npos) {
-//    return INVALID_REQUEST;
-//  }
-//
-//  request.set_resource_path(resourcePath);
-//
-//  // Current request method.
-//  RequestMethod method = MethodFromString(matcherResult[1].str());
-//  if (method == RequestMethod::INVALID_METHOD) {
-//    return NOT_IMPLEMENTED;
-//  }
-//
-//  request.set_request_method(method);
-//
-//  HttpVersion httpVer = INVALID_VERSION;
-//
-//  // TODO(Olster): Parse version with regex.
-//  if ((matcherResult[3].str() == "1") && (matcherResult[4].str() == "1")) {
-//    httpVer = HTTP_1_1;
-//  }
-//
-//  if (httpVer == INVALID_VERSION) {
-//    return VERSION_NOT_SUPPORTED;
-//  }
-//
-//  request.set_http_ver(httpVer);
-//
-//  // TODO(Olster): Parse headers.
-//
-//  return OK;
-//}
+void HttpRequest::AddHeader(const StringPiece& header) {
+  m_headers.push_back(header);
+}
+
+namespace {
+char getChar(const std::string& request, size_t currPos) {
+  if (currPos >= request.length()) {
+    return '\0';
+  }
+
+  return request[currPos];
+}
+
+RequestMethod MethodFromStringPiece(const StringPiece& methodString) {
+  if (methodString == StringPiece("GET", 3)) {
+    return RequestMethod::GET;
+  }
+
+  return RequestMethod::INVALID_METHOD;
+}
+
+HttpVersion HttpVerFromStringPiece(const StringPiece& httpString) {
+  if (httpString == StringPiece("HTTP/1.1", 8)) {
+    return HttpVersion::HTTP_1_1;
+  } else if (httpString == StringPiece("HTTP/1.0", 8)) {
+    return HttpVersion::HTTP_1_0;
+  }
+
+  return HttpVersion::INVALID_VERSION;
+}
+}  // namespace
 
 // static
 HttpRequestParser::ParseRes HttpRequestParser::Parse(HttpRequest& request) {
-  PluginLog(INFO) << "Parsing\n" << request.data() << "END";
+  //PluginLog(INFO) << "Parsing\n" << request.data() << "END";
 
-  size_t dataSize = request.data().size();
-  if (dataSize > 0) {
-    if (request.data().find("\r\n\r\n") != std::string::npos) {
-      return HttpRequestParser::OK;
+  HttpRequestParser::ParseRes previousParseRes = request.parse_res();
+
+  HttpRequestParser::ParseStatus status = previousParseRes.status;
+  size_t currentPos = previousParseRes.stoppedAt;
+
+  const std::string& requestString = request.data();
+  const char* start = requestString.c_str();
+
+  // Oh-oh, we're outside of bounds. Return error.
+  if (currentPos >= requestString.size()) {
+    return HttpRequestParser::ParseRes(HttpRequestParser::ERROR, currentPos);
+  }
+
+  // Advance to needed position.
+  start += currentPos;
+
+  StringPiece method;
+  StringPiece url;
+  StringPiece http;
+
+  size_t pieceLen = 0;
+
+  while ((status != ERROR) && (status != FINISHED)) {
+    switch (status) {
+      case START:
+      start = requestString.c_str();
+      status = METHOD;
+      break;
+
+      case METHOD: {
+        char nextChar = getChar(requestString, currentPos);
+
+        switch (nextChar) {
+          case '\0':
+            status = FINISHED;
+          break;
+
+          case ' ':
+            method.m_start = start;
+            method.m_length = pieceLen;
+
+            currentPos++;
+
+            start = &requestString[currentPos];
+            pieceLen = 0;
+
+            status = URL;
+          break;
+
+          default:
+            pieceLen++;
+            currentPos++;
+          break;
+        }
+      }
+      break;
+
+      case URL: {
+        char nextChar = getChar(requestString, currentPos);
+
+        switch (nextChar) {
+          case '\0':
+            status = FINISHED;
+          break;
+
+          case ' ':
+            url.m_start = start;
+            url.m_length = pieceLen;
+
+            currentPos++;
+
+            start = &requestString[currentPos];
+            pieceLen = 0;
+
+            status = HTTP;
+          break;
+
+          default:
+            pieceLen++;
+            currentPos++;
+          break;
+        }
+      }
+      break;
+
+      case HTTP: {
+        char nextChar = getChar(requestString, currentPos);
+
+        switch (nextChar) {
+          case '\0':
+            status = FINISHED;
+          break;
+
+          case '\r':
+            currentPos++;
+          break;
+
+          case '\n':
+            http.m_start = start;
+            http.m_length = pieceLen;
+
+            currentPos++;
+
+            start = &requestString[currentPos];
+            pieceLen = 0;
+
+            status = HEADER;
+          break;
+
+          default:
+            pieceLen++;
+            currentPos++;
+          break;
+        }
+      }
+      break;
+
+      case HEADER: {
+        char nextChar = getChar(requestString, currentPos);
+
+        switch (nextChar) {
+          case '\0':
+            status = FINISHED;
+          break;
+
+          case '\r':
+            currentPos++;
+          break;
+
+          case '\n': {
+            StringPiece header;
+            header.m_start = start;
+            header.m_length = pieceLen;
+
+            request.AddHeader(header);
+
+            currentPos++;
+
+            start = &requestString[currentPos];
+            pieceLen = 0;
+
+            status = HEADER_NEWLINE;
+          }
+          break;
+
+          default:
+            pieceLen++;
+            currentPos++;
+          break;
+        }
+      }
+      break;
+
+      case HEADER_NEWLINE: {
+        char nextChar = getChar(requestString, currentPos);
+
+        switch (nextChar) {
+          case '\r':
+            currentPos++;
+          break;
+
+          case '\n':
+            status = FINISHED;
+          break;
+
+          default:
+            status = HEADER;
+          break;
+        }
+      }
+      break;
+
+      default:
+        status = MORE_DATA;
+      break;
     }
   }
 
-  return HttpRequestParser::MORE_DATA;
-}
+  HttpRequestParser::ParseRes out(status, currentPos);
 
-// NOTE(Olster): |method| must be uppercase string, otherwise INVALID_METHOD
-// is returned.
-RequestMethod HttpRequestParser::MethodFromString(const std::string& method) {
-  // TODO(Olster): Use gperf (perfect hash) for lookup.
-  if (method == "GET") {
-    return GET;
-  }
+  request.set_request_method(MethodFromStringPiece(method));
+  request.set_resource_path(url);
+  request.set_http_ver(HttpVerFromStringPiece(http));
+  request.set_parse_res(out);
 
-  // Error, no such method.
-  return RequestMethod::INVALID_METHOD;
+  return out;
 }

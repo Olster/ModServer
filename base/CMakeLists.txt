@@ -9,6 +9,7 @@ endif()
 
 add_library(base command_line.cpp command_line.h
                  dynamic_lib.h
+                 encoding.cpp encoding.h
                  os_info.h
                  path.h
                  logger.cpp logger.h ${PLATFORM_DEP_SOURCES})

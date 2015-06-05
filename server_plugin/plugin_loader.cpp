@@ -22,11 +22,16 @@ PluginLoader::~PluginLoader() {
 void PluginLoader::LoadAll(const Path::StringType& pluginsFolder) {
   Log(INFO) << "Searching for plugins in " << pluginsFolder;
 
-  std::vector<Folder> subfolders;
-  Folder(Path(pluginsFolder)).GetAllSubfolders(&subfolders);
+  std::vector<Folder> searchFolders;
 
-  for (std::vector<Folder>::const_iterator it = subfolders.cbegin();
-       it != subfolders.cend(); ++it) {
+  Folder searchRootFolder = Folder(Path(pluginsFolder));
+  searchRootFolder.GetAllSubfolders(&searchFolders);
+
+  // Search in root dir too.
+  searchFolders.push_back(searchRootFolder);
+
+  for (std::vector<Folder>::const_iterator it = searchFolders.cbegin();
+       it != searchFolders.cend(); ++it) {
     Log(INFO) << "\tSearching in subfolder " << it->path().ToString();
 
     std::vector<File> files;

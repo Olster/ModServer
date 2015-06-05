@@ -11,6 +11,7 @@
 #include <iostream>
 #include <string>
 
+#include "base/encoding.h"
 #include "base/os_info.h"
 
 #if defined(WIN32)
@@ -75,35 +76,8 @@ std::ostream& Log(LogSeverity sev) {
 }
 
 namespace std {
-const int kStackBufSize = 2048;
-
 std::ostream& operator<<(std::ostream& out, const wchar_t* const wideStr) {
-  assert(wideStr);
-  size_t neededLength = wcstombs(NULL, wideStr, 0);
-
-  if (neededLength == 0 || neededLength == static_cast<size_t>(-1)) {
-    return out;
-  }
-
-  char stackBuf[kStackBufSize];
-
-  bool freeMem = false;
-  char* buf = stackBuf;
-
-  if (neededLength >= kStackBufSize) {
-    buf = new char[neededLength + 1];
-    freeMem = true;
-  }
-
-  wcstombs(buf, wideStr, neededLength);
-  buf[neededLength] = '\0';
-
-  out << buf;
-
-  if (freeMem) {
-    delete[] buf;
-  }
-
+  out << UTF16ToUTF8(wideStr);
   return out;
 }
 }  // namespace std

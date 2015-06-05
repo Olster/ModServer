@@ -7,15 +7,28 @@
 #include "plugin_api/data_chunk.h"
 #include "plugin_api/plugin_log.h"
 
+#include "server_plugin/http/request.h"
+
 namespace {
-const char* NotFoundPage() {
-  return
+std::string NotFoundPage() {
+  std::ifstream notFoundPage;
+  notFoundPage.open("404_page.html");
+
+  std::string out;
+  if (notFoundPage.is_open()) {
+    out = std::string(std::istreambuf_iterator<char>(notFoundPage), std::istreambuf_iterator<char>());
+  } else {
+    out =
     "<!doctype html>"
     "<html>"
     "<head>"
       "<title>Not found</title>"
+      "<body><p>404 Not Found</p></body>"
     "</head>"
     "</html>";
+  }
+
+  return out;
 }
 }  // namespace
 
@@ -23,12 +36,28 @@ bool HttpHandler::HasDataToSend() const {
   return m_response.HasData();
 }
 
+#include <windows.h>
+
 void HttpHandler::DidReceive(DataChunk* data, int size) {
+  DWORD timeStart = ::GetTickCount();
+
+  if (!m_request) {
+    m_request = new HttpRequest();
+  }
+
   // TODO(Olster): Make a list of data chunks rather than copying to a string.
-  m_request.Append(data->buf_writable(), size);
+  m_request->Append(data->buf_writable(), size);
   delete data;
 
-  if (HttpRequestParser::Parse(m_request) == HttpRequestParser::OK) {
+  if (HttpRequestParser::Parse(*m_request).status == HttpRequestParser::FINISHED) {
+    PluginLog(INFO) << "Method: " << m_request->method();
+    PluginLog(INFO) << "URL: " << m_request->resource_path();
+    PluginLog(INFO) << "HTTP: " << m_request->http_version();
+
+    for (const auto& header : m_request->headers()) {
+      PluginLog(INFO) << header.ToString();
+    }
+
     std::string dataToSend;
     std::ifstream indexHtml;
     indexHtml.open("index.html");
@@ -47,10 +76,12 @@ void HttpHandler::DidReceive(DataChunk* data, int size) {
 
     m_response.SetContent(dataToSend);
 
-    PluginLog(INFO) << "Sending\n" << m_response.data();
-
-    m_request.Clear();
+    //PluginLog(INFO) << "Sending\n" << m_response.data();
+    delete m_request;
+    m_request = NULL;
   }
+
+  PluginLog(INFO) << "Parsing took: " << ::GetTickCount() - timeStart;
 }
 
 void HttpHandler::DidSend(int size) {
